@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		959AE9A0691A98A3231F95A7 /* Pods_vlogger.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 111CBF1D0813B7B0129071B8 /* Pods_vlogger.framework */; };
 		F714CBAB1C3B232A00D8AC2D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBAA1C3B232A00D8AC2D /* AppDelegate.swift */; };
 		F714CBAD1C3B232A00D8AC2D /* AVFoundationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBAC1C3B232A00D8AC2D /* AVFoundationViewController.swift */; };
 		F714CBB01C3B232A00D8AC2D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F714CBAE1C3B232A00D8AC2D /* Main.storyboard */; };
@@ -30,9 +31,17 @@
 		F714CBE51C3B57A800D8AC2D /* RecordButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBE41C3B57A800D8AC2D /* RecordButton.swift */; };
 		F714CBE71C3B779400D8AC2D /* LoopingPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBE61C3B779400D8AC2D /* LoopingPlayer.swift */; };
 		F714CBEA1C3B7ADF00D8AC2D /* VideoSaveOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBE91C3B7ADF00D8AC2D /* VideoSaveOverlayView.swift */; };
+		F714CBEF1C3B9EFF00D8AC2D /* FaceDetectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBEE1C3B9EFF00D8AC2D /* FaceDetectionView.swift */; };
+		F714CBF21C3C3A1600D8AC2D /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBF11C3C3A1600D8AC2D /* User.swift */; };
+		F714CBF41C3C3AB100D8AC2D /* Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBF31C3C3AB100D8AC2D /* Video.swift */; };
+		F714CBF61C3C3C1500D8AC2D /* Like.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBF51C3C3C1500D8AC2D /* Like.swift */; };
+		F769412C1C3C595A0001496D /* CustomParseObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = F769412B1C3C595A0001496D /* CustomParseObject.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0074498CEF410DAECC9BF613 /* Pods-vlogger.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-vlogger.debug.xcconfig"; path = "Pods/Target Support Files/Pods-vlogger/Pods-vlogger.debug.xcconfig"; sourceTree = "<group>"; };
+		111CBF1D0813B7B0129071B8 /* Pods_vlogger.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_vlogger.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC1279823F1F324E18BCB511 /* Pods-vlogger.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-vlogger.release.xcconfig"; path = "Pods/Target Support Files/Pods-vlogger/Pods-vlogger.release.xcconfig"; sourceTree = "<group>"; };
 		F714CBA71C3B232A00D8AC2D /* vlogger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = vlogger.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F714CBAA1C3B232A00D8AC2D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F714CBAC1C3B232A00D8AC2D /* AVFoundationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVFoundationViewController.swift; sourceTree = "<group>"; };
@@ -58,6 +67,11 @@
 		F714CBE41C3B57A800D8AC2D /* RecordButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecordButton.swift; sourceTree = "<group>"; };
 		F714CBE61C3B779400D8AC2D /* LoopingPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoopingPlayer.swift; sourceTree = "<group>"; };
 		F714CBE91C3B7ADF00D8AC2D /* VideoSaveOverlayView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoSaveOverlayView.swift; sourceTree = "<group>"; };
+		F714CBEE1C3B9EFF00D8AC2D /* FaceDetectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FaceDetectionView.swift; sourceTree = "<group>"; };
+		F714CBF11C3C3A1600D8AC2D /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		F714CBF31C3C3AB100D8AC2D /* Video.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Video.swift; sourceTree = "<group>"; };
+		F714CBF51C3C3C1500D8AC2D /* Like.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Like.swift; sourceTree = "<group>"; };
+		F769412B1C3C595A0001496D /* CustomParseObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomParseObject.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,18 +89,29 @@
 				F714CBC51C3B283800D8AC2D /* libsqlite3.tbd in Frameworks */,
 				F714CBC31C3B27FE00D8AC2D /* Parse.framework in Frameworks */,
 				F714CBC21C3B27FE00D8AC2D /* Bolts.framework in Frameworks */,
+				959AE9A0691A98A3231F95A7 /* Pods_vlogger.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		872A4496ED8694470186575A /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0074498CEF410DAECC9BF613 /* Pods-vlogger.debug.xcconfig */,
+				AC1279823F1F324E18BCB511 /* Pods-vlogger.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		F714CB9E1C3B232900D8AC2D = {
 			isa = PBXGroup;
 			children = (
 				F714CBCE1C3B289000D8AC2D /* Frameworks */,
 				F714CBA91C3B232A00D8AC2D /* vlogger */,
 				F714CBA81C3B232A00D8AC2D /* Products */,
+				872A4496ED8694470186575A /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -119,6 +144,7 @@
 				F714CBCC1C3B287400D8AC2D /* ParseUI.framework */,
 				F714CBC01C3B27FE00D8AC2D /* Bolts.framework */,
 				F714CBC11C3B27FE00D8AC2D /* Parse.framework */,
+				111CBF1D0813B7B0129071B8 /* Pods_vlogger.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -143,6 +169,7 @@
 		F714CBD71C3B2A1700D8AC2D /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				F714CBF01C3C39F900D8AC2D /* Parse */,
 				F714CBDB1C3B2D1800D8AC2D /* Constants.swift */,
 				F714CBDC1C3B2D1800D8AC2D /* ErrorHandler.swift */,
 				F714CBDD1C3B2D1800D8AC2D /* MessageHandler.swift */,
@@ -179,6 +206,7 @@
 				F714CBE41C3B57A800D8AC2D /* RecordButton.swift */,
 				F714CBE61C3B779400D8AC2D /* LoopingPlayer.swift */,
 				F714CBE91C3B7ADF00D8AC2D /* VideoSaveOverlayView.swift */,
+				F714CBEE1C3B9EFF00D8AC2D /* FaceDetectionView.swift */,
 			);
 			name = Camera;
 			sourceTree = "<group>";
@@ -192,6 +220,17 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
+		F714CBF01C3C39F900D8AC2D /* Parse */ = {
+			isa = PBXGroup;
+			children = (
+				F714CBF11C3C3A1600D8AC2D /* User.swift */,
+				F714CBF31C3C3AB100D8AC2D /* Video.swift */,
+				F714CBF51C3C3C1500D8AC2D /* Like.swift */,
+				F769412B1C3C595A0001496D /* CustomParseObject.swift */,
+			);
+			name = Parse;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -199,9 +238,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F714CBB91C3B232A00D8AC2D /* Build configuration list for PBXNativeTarget "vlogger" */;
 			buildPhases = (
+				5BE4424AFF960E6B79180872 /* Check Pods Manifest.lock */,
 				F714CBA31C3B232A00D8AC2D /* Sources */,
 				F714CBA41C3B232A00D8AC2D /* Frameworks */,
 				F714CBA51C3B232A00D8AC2D /* Resources */,
+				D92C45048D372C4013727E6F /* Embed Pods Frameworks */,
+				0DC106D97336586B3CE4B16E /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -258,6 +300,54 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		0DC106D97336586B3CE4B16E /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-vlogger/Pods-vlogger-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5BE4424AFF960E6B79180872 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		D92C45048D372C4013727E6F /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-vlogger/Pods-vlogger-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		F714CBA31C3B232A00D8AC2D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -265,13 +355,18 @@
 			files = (
 				F714CBE51C3B57A800D8AC2D /* RecordButton.swift in Sources */,
 				F714CBDA1C3B2A7100D8AC2D /* ActivityIndicatorView.swift in Sources */,
+				F714CBEF1C3B9EFF00D8AC2D /* FaceDetectionView.swift in Sources */,
 				F714CBE21C3B316000D8AC2D /* VideoViewController.swift in Sources */,
 				F714CBAD1C3B232A00D8AC2D /* AVFoundationViewController.swift in Sources */,
 				F714CBEA1C3B7ADF00D8AC2D /* VideoSaveOverlayView.swift in Sources */,
 				F714CBDF1C3B2D1800D8AC2D /* ErrorHandler.swift in Sources */,
 				F714CBAB1C3B232A00D8AC2D /* AppDelegate.swift in Sources */,
+				F714CBF61C3C3C1500D8AC2D /* Like.swift in Sources */,
+				F714CBF21C3C3A1600D8AC2D /* User.swift in Sources */,
+				F714CBF41C3C3AB100D8AC2D /* Video.swift in Sources */,
 				F714CBE01C3B2D1800D8AC2D /* MessageHandler.swift in Sources */,
 				F714CBDE1C3B2D1800D8AC2D /* Constants.swift in Sources */,
+				F769412C1C3C595A0001496D /* CustomParseObject.swift in Sources */,
 				F714CBE71C3B779400D8AC2D /* LoopingPlayer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -381,6 +476,7 @@
 		};
 		F714CBBA1C3B232A00D8AC2D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0074498CEF410DAECC9BF613 /* Pods-vlogger.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -396,6 +492,7 @@
 		};
 		F714CBBB1C3B232A00D8AC2D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AC1279823F1F324E18BCB511 /* Pods-vlogger.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -428,6 +525,7 @@
 				F714CBBB1C3B232A00D8AC2D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

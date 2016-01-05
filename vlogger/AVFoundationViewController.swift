@@ -16,7 +16,7 @@ protocol CameraSessionControllerDelegate {
     func cameraSessionDidOutputSampleBuffer(sampleBuffer: CMSampleBuffer!)
 }
 
-class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
+class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecordingDelegate, AVCaptureMetadataOutputObjectsDelegate {
     
     // AVFoundation
     var session: AVCaptureSession!
@@ -24,6 +24,7 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     var videoDeviceInput: AVCaptureDeviceInput!
     var videoDeviceOutput: AVCaptureMovieFileOutput!
     var stillImageOutput: AVCaptureStillImageOutput!
+    var captureMetadataOutput: AVCaptureMetadataOutput!
     var videoDevice: AVCaptureDevice!
     var runtimeErrorHandlingObserver: AnyObject?
     var previewLayer:AVCaptureVideoPreviewLayer!
@@ -32,8 +33,8 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     var delegate : AVCaptureFileOutputRecordingDelegate?
     var currentVideoFileURL:NSURL?
     // Other
-    let activityIndicator:ActivityIndicatorView = ActivityIndicatorView()
     var sessionDelegate: CameraSessionControllerDelegate?
+    var faceDetector:FaceDetectionView?
     // IBOutlets
     @IBOutlet weak var previewView: UIView!
     
@@ -69,6 +70,7 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         self.addVideoInput(.Back)
         self.addVideoOutput()
         self.addStillImageOutput()
+        self.addFaceDetection()
         self.session.commitConfiguration()
         self.beginCameraSession()
 
@@ -146,6 +148,45 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         }
     }
     
+    func addFaceDetection() {
+        captureMetadataOutput = AVCaptureMetadataOutput()
+        
+        if session.canAddOutput(captureMetadataOutput) {
+            session.addOutput(captureMetadataOutput)
+            // Set delegate and use the default dispatch queue to execute the call back
+            captureMetadataOutput.setMetadataObjectsDelegate(self, queue: dispatch_get_main_queue())
+            for type in captureMetadataOutput.availableMetadataObjectTypes {
+                if let assertedType = type as? String where assertedType == AVMetadataObjectTypeFace {
+                    captureMetadataOutput.metadataObjectTypes = [AVMetadataObjectTypeFace]
+                }
+            }
+        }
+        
+        // Initialize FRAME to highlight face
+        faceDetector = FaceDetectionView()
+        view.addSubview(faceDetector!)
+        view.bringSubviewToFront(faceDetector!)
+    }
+    
+    /* Face Detection
+    ------------------------------------------*/
+    
+    func captureOutput(captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [AnyObject]!, fromConnection connection: AVCaptureConnection!) {
+        
+        // Check if the metadataObjects array is not nil and it contains at least one object.
+        if metadataObjects == nil || metadataObjects.count == 0 {
+            faceDetector?.hide()
+            return
+        }
+        
+        for metadataObject in metadataObjects as! [AVMetadataObject] {
+            if metadataObject.type == AVMetadataObjectTypeFace {
+                let transformedMetadataObject = previewLayer.transformedMetadataObjectForMetadataObject(metadataObject)
+                faceDetector?.showAtFrame(transformedMetadataObject.bounds)
+            }
+        }
+    }
+    
     /* MovieFileOutput Delegate
     ------------------------------------------*/
     
@@ -168,6 +209,14 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     
     /* Actions
     ------------------------------------------*/
+    
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        if let touchPoint = touches.first {
+            let screenSize = previewView.bounds.size
+            let focusPoint = CGPoint(x: touchPoint.locationInView(previewView).y / screenSize.height, y: touchPoint.locationInView(previewView).x / screenSize.width)
+            focusTo(focusPoint)
+        }
+    }
     
     func recordingStart() {
         let url:NSURL = tempFileUrl()
@@ -228,6 +277,24 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         let newPosition = currentPosition == .Back ? AVCaptureDevicePosition.Front : AVCaptureDevicePosition.Back
         addVideoInput(newPosition)
     }
-
+    
+    func focusTo(focusPoint:CGPoint) {
+        if let device = videoDevice {
+            do {
+                try device.lockForConfiguration()
+                if device.focusPointOfInterestSupported {
+                    device.focusPointOfInterest = focusPoint
+                    device.focusMode = .AutoFocus
+                }
+                if device.isExposureModeSupported(AVCaptureExposureMode.AutoExpose) {
+                    device.exposurePointOfInterest = focusPoint
+                    device.exposureMode = .AutoExpose
+                }
+                device.unlockForConfiguration()
+            } catch {
+                print(error)
+            }
+        }
+    }
 }
 

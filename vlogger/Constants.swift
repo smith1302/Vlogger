@@ -1,6 +1,8 @@
 import UIKit
 import CoreGraphics
 
+let kPhotoUploadSuccess = "Video has been added!"
+
 class Constants {
     static let appName = "Selfiesteem"
     static let storyboard = UIStoryboard(name: "Main", bundle: nil) //  Get storyboars singleton
