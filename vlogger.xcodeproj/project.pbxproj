@@ -35,7 +35,10 @@
 		F714CBF21C3C3A1600D8AC2D /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBF11C3C3A1600D8AC2D /* User.swift */; };
 		F714CBF41C3C3AB100D8AC2D /* Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBF31C3C3AB100D8AC2D /* Video.swift */; };
 		F714CBF61C3C3C1500D8AC2D /* Like.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBF51C3C3C1500D8AC2D /* Like.swift */; };
-		F769412C1C3C595A0001496D /* CustomParseObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = F769412B1C3C595A0001496D /* CustomParseObject.swift */; };
+		F769412F1C3C7AA40001496D /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F769412E1C3C7AA40001496D /* LoginViewController.swift */; };
+		F76941311C3C7B240001496D /* IntroViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76941301C3C7B240001496D /* IntroViewController.swift */; };
+		F76941341C3C8E6E0001496D /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76941331C3C8E6E0001496D /* FeedViewController.swift */; };
+		F76941361C3CB62B0001496D /* VideoPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76941351C3CB62A0001496D /* VideoPlayerViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -71,7 +74,10 @@
 		F714CBF11C3C3A1600D8AC2D /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		F714CBF31C3C3AB100D8AC2D /* Video.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Video.swift; sourceTree = "<group>"; };
 		F714CBF51C3C3C1500D8AC2D /* Like.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Like.swift; sourceTree = "<group>"; };
-		F769412B1C3C595A0001496D /* CustomParseObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomParseObject.swift; sourceTree = "<group>"; };
+		F769412E1C3C7AA40001496D /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		F76941301C3C7B240001496D /* IntroViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroViewController.swift; sourceTree = "<group>"; };
+		F76941331C3C8E6E0001496D /* FeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
+		F76941351C3CB62A0001496D /* VideoPlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,6 +167,8 @@
 		F714CBD61C3B2A1100D8AC2D /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				F76941321C3C8E480001496D /* Feed */,
+				F769412D1C3C7A970001496D /* Intro */,
 				F714CBD81C3B2A1D00D8AC2D /* Camera */,
 			);
 			name = Controllers;
@@ -182,6 +190,7 @@
 			children = (
 				F714CBAC1C3B232A00D8AC2D /* AVFoundationViewController.swift */,
 				F714CBE11C3B316000D8AC2D /* VideoViewController.swift */,
+				F76941351C3CB62A0001496D /* VideoPlayerViewController.swift */,
 			);
 			name = Camera;
 			sourceTree = "<group>";
@@ -226,9 +235,25 @@
 				F714CBF11C3C3A1600D8AC2D /* User.swift */,
 				F714CBF31C3C3AB100D8AC2D /* Video.swift */,
 				F714CBF51C3C3C1500D8AC2D /* Like.swift */,
-				F769412B1C3C595A0001496D /* CustomParseObject.swift */,
 			);
 			name = Parse;
+			sourceTree = "<group>";
+		};
+		F769412D1C3C7A970001496D /* Intro */ = {
+			isa = PBXGroup;
+			children = (
+				F769412E1C3C7AA40001496D /* LoginViewController.swift */,
+				F76941301C3C7B240001496D /* IntroViewController.swift */,
+			);
+			name = Intro;
+			sourceTree = "<group>";
+		};
+		F76941321C3C8E480001496D /* Feed */ = {
+			isa = PBXGroup;
+			children = (
+				F76941331C3C8E6E0001496D /* FeedViewController.swift */,
+			);
+			name = Feed;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -356,18 +381,21 @@
 				F714CBE51C3B57A800D8AC2D /* RecordButton.swift in Sources */,
 				F714CBDA1C3B2A7100D8AC2D /* ActivityIndicatorView.swift in Sources */,
 				F714CBEF1C3B9EFF00D8AC2D /* FaceDetectionView.swift in Sources */,
+				F76941361C3CB62B0001496D /* VideoPlayerViewController.swift in Sources */,
+				F769412F1C3C7AA40001496D /* LoginViewController.swift in Sources */,
 				F714CBE21C3B316000D8AC2D /* VideoViewController.swift in Sources */,
 				F714CBAD1C3B232A00D8AC2D /* AVFoundationViewController.swift in Sources */,
 				F714CBEA1C3B7ADF00D8AC2D /* VideoSaveOverlayView.swift in Sources */,
 				F714CBDF1C3B2D1800D8AC2D /* ErrorHandler.swift in Sources */,
 				F714CBAB1C3B232A00D8AC2D /* AppDelegate.swift in Sources */,
+				F76941341C3C8E6E0001496D /* FeedViewController.swift in Sources */,
 				F714CBF61C3C3C1500D8AC2D /* Like.swift in Sources */,
 				F714CBF21C3C3A1600D8AC2D /* User.swift in Sources */,
 				F714CBF41C3C3AB100D8AC2D /* Video.swift in Sources */,
 				F714CBE01C3B2D1800D8AC2D /* MessageHandler.swift in Sources */,
 				F714CBDE1C3B2D1800D8AC2D /* Constants.swift in Sources */,
-				F769412C1C3C595A0001496D /* CustomParseObject.swift in Sources */,
 				F714CBE71C3B779400D8AC2D /* LoopingPlayer.swift in Sources */,
+				F76941311C3C7B240001496D /* IntroViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

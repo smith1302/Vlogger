@@ -74,6 +74,13 @@ extension String {
     }
 }
 
+extension NSData
+{
+    func imageFileSize() -> String {
+        return "\( Double(self.length) * pow(Double(10.0), Double(-6.0)) ) MB"
+    }
+}
+
 extension NSDate
 {
     func isGreaterThanDate(dateToCompare : NSDate) -> Bool

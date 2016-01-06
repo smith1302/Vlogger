@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vRe-WH-yEq">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="qwT-AV-Hsf">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
@@ -10,7 +10,8 @@
         <!--Navigation Controller-->
         <scene sceneID="gmR-HB-ztH">
             <objects>
-                <navigationController navigationBarHidden="YES" id="vRe-WH-yEq" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="MainNavigationViewController" navigationBarHidden="YES" id="vRe-WH-yEq" sceneMemberID="viewController">
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina55"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Nzo-og-x9v">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -26,6 +27,25 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Bev-Ce-CxJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-219" y="1142"/>
+        </scene>
+        <!--Intro View Controller-->
+        <scene sceneID="8xv-F2-bEt">
+            <objects>
+                <viewController id="qwT-AV-Hsf" customClass="IntroViewController" customModule="vlogger" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Kad-gi-chP"/>
+                        <viewControllerLayoutGuide type="bottom" id="geG-X8-LYf"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ube-O9-K2G">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina55"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="6mZ-aB-LXT" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-756" y="1142"/>
         </scene>
         <!--Video View Controller-->
         <scene sceneID="tne-QT-ifu">
@@ -44,9 +64,9 @@
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aUl-uL-9q6">
-                                <rect key="frame" x="349" y="35" width="45" height="35"/>
+                                <rect key="frame" x="355" y="35" width="39" height="30"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="35" id="Tse-Yq-Nbe"/>
+                                    <constraint firstAttribute="height" constant="30" id="Tse-Yq-Nbe"/>
                                     <constraint firstAttribute="width" secondItem="aUl-uL-9q6" secondAttribute="height" multiplier="1.3:1" id="eI9-Se-UVU"/>
                                 </constraints>
                                 <state key="normal" image="SwitchCamera">
@@ -56,13 +76,36 @@
                                     <action selector="switchCameraPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="M1T-H6-h7O"/>
                                 </connections>
                             </button>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3se-dg-w3c" customClass="RecordButton" customModule="vlogger" customModuleProvider="target">
+                                <rect key="frame" x="162" y="627" width="90" height="89"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="90" id="eaP-cj-ovU"/>
+                                    <constraint firstAttribute="width" secondItem="3se-dg-w3c" secondAttribute="height" constant="1" id="kxG-bL-dho"/>
+                                </constraints>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9W6-Mh-z7B">
+                                <rect key="frame" x="349" y="671" width="45" height="45"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="45" id="SeC-7a-ecy"/>
+                                    <constraint firstAttribute="width" secondItem="9W6-Mh-z7B" secondAttribute="height" id="l6d-79-cEb"/>
+                                </constraints>
+                                <state key="normal" image="User"/>
+                                <connections>
+                                    <segue destination="Bnb-M8-kgF" kind="show" id="qIU-wq-yxo"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="C1q-j1-lxL" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="-20" id="4c1-oI-ikM"/>
                             <constraint firstAttribute="trailingMargin" secondItem="aUl-uL-9q6" secondAttribute="trailing" id="4gA-Ru-nxR"/>
                             <constraint firstItem="aUl-uL-9q6" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="15" id="E4m-ff-pT7"/>
+                            <constraint firstItem="3se-dg-w3c" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="J1S-VT-BxE"/>
                             <constraint firstAttribute="trailingMargin" secondItem="C1q-j1-lxL" secondAttribute="trailing" constant="-20" id="P6F-IK-63y"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="3se-dg-w3c" secondAttribute="bottom" constant="20" id="YyX-nS-5hI"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="9W6-Mh-z7B" secondAttribute="trailing" id="ddx-t9-gCI"/>
+                            <constraint firstItem="9W6-Mh-z7B" firstAttribute="bottom" secondItem="3se-dg-w3c" secondAttribute="bottom" id="q5l-z7-IRx"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="C1q-j1-lxL" secondAttribute="bottom" id="rQS-IN-h2j"/>
                             <constraint firstItem="C1q-j1-lxL" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="zFC-kk-jAR"/>
                         </constraints>
@@ -71,14 +114,34 @@
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina55"/>
                     <connections>
                         <outlet property="previewView" destination="C1q-j1-lxL" id="Tlc-RM-AFg"/>
+                        <outlet property="recordButton" destination="3se-dg-w3c" id="MO5-WM-dHf"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="399" y="334"/>
         </scene>
+        <!--Feed View Controller-->
+        <scene sceneID="D7Y-39-FU6">
+            <objects>
+                <viewController id="Bnb-M8-kgF" customClass="FeedViewController" customModule="vlogger" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="eWO-dt-TUv"/>
+                        <viewControllerLayoutGuide type="bottom" id="G0M-nG-Mw6"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="Pja-aR-C9o">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Nou-1T-hrx" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="905" y="334"/>
+        </scene>
     </scenes>
     <resources>
         <image name="SwitchCamera" width="54" height="42"/>
+        <image name="User" width="86" height="92"/>
     </resources>
 </document>

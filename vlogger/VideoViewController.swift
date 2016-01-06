@@ -13,25 +13,30 @@ import Firebase
 
 class VideoViewController: AVFoundationViewController, RecordButtonDelegate, VideoSaveOverlayDelegate {
     
-    var recordButton:RecordButton!
+    @IBOutlet weak var recordButton: RecordButton!
+    
     var videoSaveOverlayView:VideoSaveOverlayView?
-    let activityIndicator:ActivityIndicatorView = ActivityIndicatorView()
+    var activityIndicator:ActivityIndicatorView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Setup
+        UIApplication.sharedApplication().statusBarHidden = true
         
         // Record button
-        let radius:CGFloat = 43
-        var point = view.center
-        point.y = view.frame.size.height-radius-25
-        recordButton = RecordButton(center: point, radius: radius)
         recordButton.delegate = self
-        view.addSubview(recordButton)
+        // Activity Indicator
+        activityIndicator = ActivityIndicatorView(frame: view.frame)
+        view.addSubview(activityIndicator)
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    override func prefersStatusBarHidden() -> Bool {
+        return true
     }
     
     /* Record Button Delegate
@@ -52,9 +57,10 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     }
     
     func continuePressed() {
-        
+        uploadImage()
+        removeVideoPlayerPreview()
+        MessageHandler.showMessage("Video will be uploaded shortly")
     }
-    
     
     /* AVFoundation View Controller
     ------------------------------------------*/
@@ -75,75 +81,11 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     /* Other
     ------------------------------------------*/
     
-    var fileUploadBackgroundTaskID:UIBackgroundTaskIdentifier?
-    var photoPostBackgroundTaskID:UIBackgroundTaskIdentifier?
-    
-    func uploadImage(image:UIImage) {
-        
-        activityIndicator.startAnimating()
+    func uploadImage() {
         videoSaveOverlayView?.remove()
-        
-        if currentVideoFileURL?.path == nil {
-            self.uploadFailed()
-            return
-        }
-        
-        let videoData = NSData(contentsOfFile: currentVideoFileURL!.path!)
-        if videoData == nil {
-            self.uploadFailed()
-            return
-        }
-        
-        if let file = PFFile(data: videoData!) {
-            // Create a background thread to continue the operation if the user backgrounds the app
-            fileUploadBackgroundTaskID = UIApplication.sharedApplication().beginBackgroundTaskWithExpirationHandler({
-                UIApplication.sharedApplication().endBackgroundTask(self.fileUploadBackgroundTaskID!)
-            })
-            // Save the photo
-            file.saveInBackgroundWithBlock {
-                (success:Bool, error:NSError?) -> Void in
-                UIApplication.sharedApplication().endBackgroundTask(self.fileUploadBackgroundTaskID!)
-                if error != nil {
-                    self.uploadFailed()
-                    ErrorHandler.showAlert(error?.description)
-                }
-            }
-            // Attach the photo to a PFObject
-            let video = Video(file: file)
-            
-            // Make another background thread for uploading the PFObject
-            photoPostBackgroundTaskID = UIApplication.sharedApplication().beginBackgroundTaskWithExpirationHandler({
-                UIApplication.sharedApplication().endBackgroundTask(self.photoPostBackgroundTaskID!)
-            })
-            
-            // Upload the PFObject
-            video.saveInBackgroundWithBlock({
-                (success:Bool, error:NSError?) -> Void in
-                UIApplication.sharedApplication().endBackgroundTask(self.photoPostBackgroundTaskID!)
-                self.uploadFinished()
-                if error != nil {
-                    ErrorHandler.showAlert(error?.description)
-                    self.uploadFailed()
-                } else if success {
-                    MessageHandler.showMessage(kPhotoUploadSuccess)
-                    self.uploadSucceeded()
-                }
-            })
-        } else {
-            uploadFailed()
-        }
-    }
-    
-    func uploadFailed() {
-        uploadFinished()
-    }
-    
-    func uploadSucceeded() {
-        uploadFinished()
-    }
-    
-    func uploadFinished() {
-        activityIndicator.stopAnimating()
+        Video.uploadVideo(currentVideoFileURL, failureCallback: {
+            }, successCallback: {
+        })
     }
     
     func addVideoSaveOverlay() {

@@ -28,8 +28,7 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     var videoDevice: AVCaptureDevice!
     var runtimeErrorHandlingObserver: AnyObject?
     var previewLayer:AVCaptureVideoPreviewLayer!
-    var videoPlayer:LoopingPlayer?
-    var videoPlayerController:AVPlayerViewController?
+    var videoPlayerController:VideoPlayerViewController?
     var delegate : AVCaptureFileOutputRecordingDelegate?
     var currentVideoFileURL:NSURL?
     // Other
@@ -62,7 +61,7 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         delegate = self
         
         session = AVCaptureSession()
-        session.sessionPreset = AVCaptureSessionPresetHigh;
+        session.sessionPreset = AVCaptureSessionPreset1280x720
         authorizeCamera();
         sessionQueue = dispatch_queue_create("CameraSessionController Session", DISPATCH_QUEUE_SERIAL)
         
@@ -79,10 +78,6 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-    }
-    
-    override func prefersStatusBarHidden() -> Bool {
-        return true
     }
     
     /* AVFoundation Setup
@@ -119,6 +114,7 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         // Then add the new input
         var success: Bool = false
         videoDevice = AVFoundationViewController.deviceWithMediaType(AVMediaTypeVideo, position: position)
+        CMTimeShow(videoDevice.activeVideoMinFrameDuration)
         do {
             try session.addInput(AVCaptureDeviceInput(device: videoDevice))
             success = true
@@ -130,9 +126,8 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     }
     
     func addVideoOutput() {
-        
         videoDeviceOutput = AVCaptureMovieFileOutput()
-        videoDeviceOutput.maxRecordedDuration = CMTimeMake(660, 60)
+        videoDeviceOutput.maxRecordedDuration = CMTimeMakeWithSeconds(10, 60)
         
         if session.canAddOutput(videoDeviceOutput) {
             session.addOutput(videoDeviceOutput)
@@ -195,16 +190,11 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         let pathString = videoFile.relativePath
         
         currentVideoFileURL = NSURL.fileURLWithPath(pathString!)
-        videoPlayer = LoopingPlayer(URL: currentVideoFileURL!)
-        videoPlayerController = AVPlayerViewController()
-        videoPlayerController!.player = videoPlayer!
-        videoPlayerController!.showsPlaybackControls = false
+        
+        videoPlayerController = VideoPlayerViewController(url: currentVideoFileURL!)
         videoPlayerController!.view.frame = view.frame
-        videoPlayerController!.view.hidden = false
-        videoPlayerController!.videoGravity = AVLayerVideoGravityResizeAspectFill
         self.addChildViewController(videoPlayerController!)
         self.view.addSubview(videoPlayerController!.view)
-        videoPlayer!.play()
     }
     
     /* Actions
@@ -235,25 +225,31 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         let url = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent(movieTempString)
         excludeFromBackup(url)
         let path = url.path!
-        cleanupTempFile(path)
+        AVFoundationViewController.cleanupTempFile(path)
         return url
     }
     
-    func cleanupCurrentVideo() {
+    func removeVideoPlayerPreview() {
         videoPlayerController?.view.removeFromSuperview()
         videoPlayerController?.removeFromParentViewController()
-        videoPlayer = nil
         videoPlayerController = nil
+    }
+    
+    func cleanupCurrentVideo() {
+        removeVideoPlayerPreview()
         if currentVideoFileURL == nil {
             return
         }
-        cleanupTempFile(currentVideoFileURL!.path!)
+        AVFoundationViewController.cleanupTempFile(currentVideoFileURL!.path!)
     }
     
-    func cleanupTempFile(path:String) {
-        if NSFileManager.defaultManager().fileExistsAtPath(path) {
+    class func cleanupTempFile(path:String?) {
+        if path == nil {
+            return
+        }
+        if NSFileManager.defaultManager().fileExistsAtPath(path!) {
             do {
-                try NSFileManager.defaultManager().removeItemAtPath(path)
+                try NSFileManager.defaultManager().removeItemAtPath(path!)
             } catch {
                 //print("[cleanupTempFile]:\(error)")
             }

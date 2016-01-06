@@ -15,21 +15,21 @@ protocol RecordButtonDelegate {
 
 class RecordButton: UIButton {
     
-    var isRecording:Bool
-    let radius:CGFloat
+    var isRecording:Bool = false
+    var radius:CGFloat!
     var innerCircle:UIView!
     var circleLayer:CAShapeLayer!
     var delegate:RecordButtonDelegate?
     let recordLength:Double = 10
     
     let pressColor = UIColor(white: 0.6, alpha: 0.4)
-    let normalColor = UIColor(white: 0.9, alpha: 0.4)
+    let normalColor = UIColor(white: 1, alpha: 0.4)
     
-    init(center:CGPoint, radius:CGFloat) {
-        self.isRecording = false
-        self.radius = radius
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
         
-        super.init(frame: CGRectMake(center.x-radius, center.y-radius, radius*2, radius*2))
+        let radius = frame.size.width/2
+        self.radius = radius
         
         makeRecordRing()
         makeBorderRing()
@@ -67,10 +67,6 @@ class RecordButton: UIButton {
         circleLayer.strokeEnd = 1
         circleLayer.path = circlePath.CGPath
         layer.addSublayer(circleLayer)
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
