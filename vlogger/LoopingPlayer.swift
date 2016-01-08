@@ -1,51 +1,21 @@
 
 import AVFoundation
 
-protocol LoopingPlayerDelegate {
+protocol LoopingPlayerDelegate:class {
     func statusChanged(_: Float64)
     func playerIsBuffering(isBuffering:Bool)
     func playerReady()
     func playerError()
+    func playerDidAdvanceToNextItem()
 }
 
 class LoopingPlayer: AVQueuePlayer {
     
     var loopCount: Double = 0
     var timeObserver: AnyObject?
-    var delegate:LoopingPlayerDelegate?
-    var originalQueue:[AVPlayerItem:Int] = [AVPlayerItem:Int]()
-    var unloadedURLs:Int!
-    override internal var currentItem: AVPlayerItemCustom? { get { return super.currentItem as? AVPlayerItemCustom } }
-    
-    var playableDuration: CMTime {
-        get {
-            if let item: AnyObject = self.currentItem?.loadedTimeRanges.first {
-                if let timeRange = item.CMTimeRangeValue {
-                    let playableDuration = CMTimeAdd(timeRange.start, timeRange.duration)
-                    return playableDuration
-                }
-            }
-            return kCMTimeZero
-        }
-    }
-    
-    var loadingProgress: Float {
-        get {
-            if (self.currentItem == nil) {
-                return 0
-            }
-            let playableDurationInSeconds = CMTimeGetSeconds(self.playableDuration)
-            let totalDurationInSeconds = CMTimeGetSeconds(self.currentItem!.duration)
-            if (totalDurationInSeconds.isNormal) {
-                var progress = Float(playableDurationInSeconds / totalDurationInSeconds)
-                if (progress > 0.90) {
-                    // Fully loaded
-                }
-                return progress
-            }
-            return 0
-        }
-    }
+    weak var delegate:LoopingPlayerDelegate?
+    var originalQueueIndexForItem:[AVPlayerItem:Int] = [AVPlayerItem:Int]()
+    var originalQueue:[AVPlayerItem] = [AVPlayerItem]()
     
     override init() {
         super.init()
@@ -57,42 +27,13 @@ class LoopingPlayer: AVQueuePlayer {
         self.commonInit()
     }
     
-    /* Async load urls and play when finished */
-    init(loadURLs urls:[NSURL]) {
-        super.init()
-        self.unloadedURLs = urls.count
-        self.commonInit()
-        for url in urls {
-            let asset = AVURLAsset(URL: url)
-            let keys = ["playable"]
-            asset.loadValuesAsynchronouslyForKeys(keys, completionHandler: {
-                dispatch_async(dispatch_get_main_queue(), {
-                    let playerItem = AVPlayerItem(asset: asset)
-                    self.insertItem(playerItem, afterItem: nil)
-                    self.unloadedURLs = self.unloadedURLs-1
-                    if self.unloadedURLs <= 0 {
-                        
-                    }
-                })
-            })
-        }
-    }
-    
-    override private init(playerItem item: AVPlayerItem) {
+    override init(playerItem item: AVPlayerItem) {
         super.init(playerItem: item)
+        self.commonInit()
     }
     
-    override private init(items: [AVPlayerItem]) {
+    override init(items: [AVPlayerItem]) {
         super.init(items: items)
-    }
-    
-    init(customItems: [AVPlayerItemCustom]) {
-        super.init(items: customItems)
-        self.commonInit()
-    }
-    
-    init(item: AVPlayerItemCustom) {
-        super.init(playerItem: item)
         self.commonInit()
     }
     
@@ -105,7 +46,8 @@ class LoopingPlayer: AVQueuePlayer {
     
     func commonInit() {
         for (index,item) in items().enumerate() {
-            originalQueue[item] = index
+            originalQueueIndexForItem[item] = index
+            originalQueue.append(item)
         }
         addObserver(self, forKeyPath: kPlayerStatusNew, options: .New, context: nil)
         addObserver(self, forKeyPath: kCurrentItemStatusNew, options: .New, context: nil)
@@ -153,7 +95,7 @@ class LoopingPlayer: AVQueuePlayer {
                 break;
             }
         } else if keyPath == kCurrentItemPlaybackBufferEmptyNew {
-            if let item = currentItem where item.playbackBufferEmpty {
+            if let item = currentItem where (item.playbackBufferEmpty && item.loadingProgress < 0.1) {
                 self.delegate?.playerIsBuffering(true)
             }
         } else if keyPath == kCurrentItemErrorNew {
@@ -165,19 +107,14 @@ class LoopingPlayer: AVQueuePlayer {
                 self.delegate?.playerIsBuffering(false)
             }
         } else if keyPath == kCurrentItemLoadedTimeRangesNew {
-            if let item = currentItem {
-                print(item.loadingProgress)
-            }
+//            if let item = currentUnloadedItem {
+//                print("Loading: \(item.loadingProgress*100)%")
+//                if item.loadingProgress >= 0.9 {
+//                    print("NEXT:-------------------------")
+//                    self.advanceUnloadedItem()
+//                }
+//            }
         }
-    }
-    
-    func showLoadingProgressOfAll() {
-        for (index,item) in items().enumerate() {
-            if let customItem = item as? AVPlayerItemCustom {
-                print("Index:\(index), Loading Progress:\(customItem.loadingProgress)")
-            }
-        }
-        print("------------------------------")
     }
     
     func playerDidPlayToEndTimeNotification(notification: NSNotification) {
@@ -194,7 +131,7 @@ class LoopingPlayer: AVQueuePlayer {
     }
     
     func indexOfCurrentItemInOriginalQueue() -> Int? {
-        if let item = currentItem, index = originalQueue[item] {
+        if let item = currentItem, index = originalQueueIndexForItem[item] {
             return index
         }
         return nil
@@ -208,9 +145,20 @@ class LoopingPlayer: AVQueuePlayer {
     override func advanceToNextItem() {
         let aboutToBeDeletedItem = currentItem
         super.advanceToNextItem()
+        delegate?.playerDidAdvanceToNextItem()
         if let item = aboutToBeDeletedItem where canInsertItem(item, afterItem: items().last) {
             item.seekToTime(CMTimeMake(0, 1))
             insertItem(item, afterItem: items().last)
         }
+    }
+    
+    func resetPlayerToBeginning() {
+        if originalQueue.count == 0 {
+            return
+        }
+        while currentItem != nil && currentItem != originalQueue[0] {
+            advanceToNextItem()
+        }
+        pause()
     }
 }

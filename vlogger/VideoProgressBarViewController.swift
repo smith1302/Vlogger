@@ -9,21 +9,27 @@
 import UIKit
 import AVFoundation
 
-protocol VideoProgressBarDelegate {
+protocol VideoProgressBarDelegate:class {
     func playerIsBuffering(isBuffering:Bool)
     func playerError()
+    func playerDidAdvanceToNextItem()
 }
 
 class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
     
     var progressBar:VideoProgressView!
-    var player:LoopingPlayer!
-    var delegate:VideoProgressBarDelegate?
+    weak var player:LoopingPlayer!
+    weak var delegate:VideoProgressBarDelegate?
     
     var totalDuration:Float64 = 0
     var itemDurations:[Float64] = [Float64]()
     
     var isBuffering:Bool = false
+    
+    deinit {
+        self.player = nil
+        print("released")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -68,6 +74,9 @@ class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
         self.totalDuration = getTotalDurationForPlayer(player)
         self.itemDurations = getDurationsForItems(player)
         progressBar.setSegmentsWithDurationPercents(self.itemDurations, totalDuration: self.totalDuration)
+        if player.status == .ReadyToPlay { // Incase there is no delay
+            playerReady()
+        }
     }
     
     /* Looping Player Delegate
@@ -75,7 +84,7 @@ class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
     
     func statusChanged(seconds: Float64) {
         let currentIndex = player!.indexOfCurrentItemInOriginalQueue()
-        for index in 0..<player.originalQueue.count {
+        for index in 0..<player.originalQueueIndexForItem.count {
             if index < currentIndex {
                 progressBar?.setFillPercent(1, ofIndex: index)
             } else if index == currentIndex {
@@ -84,6 +93,10 @@ class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
                 progressBar?.setFillPercent(0, ofIndex:index)
             }
         }
+    }
+    
+    func playerDidAdvanceToNextItem() {
+        delegate?.playerDidAdvanceToNextItem()
     }
     
     func playerIsBuffering(var isBuffering: Bool) {
@@ -102,7 +115,7 @@ class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
     
     func playerReady() {
         delegate?.playerIsBuffering(false)
-        //player.play()
+        player.play()
     }
     
     func playerError() {

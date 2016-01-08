@@ -23,6 +23,7 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     var sessionQueue: dispatch_queue_t!
     var videoDeviceInput: AVCaptureDeviceInput!
     var videoDeviceOutput: AVCaptureMovieFileOutput!
+    var audioDeviceInput: AVCaptureDeviceInput!
     var stillImageOutput: AVCaptureStillImageOutput!
     var captureMetadataOutput: AVCaptureMetadataOutput!
     var videoDevice: AVCaptureDevice!
@@ -72,6 +73,7 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         self.session.beginConfiguration()
         self.addVideoInput(.Back)
         self.addVideoOutput()
+        self.addAudioInput()
         self.addStillImageOutput()
         self.addFaceDetection()
         self.session.commitConfiguration()
@@ -119,8 +121,13 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         var success: Bool = false
         videoDevice = AVFoundationViewController.deviceWithMediaType(AVMediaTypeVideo, position: position)
         do {
-            try session.addInput(AVCaptureDeviceInput(device: videoDevice))
-            success = true
+            let input = try AVCaptureDeviceInput(device: videoDevice)
+            if session.canAddInput(input) {
+                session.addInput(input)
+                success = true
+            } else {
+                print("Could not add video input")
+            }
         } catch {
             print(error)
         }
@@ -134,6 +141,22 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         
         if session.canAddOutput(videoDeviceOutput) {
             session.addOutput(videoDeviceOutput)
+        } else {
+            print("Could not add video output")
+        }
+    }
+    
+    func addAudioInput() {
+        let audioDevice = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeAudio)
+        do {
+            let input = try AVCaptureDeviceInput(device: audioDevice)
+            if session.canAddInput(input) {
+                session.addInput(input)
+            } else {
+                print("Could not add audio input")
+            }
+        } catch {
+            print(error)
         }
     }
     
@@ -188,14 +211,17 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     /* MovieFileOutput Delegate
     ------------------------------------------*/
     
-    func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError!) {
+    func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError?) {
         let videoFile = outputFileURL as NSURL!
-        let pathString = videoFile.relativePath
-        
-        let currentVideoFileURL = NSURL.fileURLWithPath(pathString!)
-        currentVideo = Video(fileURL: currentVideoFileURL)
+        if error != nil {
+            AVFoundationViewController.cleanupTempFile(videoFile.path)
+            return
+        }
+        currentVideo = Video(fileURL: videoFile)
         currentVideo?.printFileSize()
-        videoPlayerController = VideoPlayerViewController(videos: [currentVideo!], frame: view.frame)
+        
+        videoPlayerController = VideoPlayerViewController(videos: [currentVideo!])
+        videoPlayerController?.view.frame = view.frame
         videoPlayerController?.hidesProgressBar(true)
         self.addChildViewController(videoPlayerController!)
         self.view.addSubview(videoPlayerController!.view)

@@ -30,6 +30,7 @@ class VideoProgressView: UIView {
     }
     
     func setSegmentsWithDurationPercents(itemDurations:[Float64], totalDuration:Float64) {
+        clearSegments()
         let numberOfSegments = CGFloat(itemDurations.count)
         let totalDivisionWidth = divisionWidth*(numberOfSegments-1)
         let totalSegmentWidth = (frame.size.width-totalDivisionWidth)
@@ -44,6 +45,13 @@ class VideoProgressView: UIView {
             segmentViews.append(segmentView)
             xPlacement += segmentWidth+divisionWidth
         }
+    }
+    
+    func clearSegments() {
+        for segmentView in segmentViews {
+            segmentView.removeFromSuperview()
+        }
+        segmentViews = [VideoProgressSegmentView]()
     }
     
     func setFillPercent(percent:CGFloat, ofIndex index:Int) {

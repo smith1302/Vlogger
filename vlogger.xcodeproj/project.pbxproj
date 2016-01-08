@@ -39,6 +39,8 @@
 		F76941311C3C7B240001496D /* IntroViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76941301C3C7B240001496D /* IntroViewController.swift */; };
 		F76941341C3C8E6E0001496D /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76941331C3C8E6E0001496D /* FeedViewController.swift */; };
 		F76941361C3CB62B0001496D /* VideoPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76941351C3CB62A0001496D /* VideoPlayerViewController.swift */; };
+		F76AD18F1C3F9B3D0059C2DF /* UploadFailedVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76AD18E1C3F9B3D0059C2DF /* UploadFailedVideoView.swift */; };
+		F7C550EA1C3FA19E007DA374 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C550E91C3FA19E007DA374 /* Utilities.swift */; };
 		F7F2A92A1C3CCA5F00AF81A4 /* VideoProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F2A9291C3CCA5F00AF81A4 /* VideoProgressView.swift */; };
 		F7F2A92C1C3CE36900AF81A4 /* VideoProgressSegmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F2A92B1C3CE36900AF81A4 /* VideoProgressSegmentView.swift */; };
 		F7F2A92E1C3CF18400AF81A4 /* VideoFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F2A92D1C3CF18400AF81A4 /* VideoFeedViewController.swift */; };
@@ -47,6 +49,7 @@
 		F7F2A9361C3DC40600AF81A4 /* VideoProgressBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F2A9351C3DC40600AF81A4 /* VideoProgressBarViewController.swift */; };
 		F7F2A9381C3DCB2A00AF81A4 /* TODO in Resources */ = {isa = PBXBuildFile; fileRef = F7F2A9371C3DCB2A00AF81A4 /* TODO */; };
 		F7F635BA1C3F478D0096FE66 /* AVPlayerItemCustom.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F635B91C3F478D0096FE66 /* AVPlayerItemCustom.swift */; };
+		F7F635BC1C3F7DA80096FE66 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F635BB1C3F7DA80096FE66 /* Cache.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -86,6 +89,8 @@
 		F76941301C3C7B240001496D /* IntroViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroViewController.swift; sourceTree = "<group>"; };
 		F76941331C3C8E6E0001496D /* FeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		F76941351C3CB62A0001496D /* VideoPlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerViewController.swift; sourceTree = "<group>"; };
+		F76AD18E1C3F9B3D0059C2DF /* UploadFailedVideoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadFailedVideoView.swift; sourceTree = "<group>"; };
+		F7C550E91C3FA19E007DA374 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		F7F2A9291C3CCA5F00AF81A4 /* VideoProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoProgressView.swift; sourceTree = "<group>"; };
 		F7F2A92B1C3CE36900AF81A4 /* VideoProgressSegmentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoProgressSegmentView.swift; sourceTree = "<group>"; };
 		F7F2A92D1C3CF18400AF81A4 /* VideoFeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoFeedViewController.swift; sourceTree = "<group>"; };
@@ -94,6 +99,7 @@
 		F7F2A9351C3DC40600AF81A4 /* VideoProgressBarViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoProgressBarViewController.swift; sourceTree = "<group>"; };
 		F7F2A9371C3DCB2A00AF81A4 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		F7F635B91C3F478D0096FE66 /* AVPlayerItemCustom.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVPlayerItemCustom.swift; sourceTree = "<group>"; };
+		F7F635BB1C3F7DA80096FE66 /* Cache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,6 +206,8 @@
 				F714CBDB1C3B2D1800D8AC2D /* Constants.swift */,
 				F714CBDC1C3B2D1800D8AC2D /* ErrorHandler.swift */,
 				F714CBDD1C3B2D1800D8AC2D /* MessageHandler.swift */,
+				F7F635BB1C3F7DA80096FE66 /* Cache.swift */,
+				F7C550E91C3FA19E007DA374 /* Utilities.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -231,7 +239,6 @@
 			isa = PBXGroup;
 			children = (
 				F714CBE41C3B57A800D8AC2D /* RecordButton.swift */,
-				F714CBE61C3B779400D8AC2D /* LoopingPlayer.swift */,
 				F714CBE91C3B7ADF00D8AC2D /* VideoSaveOverlayView.swift */,
 				F714CBEE1C3B9EFF00D8AC2D /* FaceDetectionView.swift */,
 			);
@@ -288,6 +295,7 @@
 		F7F2A9311C3D98FD00AF81A4 /* VideoFeed */ = {
 			isa = PBXGroup;
 			children = (
+				F76AD18E1C3F9B3D0059C2DF /* UploadFailedVideoView.swift */,
 				F7F2A9321C3D992E00AF81A4 /* UIButtonOutline.swift */,
 			);
 			name = VideoFeed;
@@ -305,6 +313,7 @@
 		F7F2A9391C3DCCBB00AF81A4 /* VideoPlayer */ = {
 			isa = PBXGroup;
 			children = (
+				F714CBE61C3B779400D8AC2D /* LoopingPlayer.swift */,
 				F7F2A9291C3CCA5F00AF81A4 /* VideoProgressView.swift */,
 				F7F2A92B1C3CE36900AF81A4 /* VideoProgressSegmentView.swift */,
 				F7F635B91C3F478D0096FE66 /* AVPlayerItemCustom.swift */,
@@ -437,11 +446,14 @@
 			files = (
 				F7F2A92A1C3CCA5F00AF81A4 /* VideoProgressView.swift in Sources */,
 				F714CBE51C3B57A800D8AC2D /* RecordButton.swift in Sources */,
+				F7C550EA1C3FA19E007DA374 /* Utilities.swift in Sources */,
 				F714CBDA1C3B2A7100D8AC2D /* ActivityIndicatorView.swift in Sources */,
 				F714CBEF1C3B9EFF00D8AC2D /* FaceDetectionView.swift in Sources */,
 				F76941361C3CB62B0001496D /* VideoPlayerViewController.swift in Sources */,
 				F769412F1C3C7AA40001496D /* LoginViewController.swift in Sources */,
+				F7F635BC1C3F7DA80096FE66 /* Cache.swift in Sources */,
 				F714CBE21C3B316000D8AC2D /* VideoViewController.swift in Sources */,
+				F76AD18F1C3F9B3D0059C2DF /* UploadFailedVideoView.swift in Sources */,
 				F714CBAD1C3B232A00D8AC2D /* AVFoundationViewController.swift in Sources */,
 				F7F635BA1C3F478D0096FE66 /* AVPlayerItemCustom.swift in Sources */,
 				F714CBEA1C3B7ADF00D8AC2D /* VideoSaveOverlayView.swift in Sources */,

@@ -9,9 +9,11 @@ class Video : PFObject, PFSubclassing  {
     @NSManaged var views: Int
     @NSManaged var likes: PFRelation
     
-    var uploadInProgressFlag:Bool = true
+    var fileURLIsCompressed:Bool = false
+    var uploadInProgressFlag:Bool = false
     var uploadFailedFlag:Bool = false
     var fileURL:NSURL?
+    var avAsset:AVAsset?
     
     init(fileURL:NSURL?) {
         self.fileURL = fileURL
@@ -51,30 +53,36 @@ class Video : PFObject, PFSubclassing  {
     /* Other
     ------------------------------------------*/
     
-    func compressVideo(handler:(AVAssetExportSession?)-> Void) {
-        if fileURL == nil {
+    private func compressVideo(handler:(AVAssetExportSession?)-> Void) {
+        let fileURL = getFileURL()
+        if fileURL == nil || fileURLIsCompressed {
             handler(nil)
             return
         }
-        let urlAsset = AVURLAsset(URL: fileURL!, options: nil)
-        if let exportSession = AVAssetExportSession(asset: urlAsset, presetName: AVAssetExportPresetMediumQuality) {
-            exportSession.outputURL = fileURL!
-            exportSession.outputFileType = AVFileTypeQuickTimeMovie
-            exportSession.shouldOptimizeForNetworkUse = true
-            exportSession.exportAsynchronouslyWithCompletionHandler { () -> Void in
-                handler(exportSession)
+        let urlAsset = AVURLAsset(URL: fileURL!)
+        urlAsset.loadValuesAsynchronouslyForKeys(["tracks"], completionHandler: {
+            if let exportSession = AVAssetExportSession(asset: urlAsset, presetName: AVAssetExportPresetMediumQuality) {
+                self.cleanUpFile()
+                exportSession.outputURL = self.fileURL!
+                exportSession.outputFileType = AVFileTypeQuickTimeMovie
+                exportSession.shouldOptimizeForNetworkUse = true
+                exportSession.exportAsynchronouslyWithCompletionHandler { () -> Void in
+                    handler(exportSession)
+                }
+            } else {
+                handler(nil)
             }
-        } else {
-            handler(nil)
-        }
+        })
         
     }
     
     var fileUploadBackgroundTaskID:UIBackgroundTaskIdentifier?
     var photoPostBackgroundTaskID:UIBackgroundTaskIdentifier?
     func uploadVideo(failureCallback:(Void->Void), successCallback:(Void->Void)) {
+        self.uploadInProgressFlag = true
         if fileURL == nil {
             failureCallback()
+            self.uploadFailed()
             return
         }
         
@@ -83,15 +91,17 @@ class Video : PFObject, PFSubclassing  {
             
             let filePath = self.fileURL?.path
             if filePath == nil || exportSession == nil || exportSession?.status == .Failed {
-                print(exportSession?.error)
                 failureCallback()
+                self.uploadFailed()
                 return
             }
+            self.fileURLIsCompressed = true
             self.printFileSize()
             // 1) Convert compressed local video to data
             let videoData = NSData(contentsOfFile: filePath!)
             if videoData == nil {
                 failureCallback()
+                self.uploadFailed()
                 return
             }
             
@@ -134,13 +144,13 @@ class Video : PFObject, PFSubclassing  {
         })
     }
     
-    func uploadFailed() {
+    private func uploadFailed() {
         uploadFailedFlag = true
         uploadInProgressFlag = false
         MessageHandler.showMessage("Video failed to upload")
     }
     
-    func uploadSucceeded() {
+    private func uploadSucceeded() {
         // Removes from temporary relation store and adds to permanent in parse
         User.currentUser()!.videoUploadSuccess(self)
         uploadFailedFlag = false
@@ -175,6 +185,18 @@ class Video : PFObject, PFSubclassing  {
                 //print("[cleanupTempFile]:\(error)")
             }
         }
+    }
+    
+    func getAVPlayerItem() -> AVPlayerItem? {
+        if avAsset != nil { // check cache
+            return AVPlayerItem(asset: avAsset!)
+        }
+        if let url = self.getFileURL() {
+            let item = AVPlayerItem(asset: AVAsset(URL: url))
+            //self.avAsset = item.asset // cache it
+            return item
+        }
+        return nil
     }
     
 }

@@ -66,9 +66,11 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     ------------------------------------------*/
     
     // When we get the video output playback lets show the video overlay
-    override func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError!) {
+    override func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError?) {
         super.captureOutput(captureOutput, didFinishRecordingToOutputFileAtURL: outputFileURL, fromConnections: connections, error: error)
-        addVideoSaveOverlay()
+        if error == nil {
+            addVideoSaveOverlay()
+        }
     }
     
     /* IBActions

@@ -85,8 +85,8 @@ class RecordButton: UIButton {
         backgroundColor = normalColor
         circleLayer.removeAnimationForKey("animateCircle")
         circleLayer.strokeEnd = 0.0
-        delegate?.recordFinished()
         transform = CGAffineTransformMakeScale(1, 1)
+        delegate?.recordFinished()
     }
     
     func animateCircle(duration: NSTimeInterval) {

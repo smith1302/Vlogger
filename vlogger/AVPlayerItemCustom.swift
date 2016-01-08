@@ -9,7 +9,7 @@
 import Foundation
 import AVFoundation
 
-class AVPlayerItemCustom : AVPlayerItem {
+extension AVPlayerItem {
     var playableDuration: CMTime {
         get {
             if let item: AnyObject = self.loadedTimeRanges.first {
@@ -36,4 +36,5 @@ class AVPlayerItemCustom : AVPlayerItem {
             return 0
         }
     }
+    
 }

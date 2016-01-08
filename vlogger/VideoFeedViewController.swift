@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import AVFoundation
 
-class VideoFeedViewController: UIViewController {
+class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelegate {
     
     // Outlets
     @IBOutlet weak var customOverlayView: UIView!
@@ -20,6 +21,7 @@ class VideoFeedViewController: UIViewController {
     // Other
     var videoPlayerViewController:VideoPlayerViewController!
     var videos:[Video] = [Video]()
+    var currentVideo:Video?
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -28,34 +30,42 @@ class VideoFeedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.userInteractionEnabled = true
-        
-        videoPlayerViewController = VideoPlayerViewController(frame: view.frame)
+        videoPlayerViewController = VideoPlayerViewController(user: User.currentUser()!)
+        videoPlayerViewController.myDelegate = self
+        videoPlayerViewController.view.frame = view.frame
         addChildViewController(videoPlayerViewController)
         view.addSubview(videoPlayerViewController.view)
         view.bringSubviewToFront(customOverlayView)
-        customOverlayView.userInteractionEnabled=true
         
-        let user = User.currentUser()!
-        user.getVideos({
-            (videos:[Video]) in
-            self.videos = videos
-            self.displayVideos()
-        })
+        Utilities.autolayoutSubviewToViewEdges(videoPlayerViewController.view, view: view)
+        
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    func displayVideos() {
-        videoPlayerViewController.setVideos(videos)
 
-        videoPlayerViewController.view.translatesAutoresizingMaskIntoConstraints = false
-        view.addConstraint(NSLayoutConstraint(item: videoPlayerViewController.view, attribute: .Top, relatedBy: .Equal, toItem: view, attribute: .Top, multiplier: 1.0, constant: 0))
-        view.addConstraint(NSLayoutConstraint(item: videoPlayerViewController.view, attribute: .Left, relatedBy: .Equal, toItem: view, attribute: .Left, multiplier: 1.0, constant: 0))
-        view.addConstraint(NSLayoutConstraint(item: videoPlayerViewController.view, attribute: .Right, relatedBy: .Equal, toItem: view, attribute: .Right, multiplier: 1.0, constant: 0))
-        view.addConstraint(NSLayoutConstraint(item: videoPlayerViewController.view, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1.0, constant: 0))
+    
+    /* VideoPlayerViewController Delegate
+    ------------------------------------------------------------------*/
+    
+    var uploadFailedOverlay:UploadFailedVideoView?
+    func currentVideoChanged(video: Video?) {
+        self.currentVideo = video
+        uploadFailedOverlay?.removeFromSuperview()
+        uploadFailedOverlay = nil
+        if let video = video where (video.uploadFailedFlag || video.uploadInProgressFlag) {
+            uploadFailedOverlay = UploadFailedVideoView(frame: view.frame)
+            view?.addSubview(uploadFailedOverlay!)
+            if video.uploadFailedFlag {
+                uploadFailedOverlay?.showFailedMessage()
+            } else if video.uploadInProgressFlag {
+                uploadFailedOverlay?.showLoader()
+            }
+            Utilities.autolayoutSubviewToViewEdges(uploadFailedOverlay!, view: view)
+            view?.bringSubviewToFront(customOverlayView)
+        }
     }
     
     /* IBActions
@@ -65,6 +75,26 @@ class VideoFeedViewController: UIViewController {
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        videoPlayerViewController.didTap()
+        super.touchesBegan(touches, withEvent: event)
+        if uploadFailedOverlay == nil {
+            videoPlayerViewController.didTap()
+        } else {
+            retryUpload()
+        }
+    }
+    
+    /* Helpers
+    ------------------------------------------------------------------*/
+    
+    func retryUpload() {
+        uploadFailedOverlay?.showLoader()
+        if let video = currentVideo where (video.uploadFailedFlag && !video.uploadInProgressFlag) {
+            video.uploadVideo({
+                    self.uploadFailedOverlay?.showFailedMessage()
+                }, successCallback: {
+                    self.uploadFailedOverlay?.removeFromSuperview()
+                    self.uploadFailedOverlay = nil
+            })
+        }
     }
 }

@@ -10,35 +10,54 @@ import UIKit
 import AVFoundation
 import AVKit
 
+protocol VideoPlayerViewControllerDelegate: class {
+    func currentVideoChanged(_:Video?)
+}
+
 class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegate {
     
-    var progressBarController:VideoProgressBarViewController!
+    //var progressBarController:VideoProgressBarViewController!
     var activityIndicator:ActivityIndicatorView!
+    var videos:[Video] = [Video]()
+    weak var myDelegate:VideoPlayerViewControllerDelegate?
+    var currentVideo:Video? {
+        didSet {
+            myDelegate?.currentVideoChanged(self.currentVideo)
+        }
+    }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        commonInit(self.view.frame)
+        commonInit()
     }
     
     init(frame:CGRect) {
         super.init(nibName: nil, bundle: nil)
-        commonInit(frame)
+        commonInit()
     }
     
-    init(videos:[Video], frame:CGRect) {
+    init(videos:[Video]) {
         super.init(nibName: nil, bundle: nil)
-        commonInit(frame)
+        commonInit()
         setVideos(videos)
     }
     
-    func commonInit(frame:CGRect) {
-        self.view.frame = frame
+    init(user:User) {
+        super.init(nibName: nil, bundle: nil)
+        commonInit()
+        user.getVideos({
+            (videos:[Video]) in
+            self.setVideos(videos)
+        })
+    }
+    
+    func commonInit() {
         self.showsPlaybackControls = false
         self.view.hidden = false
         self.videoGravity = AVLayerVideoGravityResizeAspectFill
-        self.progressBarController = VideoProgressBarViewController()
-        self.progressBarController.delegate = self
-        self.addChildViewController(progressBarController)
+        //self.progressBarController = VideoProgressBarViewController()
+        //self.progressBarController.delegate = self
+        //self.addChildViewController(progressBarController)
         
         // Align contentoverlay with entire view
         contentOverlayView!.translatesAutoresizingMaskIntoConstraints = false
@@ -49,7 +68,7 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
         
         contentOverlayView?.userInteractionEnabled=true
         
-        contentOverlayView?.addSubview(progressBarController.view)
+        //contentOverlayView?.addSubview(progressBarController.view)
         
         // Activity Indicator View
         activityIndicator = ActivityIndicatorView(frame: contentOverlayView!.bounds)
@@ -60,6 +79,13 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
         contentOverlayView!.addConstraint(NSLayoutConstraint(item: activityIndicator, attribute: .Left, relatedBy: .Equal, toItem: contentOverlayView!, attribute: .Left, multiplier: 1.0, constant: 0))
         contentOverlayView!.addConstraint(NSLayoutConstraint(item: activityIndicator, attribute: .Right, relatedBy: .Equal, toItem: contentOverlayView!, attribute: .Right, multiplier: 1.0, constant: 0))
         contentOverlayView!.addConstraint(NSLayoutConstraint(item: activityIndicator, attribute: .Bottom, relatedBy: .Equal, toItem: contentOverlayView!, attribute: .Bottom, multiplier: 1.0, constant: 0))
+    }
+    
+    deinit {
+        self.player = nil
+       // self.progressBarController.removeFromParentViewController()
+        //self.progressBarController.view.removeFromSuperview()
+        //self.progressBarController = nil
     }
 
     override func viewDidLoad() {
@@ -72,20 +98,23 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
         // Dispose of any resources that can be recreated.
     }
     
-    func setVideos(videos:[Video]) {
-        var items = [AVPlayerItemCustom]()
+    private func setVideos(videos:[Video]) {
+        self.videos = videos
+        self.currentVideo = videos.first
+        var items = [AVPlayerItem]()
         for video in videos {
-            if let url = video.getFileURL() {
-                items.append(AVPlayerItemCustom(URL: url))
+            if let item = video.getAVPlayerItem() {
+                items.append(item)
             }
         }
-        self.player = LoopingPlayer(customItems: items)
-        progressBarController.setLoopingPlayer(self.player as! LoopingPlayer)
+        self.player = LoopingPlayer(items: items)
+        self.player?.play()
+        //progressBarController.setLoopingPlayer(player as! LoopingPlayer)
         
     }
 
     func hidesProgressBar(val:Bool) {
-        self.progressBarController.view.hidden = val
+        //self.progressBarController.view.hidden = val
     }
     
     /* Progress Bar Delegate
@@ -104,10 +133,22 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     }
     
     func didTap() {
-        if let player = self.player as? LoopingPlayer {
-            //player.advanceToNextItem()
-            player.showLoadingProgressOfAll()
+//        if let player = self.player as? LoopingPlayer {
+//            player.advanceToNextItem()
+//        }
+    }
+    
+    func playerDidAdvanceToNextItem() {
+        // Move the queue up and put the first element at the end
+        let first = videos.first
+        for (index, video) in videos.enumerate() {
+            if index == 0 {continue}
+            videos[index-1] = video
         }
+        if first != nil {
+            videos[videos.count-1] = first!
+        }
+        currentVideo = videos.first
     }
     
     /*
