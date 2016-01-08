@@ -62,9 +62,6 @@ class ActivityIndicatorView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(label)
         
-        addConstraint(NSLayoutConstraint(item: view, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0))
-        addConstraint(NSLayoutConstraint(item: view, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: -50))
-        
         addConstraint(NSLayoutConstraint(item: label, attribute: .Left, relatedBy: .Equal, toItem: view, attribute: .Left, multiplier: 1.0, constant: 15))
         addConstraint(NSLayoutConstraint(item: label, attribute: .Right, relatedBy: .Equal, toItem: loadingIndictator, attribute: .Left, multiplier: 1.0, constant: -15))
         addConstraint(NSLayoutConstraint(item: label, attribute: .Top, relatedBy: .Equal, toItem: view, attribute: .Top, multiplier: 1.0, constant: 10))
@@ -76,6 +73,9 @@ class ActivityIndicatorView: UIView {
         addConstraint(NSLayoutConstraint(item: loadingIndictator, attribute: .Right, relatedBy: .Equal, toItem: view, attribute: .Right, multiplier: 1.0, constant: -15))
         addConstraint(NSLayoutConstraint(item: loadingIndictator, attribute: .Width, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 20))
         addConstraint(NSLayoutConstraint(item: loadingIndictator, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 20))
+        
+        addConstraint(NSLayoutConstraint(item: view, attribute: .CenterX, relatedBy: .Equal, toItem: self, attribute: .CenterX, multiplier: 1.0, constant: 0))
+        addConstraint(NSLayoutConstraint(item: view, attribute: .CenterY, relatedBy: .Equal, toItem: self, attribute: .CenterY, multiplier: 1.0, constant: view.frame.size.height/2))
         
     }
     

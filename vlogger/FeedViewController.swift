@@ -13,38 +13,27 @@ import Parse
 
 class FeedViewController: UIViewController {
     
-    var videos:[Video] = [Video]()
-
+    @IBOutlet weak var chatDragCenterYConstraint: NSLayoutConstraint!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let user = User.currentUser()!
-        user.getVideos({
-            (videos:[Video]) in
-            self.videos = videos
-            var selected:Video?
-            for video in videos {
-                selected = video
-            }
-            self.displayVideo(selected)
-        })
+        view.userInteractionEnabled = true
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    func displayVideo(video:Video?) {
-        if video == nil {
+
+    @IBAction func chatDrag(sender: UIPanGestureRecognizer) {
+        let translation = sender.translationInView(self.view)
+        let newY = sender.view!.center.y + translation.y
+        if newY < sender.view!.frame.size.height/2 + 70 || newY > self.view.frame.size.height-sender.view!.frame.size.height - 60 {
             return
         }
-        if let url = video?.getFileURL() {
-            let videoPlayerController = VideoPlayerViewController(url: url)
-            videoPlayerController.view.frame = view.frame
-            self.addChildViewController(videoPlayerController)
-            self.view.addSubview(videoPlayerController.view)
-        }
+        chatDragCenterYConstraint.constant = newY - view.frame.size.height/2
+        sender.setTranslation(CGPointZero, inView: self.view)
+        view.setNeedsUpdateConstraints()
+        view.updateConstraintsIfNeeded()
     }
-
 }

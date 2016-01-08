@@ -38,6 +38,7 @@ class User : PFUser {
     func getVideos(callback:([Video]->Void)) {
         let query = videos.query()
         query.whereKey("createdAt", greaterThan: NSDate(timeIntervalSinceNow: -60*60*24*6))
+        query.orderByAscending("createdAt")
         query.findObjectsInBackgroundWithBlock({
             (objects:[PFObject]?, error:NSError?) in
             if let videos = objects as? [Video] {

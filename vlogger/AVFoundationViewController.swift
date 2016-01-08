@@ -30,19 +30,19 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     var previewLayer:AVCaptureVideoPreviewLayer!
     var videoPlayerController:VideoPlayerViewController?
     var delegate : AVCaptureFileOutputRecordingDelegate?
-    var currentVideoFileURL:NSURL?
     // Other
     var sessionDelegate: CameraSessionControllerDelegate?
     var faceDetector:FaceDetectionView?
+    var currentVideo:Video?
     // IBOutlets
     @IBOutlet weak var previewView: UIView!
     
     /* Class Methods
     ------------------------------------------*/
     
-    class func deviceWithMediaType(mediaType: NSString, position: AVCaptureDevicePosition) -> AVCaptureDevice {
+    class func deviceWithMediaType(mediaType: NSString, position: AVCaptureDevicePosition) -> AVCaptureDevice? {
         let devices: NSArray = AVCaptureDevice.devicesWithMediaType(mediaType as String)
-        var captureDevice: AVCaptureDevice = devices.firstObject as! AVCaptureDevice
+        var captureDevice: AVCaptureDevice? = devices.firstObject as? AVCaptureDevice
         
         for object:AnyObject in devices {
             let device = object as? AVCaptureDevice
@@ -53,6 +53,10 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         }
         
         return captureDevice
+    }
+    
+    deinit {
+        cleanupCurrentVideo()
     }
 
     override func viewDidLoad() {
@@ -114,7 +118,6 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         // Then add the new input
         var success: Bool = false
         videoDevice = AVFoundationViewController.deviceWithMediaType(AVMediaTypeVideo, position: position)
-        CMTimeShow(videoDevice.activeVideoMinFrameDuration)
         do {
             try session.addInput(AVCaptureDeviceInput(device: videoDevice))
             success = true
@@ -189,10 +192,11 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         let videoFile = outputFileURL as NSURL!
         let pathString = videoFile.relativePath
         
-        currentVideoFileURL = NSURL.fileURLWithPath(pathString!)
-        
-        videoPlayerController = VideoPlayerViewController(url: currentVideoFileURL!)
-        videoPlayerController!.view.frame = view.frame
+        let currentVideoFileURL = NSURL.fileURLWithPath(pathString!)
+        currentVideo = Video(fileURL: currentVideoFileURL)
+        currentVideo?.printFileSize()
+        videoPlayerController = VideoPlayerViewController(videos: [currentVideo!], frame: view.frame)
+        videoPlayerController?.hidesProgressBar(true)
         self.addChildViewController(videoPlayerController!)
         self.view.addSubview(videoPlayerController!.view)
     }
@@ -237,10 +241,8 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     
     func cleanupCurrentVideo() {
         removeVideoPlayerPreview()
-        if currentVideoFileURL == nil {
-            return
-        }
-        AVFoundationViewController.cleanupTempFile(currentVideoFileURL!.path!)
+        currentVideo?.cleanUpFile()
+        currentVideo = nil
     }
     
     class func cleanupTempFile(path:String?) {
