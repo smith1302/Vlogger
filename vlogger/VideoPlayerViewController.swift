@@ -16,7 +16,7 @@ protocol VideoPlayerViewControllerDelegate: class {
 
 class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegate {
     
-    //var progressBarController:VideoProgressBarViewController!
+    var progressBarController:VideoProgressBarViewController!
     var activityIndicator:ActivityIndicatorView!
     var videos:[Video] = [Video]()
     weak var myDelegate:VideoPlayerViewControllerDelegate?
@@ -52,50 +52,54 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     }
     
     func commonInit() {
-        self.showsPlaybackControls = false
-        self.view.hidden = false
-        self.videoGravity = AVLayerVideoGravityResizeAspectFill
-        //self.progressBarController = VideoProgressBarViewController()
-        //self.progressBarController.delegate = self
-        //self.addChildViewController(progressBarController)
+
+        videoGravity = AVLayerVideoGravityResizeAspectFill
+        showsPlaybackControls = false
         
-        // Align contentoverlay with entire view
-        contentOverlayView!.translatesAutoresizingMaskIntoConstraints = false
-        view.addConstraint(NSLayoutConstraint(item: contentOverlayView!, attribute: .Top, relatedBy: .Equal, toItem: view, attribute: .Top, multiplier: 1.0, constant: 0))
-        view.addConstraint(NSLayoutConstraint(item: contentOverlayView!, attribute: .Left, relatedBy: .Equal, toItem: view, attribute: .Left, multiplier: 1.0, constant: 0))
-        view.addConstraint(NSLayoutConstraint(item: contentOverlayView!, attribute: .Right, relatedBy: .Equal, toItem: view, attribute: .Right, multiplier: 1.0, constant: 0))
-        view.addConstraint(NSLayoutConstraint(item: contentOverlayView!, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1.0, constant: 0))
-        
-        contentOverlayView?.userInteractionEnabled=true
-        
-        //contentOverlayView?.addSubview(progressBarController.view)
+        self.progressBarController = VideoProgressBarViewController()
+        self.progressBarController.delegate = self
+        self.addChildViewController(progressBarController)
+        view.addSubview(progressBarController.view)
         
         // Activity Indicator View
-        activityIndicator = ActivityIndicatorView(frame: contentOverlayView!.bounds)
+        activityIndicator = ActivityIndicatorView(frame: view.bounds)
         activityIndicator.startAnimating()
-        contentOverlayView?.addSubview(activityIndicator)
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
-        contentOverlayView!.addConstraint(NSLayoutConstraint(item: activityIndicator, attribute: .Top, relatedBy: .Equal, toItem: contentOverlayView!, attribute: .Top, multiplier: 1.0, constant: 0))
-        contentOverlayView!.addConstraint(NSLayoutConstraint(item: activityIndicator, attribute: .Left, relatedBy: .Equal, toItem: contentOverlayView!, attribute: .Left, multiplier: 1.0, constant: 0))
-        contentOverlayView!.addConstraint(NSLayoutConstraint(item: activityIndicator, attribute: .Right, relatedBy: .Equal, toItem: contentOverlayView!, attribute: .Right, multiplier: 1.0, constant: 0))
-        contentOverlayView!.addConstraint(NSLayoutConstraint(item: activityIndicator, attribute: .Bottom, relatedBy: .Equal, toItem: contentOverlayView!, attribute: .Bottom, multiplier: 1.0, constant: 0))
+        view.addSubview(activityIndicator)
+        Utilities.autolayoutSubviewToViewEdges(activityIndicator, view: view)
     }
     
     deinit {
+        self.player?.pause()
+        (self.player as? LoopingPlayer)?.cleanUp()
         self.player = nil
-       // self.progressBarController.removeFromParentViewController()
-        //self.progressBarController.view.removeFromSuperview()
-        //self.progressBarController = nil
+        self.progressBarController.removeFromParentViewController()
+        self.progressBarController.view.removeFromSuperview()
+        self.progressBarController = nil
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.userInteractionEnabled = true
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationDidEnterBackground", name: UIApplicationDidEnterBackgroundNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillEnterForeground", name: UIApplicationWillEnterForegroundNotification, object: nil)
+    }
+    
+    override func viewWillDisappear(animated: Bool) {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    func applicationDidEnterBackground() {
+        self.player?.pause()
+    }
+    
+    func applicationWillEnterForeground() {
+        self.player?.play()
     }
     
     private func setVideos(videos:[Video]) {
@@ -108,13 +112,12 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
             }
         }
         self.player = LoopingPlayer(items: items)
-        self.player?.play()
-        //progressBarController.setLoopingPlayer(player as! LoopingPlayer)
+        progressBarController.setLoopingPlayer(self.player as! LoopingPlayer)
         
     }
 
     func hidesProgressBar(val:Bool) {
-        //self.progressBarController.view.hidden = val
+        self.progressBarController.view.hidden = val
     }
     
     /* Progress Bar Delegate
@@ -133,9 +136,9 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     }
     
     func didTap() {
-//        if let player = self.player as? LoopingPlayer {
-//            player.advanceToNextItem()
-//        }
+        if let player = self.player as? LoopingPlayer {
+            player.advanceToNextItem()
+        }
     }
     
     func playerDidAdvanceToNextItem() {

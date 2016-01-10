@@ -20,6 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         User.registerSubclass()
         Video.registerSubclass()
         Like.registerSubclass()
+        Follow.registerSubclass()
         // [Optional] Power your app with Local Datastore. For more info, go to
         // https://parse.com/docs/ios/guide#local-datastore
         Parse.enableLocalDatastore()

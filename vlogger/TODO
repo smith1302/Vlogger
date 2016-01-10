@@ -1,3 +1,32 @@
-Audio in video needs to work
-Resume video play after background
-Video must be longer than certain duration
+Video Feed:
+    - Like button?
+    - Flag/Settings button in top right
+    - Subscribe
+
+Chat Feed:
+    - Place to type/send
+    - Get firebase messages
+
+Explorer:
+    - Search
+    - Subscribed
+    - Popular
+
+Profile:
+    - Tap name -> card shows up
+    - Contains:
+        - Picture
+        - Name
+        - Total plays
+        - Followers
+
+Followers:
+    - Shows list of people following user
+    - We can follow them from there
+
+Settings
+
+
+Current:
+Finish followers VC
+    - nav bar?

@@ -11,7 +11,7 @@ import AVFoundation
 
 class VideoProgressView: UIView {
     
-    static let height:CGFloat = 10
+    static let height:CGFloat = 13
     let divisionWidth:CGFloat = 2
 
     var segmentViews:[VideoProgressSegmentView] = [VideoProgressSegmentView]()
@@ -40,7 +40,7 @@ class VideoProgressView: UIView {
         for i in 0..<itemDurations.count {
             let percent = getItemDurationPercentageFromTotal(itemDurations, totalDuration: totalDuration, index: i)
             let segmentWidth = totalSegmentWidth*percent
-            segmentView = VideoProgressSegmentView(frame: CGRectMake(xPlacement,0,segmentWidth,frame.size.height))
+            segmentView = VideoProgressSegmentView(frame: CGRectMake(xPlacement,divisionWidth,segmentWidth,frame.size.height-divisionWidth*2))
             addSubview(segmentView)
             segmentViews.append(segmentView)
             xPlacement += segmentWidth+divisionWidth

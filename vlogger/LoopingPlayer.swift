@@ -45,6 +45,7 @@ class LoopingPlayer: AVQueuePlayer {
     let kCurrentItemErrorNew = "currentItem.error"
     
     func commonInit() {
+        captureAudioSession()
         for (index,item) in items().enumerate() {
             originalQueueIndexForItem[item] = index
             originalQueue.append(item)
@@ -68,6 +69,11 @@ class LoopingPlayer: AVQueuePlayer {
     }
     
     deinit {
+        cleanUp()
+    }
+    
+    // Some issue with AVPLayerLayer not removing a reference to the player, so cleanup manually
+    func cleanUp() {
         NSNotificationCenter.defaultCenter().removeObserver(self)
         if timeObserver != nil {
             removeTimeObserver(timeObserver!)
@@ -100,6 +106,7 @@ class LoopingPlayer: AVQueuePlayer {
             }
         } else if keyPath == kCurrentItemErrorNew {
             if let item = currentItem, error = item.error {
+                print(error)
                 self.delegate?.playerError()
             }
         } else if keyPath == kCurrentItemPlaybackBufferGoodNew {
@@ -115,6 +122,14 @@ class LoopingPlayer: AVQueuePlayer {
 //                }
 //            }
         }
+    }
+    
+    func captureAudioSession() {
+        do {
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setCategory(AVAudioSessionCategoryAmbient)
+            try audioSession.setActive(true)
+        } catch {}
     }
     
     func playerDidPlayToEndTimeNotification(notification: NSNotification) {

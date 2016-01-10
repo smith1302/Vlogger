@@ -9,19 +9,25 @@
 import UIKit
 import AVFoundation
 
+protocol VideoFeedViewControllerDelegate:class {
+    func showProfileCard()
+}
+
 class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelegate {
     
     // Outlets
     @IBOutlet weak var customOverlayView: UIView!
     @IBOutlet weak var nameButton: UIButtonOutline!
-    @IBOutlet weak var likeButton: UIButton!
+    @IBOutlet weak var likeButton: LikeButton!
     @IBOutlet weak var viewCountLabel: UILabel!
     @IBOutlet weak var xButton: UIButton!
     
     // Other
+    var uploadFailedOverlay:UploadFailedVideoView?
     var videoPlayerViewController:VideoPlayerViewController!
     var videos:[Video] = [Video]()
     var currentVideo:Video?
+    weak var delegate:VideoFeedViewControllerDelegate?
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -30,6 +36,8 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     override func viewDidLoad() {
         super.viewDidLoad()
         view.userInteractionEnabled = true
+        view.backgroundColor = UIColor.redColor()
+        
         videoPlayerViewController = VideoPlayerViewController(user: User.currentUser()!)
         videoPlayerViewController.myDelegate = self
         videoPlayerViewController.view.frame = view.frame
@@ -38,7 +46,6 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         view.bringSubviewToFront(customOverlayView)
         
         Utilities.autolayoutSubviewToViewEdges(videoPlayerViewController.view, view: view)
-        
     }
     
     override func didReceiveMemoryWarning() {
@@ -50,7 +57,6 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     /* VideoPlayerViewController Delegate
     ------------------------------------------------------------------*/
     
-    var uploadFailedOverlay:UploadFailedVideoView?
     func currentVideoChanged(video: Video?) {
         self.currentVideo = video
         uploadFailedOverlay?.removeFromSuperview()
@@ -66,6 +72,7 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
             Utilities.autolayoutSubviewToViewEdges(uploadFailedOverlay!, view: view)
             view?.bringSubviewToFront(customOverlayView)
         }
+        updateViews()
     }
     
     /* IBActions
@@ -83,6 +90,16 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         }
     }
     
+    @IBAction func likeButtonClicked(sender: AnyObject) {
+        
+    }
+    
+    
+    @IBAction func usernameClicked(sender: AnyObject) {
+        delegate?.showProfileCard()
+    }
+    
+    
     /* Helpers
     ------------------------------------------------------------------*/
     
@@ -96,5 +113,11 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
                     self.uploadFailedOverlay = nil
             })
         }
+    }
+    
+    func updateViews() {
+        if currentVideo == nil { return }
+        currentVideo?.setViewed()
+        viewCountLabel.text = "\(currentVideo!.views)"
     }
 }

@@ -11,13 +11,22 @@ import AVFoundation
 import AVKit
 import Parse
 
-class FeedViewController: UIViewController {
+class FeedViewController: UIViewController, VideoFeedViewControllerDelegate, ProfileCardViewControllerDelegate {
     
-    @IBOutlet weak var chatDragCenterYConstraint: NSLayoutConstraint!
+    @IBOutlet weak var chatDragTopConstraint: NSLayoutConstraint!
+    @IBOutlet weak var chatDragView: UIView!
+    
+    var profileCardViewController:ProfileCardViewController?
+    
+    var topDragLimit:CGFloat!
+    var bottomDragLimit:CGFloat!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.userInteractionEnabled = true
+        
+        topDragLimit = 150
+        bottomDragLimit = view.frame.size.height-chatDragView.frame.size.height-100
     }
 
     override func didReceiveMemoryWarning() {
@@ -27,13 +36,63 @@ class FeedViewController: UIViewController {
 
     @IBAction func chatDrag(sender: UIPanGestureRecognizer) {
         let translation = sender.translationInView(self.view)
-        let newY = sender.view!.center.y + translation.y
-        if newY < sender.view!.frame.size.height/2 + 70 || newY > self.view.frame.size.height-sender.view!.frame.size.height - 60 {
+        let newY = sender.view!.frame.origin.y + translation.y
+        
+        chatDragTopConstraint.constant = newY
+        sender.setTranslation(CGPointZero, inView: self.view)
+        view.layoutIfNeeded()
+        
+        if sender.state == .Ended {
+            chatDragRelease(chatDragView)
+        }
+    }
+
+    func chatDragRelease(sender: UIView) {
+        let y = sender.center.y
+        let height = sender.frame.size.height
+        if y < topDragLimit {
+            animateChatDraggerToConstraintConstant(0)
+        } else if y > bottomDragLimit {
+            animateChatDraggerToConstraintConstant(view.frame.size.height-height)
+        }
+    }
+    
+    func animateChatDraggerToConstraintConstant(constant:CGFloat) {
+        chatDragTopConstraint.constant = constant
+        UIView.animateWithDuration(0.3) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    /* VideoFeedViewControllerDelegate
+    ------------------------------------------------------*/
+    
+    func showProfileCard() {
+        if profileCardViewController != nil {
             return
         }
-        chatDragCenterYConstraint.constant = newY - view.frame.size.height/2
-        sender.setTranslation(CGPointZero, inView: self.view)
-        view.setNeedsUpdateConstraints()
-        view.updateConstraintsIfNeeded()
+        
+        let storyboard = self.storyboard
+        if let vc = storyboard?.instantiateViewControllerWithIdentifier("ProfileCardViewController") as? ProfileCardViewController {
+            self.profileCardViewController = vc
+            addChildViewController(vc)
+            view.addSubview(vc.view)
+            vc.view.frame = view.frame
+            vc.delegate = self
+        }
     }
+    
+    /* VideoFeedViewControllerDelegate
+    ------------------------------------------------------*/
+    
+    func profileCardClosed() {
+        profileCardViewController = nil
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if let vc = segue.destinationViewController as? VideoFeedViewController {
+            vc.delegate = self
+        }
+    }
+    
 }

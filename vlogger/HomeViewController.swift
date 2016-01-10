@@ -1,19 +1,18 @@
 //
-//  ChatFeedViewController.swift
+//  HomeViewController.swift
 //  vlogger
 //
-//  Created by Eric Smith on 1/6/16.
+//  Created by Eric Smith on 1/9/16.
 //  Copyright © 2016 smith1302. All rights reserved.
 //
 
 import UIKit
-import ParseUI
 
-class ChatFeedViewController: UITableViewController {
+class HomeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.userInteractionEnabled=true
+
         // Do any additional setup after loading the view.
     }
 

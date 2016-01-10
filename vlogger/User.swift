@@ -3,7 +3,11 @@ import Parse
 class User : PFUser {
     
     @NSManaged var videos: PFRelation
+    @NSManaged var likes: PFRelation
+    @NSManaged var picture: PFFile
+    @NSManaged var plays: Int
     var temporaryVideos:[Video] = [Video]() // Stores them until they are uploaded
+    var followingUserStatus:[String:Bool] = [String:Bool]()
     
     override class func initialize() {
         struct Static {
@@ -37,7 +41,7 @@ class User : PFUser {
     
     func getVideos(callback:([Video]->Void)) {
         let query = videos.query()
-        query.whereKey("createdAt", greaterThan: NSDate(timeIntervalSinceNow: -60*60*24*6))
+        query.whereKey("createdAt", greaterThan: NSDate(timeIntervalSinceNow: -60*60*24*1))
         query.orderByAscending("createdAt")
         query.findObjectsInBackgroundWithBlock({
             (objects:[PFObject]?, error:NSError?) in
@@ -47,5 +51,31 @@ class User : PFUser {
                 callback(self.temporaryVideos)
             }
         })
+    }
+    
+    /*  Follow user
+    -----------------------------------------------------*/
+    func followUser() {
+        if self == User.currentUser() {
+            return
+        }
+        let object = Follow()
+        object.toUser = self
+        object.fromUser = User.currentUser()!
+        object.saveEventually()
+        User.currentUser()!.setFollowingUserStatus(toUser: self, isFollowing: true)
+    }
+    
+    func setFollowingUserStatus(toUser user:User, isFollowing:Bool) {
+        if let id = user.objectId {
+            followingUserStatus[id] = isFollowing
+        }
+    }
+    
+    func isFollowingUser(user:User) -> Bool {
+        if let id = user.objectId, isFollowing = followingUserStatus[id] {
+            return isFollowing
+        }
+        return false
     }
 }

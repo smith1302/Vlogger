@@ -9,6 +9,7 @@ class Video : PFObject, PFSubclassing  {
     @NSManaged var views: Int
     @NSManaged var likes: PFRelation
     
+    var alreadyViewed:Bool = false
     var fileURLIsCompressed:Bool = false
     var uploadInProgressFlag:Bool = false
     var uploadFailedFlag:Bool = false
@@ -136,7 +137,6 @@ class Video : PFObject, PFSubclassing  {
                     failureCallback()
                     self.uploadFailed()
                 } else if success {
-                    MessageHandler.showMessage(kPhotoUploadSuccess)
                     successCallback()
                     self.uploadSucceeded()
                 }
@@ -184,6 +184,18 @@ class Video : PFObject, PFSubclassing  {
             } catch {
                 //print("[cleanupTempFile]:\(error)")
             }
+        }
+    }
+    
+    func getViews() -> Int {
+        return views
+    }
+    
+    func setViewed() {
+        if !alreadyViewed {
+            views++
+            saveEventually()
+            alreadyViewed = true
         }
     }
     

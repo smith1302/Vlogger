@@ -27,7 +27,7 @@ extension AVPlayerItem {
             let playableDurationInSeconds = CMTimeGetSeconds(self.playableDuration)
             let totalDurationInSeconds = CMTimeGetSeconds(self.duration)
             if (totalDurationInSeconds.isNormal) {
-                var progress = Float(playableDurationInSeconds / totalDurationInSeconds)
+                let progress = Float(playableDurationInSeconds / totalDurationInSeconds)
                 if (progress > 0.90) {
                     // Fully loaded
                 }
