@@ -1,0 +1,10 @@
+{
+  "applications": {
+    "_default": {
+      "link": "vlogger"
+    },
+    "vlogger": {
+      "applicationId": "qrUlUCuzG0Vw9132ZPVuOgguGBkkoXYUbHOs92y0"
+    }
+  }
+}
