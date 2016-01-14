@@ -7,6 +7,7 @@ protocol LoopingPlayerDelegate:class {
     func playerReady()
     func playerError()
     func playerDidAdvanceToNextItem()
+    func playerHasNoVideosToPlay()
 }
 
 class LoopingPlayer: AVQueuePlayer {
@@ -124,6 +125,11 @@ class LoopingPlayer: AVQueuePlayer {
         }
     }
     
+    override func play() {
+        super.play()
+        captureAudioSession()
+    }
+    
     func captureAudioSession() {
         do {
             let audioSession = AVAudioSession.sharedInstance()
@@ -137,8 +143,11 @@ class LoopingPlayer: AVQueuePlayer {
         if (playerItem != self.currentItem) {
             return
         }
-        if !isLastItem(playerItem) {
+        if items().count > 1 {
             self.advanceToNextItem()
+        } else {
+            // Let our delegate know that we are playing a new item, even though its just looping the same one
+            delegate?.playerDidAdvanceToNextItem()
         }
         // Reset player and play
         self.seekToTime(kCMTimeZero)
@@ -152,10 +161,6 @@ class LoopingPlayer: AVQueuePlayer {
         return nil
     }
     
-    func isLastItem(playerItem:AVPlayerItem) -> Bool {
-        return self.items().last == playerItem
-    }
-    
     // Since the current item gets removed when advancing, append it to the end so it loops
     override func advanceToNextItem() {
         let aboutToBeDeletedItem = currentItem
@@ -164,6 +169,27 @@ class LoopingPlayer: AVQueuePlayer {
         if let item = aboutToBeDeletedItem where canInsertItem(item, afterItem: items().last) {
             item.seekToTime(CMTimeMake(0, 1))
             insertItem(item, afterItem: items().last)
+        }
+    }
+    
+    func removeCurrentItem() {
+        if let item = currentItem {
+            // Remove item from original queue list
+            if let originalQeueueIndex = originalQueueIndexForItem[item] {
+                originalQueue.removeAtIndex(originalQeueueIndex)
+                originalQueueIndexForItem.removeValueForKey(item)
+            }
+            updateOriginalQueueIndexMapping()
+            removeItem(item)
+        }
+        if items().count == 0 {
+            delegate?.playerHasNoVideosToPlay()
+        }
+    }
+    
+    func updateOriginalQueueIndexMapping() {
+        for (index, item) in originalQueue.enumerate() {
+            originalQueueIndexForItem[item] = index
         }
     }
     

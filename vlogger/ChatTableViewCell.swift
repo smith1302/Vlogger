@@ -7,15 +7,34 @@
 //
 
 import UIKit
+import ParseUI
 
-class ChatTableViewCell: PFTableViewCell {
+protocol ChatTableViewCellDelegate:class {
+    func clickedOnUser(userID:String)
+}
 
-    /*
-    // Only override drawRect: if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func drawRect(rect: CGRect) {
-        // Drawing code
+class ChatTableViewCell: UITableViewCell {
+
+    @IBOutlet weak var timeLabel: UILabel!
+    @IBOutlet weak var textView: UITextView!
+    @IBOutlet weak var usernameLabel: UIButton!
+    weak var delegate:ChatTableViewCellDelegate?
+    
+    var message:Message!
+    
+    func configure(message:Message) {
+        self.message = message
+        usernameLabel.setTitle("\(message.userName):", forState: .Normal)
+        usernameLabel.setTitleColor(Constants.darkPrimaryColor, forState: .Normal)
+        textView.text = message.text
+        timeLabel.text = message.timestamp.getReadableTime()
+
+        textView.textContainerInset = UIEdgeInsetsZero;
     }
-    */
+    
+    
+    @IBAction func usernameClicked(sender: AnyObject) {
+        delegate?.clickedOnUser(message.userID)
+    }
 
 }

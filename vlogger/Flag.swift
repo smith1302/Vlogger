@@ -1,7 +1,7 @@
 import Foundation
 import Parse
 
-class Like : PFObject, PFSubclassing  {
+class Flag : PFObject, PFSubclassing  {
     
     @NSManaged var user: User
     @NSManaged var video: Video
@@ -30,7 +30,7 @@ class Like : PFObject, PFSubclassing  {
     }
     
     static func parseClassName() -> String {
-        return "Likes"
+        return "Flags"
     }
     
 }

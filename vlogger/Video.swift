@@ -5,21 +5,22 @@ import AVFoundation
 class Video : PFObject, PFSubclassing  {
     
     @NSManaged var file: PFFile
-    @NSManaged var userID: String
+    @NSManaged var user: User
     @NSManaged var views: Int
-    @NSManaged var likes: PFRelation
+    @NSManaged var likes: Int
     
+    var tag:Int = 0
     var alreadyViewed:Bool = false
     var fileURLIsCompressed:Bool = false
     var uploadInProgressFlag:Bool = false
     var uploadFailedFlag:Bool = false
     var fileURL:NSURL?
-    var avAsset:AVAsset?
+    static var videoIDToAssetCache:[String:AVAsset] = [String:AVAsset]()
     
     init(fileURL:NSURL?) {
         self.fileURL = fileURL
         super.init()
-        self.userID = User.currentUser()!.objectId!
+        self.user = User.currentUser()!
         self.views = 0
 //        let asset = AVURLAsset(URL: fileURL!, options: nil)
 //        let assetDuration = asset.duration
@@ -51,7 +52,51 @@ class Video : PFObject, PFSubclassing  {
         return "Videos"
     }
     
-    /* Other
+    func printFileSize() {
+        if let path = self.fileURL?.path {
+            let videoData = NSData(contentsOfFile: path)
+            print(videoData?.imageFileSize())
+        }
+    }
+    
+    func getFileURL() -> NSURL? {
+        // If we have the local file URL use it so we don't have to stream it
+        if let url = self.fileURL where NSFileManager.defaultManager().fileExistsAtPath(url.path!) {
+            return url
+        } else if let urlString = file.url, url = NSURL(string: urlString) {
+            return url
+        }
+        return nil
+    }
+    
+    func cleanUpFile() {
+        if fileURL?.path == nil {
+            return
+        }
+        if NSFileManager.defaultManager().fileExistsAtPath(fileURL!.path!) {
+            do {
+                try NSFileManager.defaultManager().removeItemAtPath(fileURL!.path!)
+            } catch {
+                //print("[cleanupTempFile]:\(error)")
+            }
+        }
+    }
+    
+    func getAVPlayerItem() -> AVPlayerItem? {
+        if let objectId = self.objectId, avAsset = Video.videoIDToAssetCache[objectId] {
+            return AVPlayerItem(asset: avAsset)
+        } else if let url = self.getFileURL() {
+            let item = AVPlayerItem(asset: AVAsset(URL: url))
+            // Cache if possible (objectId may not be available for video preview)
+            if let objectId = self.objectId {
+                Video.videoIDToAssetCache[objectId] = item.asset
+            }
+            return item
+        }
+        return nil
+    }
+    
+    /* Uploads
     ------------------------------------------*/
     
     private func compressVideo(handler:(AVAssetExportSession?)-> Void) {
@@ -157,35 +202,8 @@ class Video : PFObject, PFSubclassing  {
         uploadInProgressFlag = false
     }
     
-    func printFileSize() {
-        if let path = self.fileURL?.path {
-            let videoData = NSData(contentsOfFile: path)
-            print(videoData?.imageFileSize())
-        }
-    }
-    
-    func getFileURL() -> NSURL? {
-        // If we have the local file URL use it so we don't have to stream it
-        if let url = self.fileURL where NSFileManager.defaultManager().fileExistsAtPath(url.path!) {
-            return url
-        } else if let urlString = file.url, url = NSURL(string: urlString) {
-            return url
-        }
-        return nil
-    }
-    
-    func cleanUpFile() {
-        if fileURL?.path == nil {
-            return
-        }
-        if NSFileManager.defaultManager().fileExistsAtPath(fileURL!.path!) {
-            do {
-                try NSFileManager.defaultManager().removeItemAtPath(fileURL!.path!)
-            } catch {
-                //print("[cleanupTempFile]:\(error)")
-            }
-        }
-    }
+    /*  Views
+    -----------------------------------------------------*/
     
     func getViews() -> Int {
         return views
@@ -199,16 +217,87 @@ class Video : PFObject, PFSubclassing  {
         }
     }
     
-    func getAVPlayerItem() -> AVPlayerItem? {
-        if avAsset != nil { // check cache
-            return AVPlayerItem(asset: avAsset!)
-        }
-        if let url = self.getFileURL() {
-            let item = AVPlayerItem(asset: AVAsset(URL: url))
-            //self.avAsset = item.asset // cache it
-            return item
-        }
-        return nil
+    /*  Likes
+    -----------------------------------------------------*/
+    
+    var lastLikeUpdate:NSDate?
+    func like() -> Bool {
+        if !hasBeenLongEnoughSinceLastLikeUpdate() { return false}
+        lastLikeUpdate = NSDate()
+        
+        let like = Like(user: User.currentUser()!, video: self)
+        like.saveEventually({
+            (success:Bool, error:NSError?) in
+            if !success {
+                MessageHandler.showMessage("Video could not be liked :(")
+            }
+        })
+        User.currentUser()!.setLikedVideoStatus(self, hasLiked: true)
+        likes++
+        saveEventually()
+        return true
     }
     
+    func unlike() -> Bool {
+        if !hasBeenLongEnoughSinceLastLikeUpdate() { return false }
+        lastLikeUpdate = NSDate()
+        
+        User.currentUser()!.setLikedVideoStatus(self, hasLiked: false)
+        let object = Like.query()
+        object?.whereKey("user", equalTo: User.currentUser()!)
+        object?.whereKey("video", equalTo: self)
+        object?.getFirstObjectInBackgroundWithBlock({
+            (object:PFObject?, error:NSError?) in
+            object?.deleteEventually()
+        })
+        likes--
+        saveEventually()
+        return true
+    }
+    
+    func hasBeenLongEnoughSinceLastLikeUpdate() -> Bool {
+        if lastLikeUpdate == nil { return true }
+        let timeSinceLast =  abs(lastLikeUpdate!.timeIntervalSinceNow)
+        return timeSinceLast > 1
+    }
+    
+    /*  Flag
+    -----------------------------------------------------*/
+    
+    func flag() {
+        if User.currentUser()!.hasFlaggedVideo(self) {
+            return
+        }
+        let flag = Flag(user: User.currentUser()!, video: self)
+        flag.saveEventually()
+        User.currentUser()!.setFlaggedVideoStatus(self, hasFlagged: true)
+        saveEventually()
+    }
+    
+    /*  Deletes
+    -----------------------------------------------------*/
+    
+    override func deleteEventually() -> BFTask {
+        User.currentUser()?.removeTemporaryVideo(self)
+        User.currentUser()?.videos.removeObject(self)
+        return super.deleteEventually()
+    }
+    
+    /*  Thumbnail
+    -----------------------------------------------------*/
+    
+    func getThumbnailImage() -> UIImage? {
+        var image:UIImage?
+        if let fileURL = self.getFileURL() {
+            let asset = AVURLAsset(URL: fileURL)
+            let generate = AVAssetImageGenerator(asset: asset)
+            generate.appliesPreferredTrackTransform = true
+            let time = CMTimeMake(1, 2)
+            do {
+                let imageRef = try generate.copyCGImageAtTime(time, actualTime: nil)
+                image = UIImage(CGImage: imageRef)
+            } catch {}
+        }
+        return image
+    }
 }

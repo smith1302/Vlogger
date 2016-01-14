@@ -9,6 +9,33 @@
 import UIKit
 
 class FollowButton: UIButton {
+    
+    var following:Bool = false
+    var user:User?
+    
+    override internal var enabled: Bool {
+        willSet {
+            if newValue == true {
+                alpha = 1
+            } else {
+                alpha = 0.5
+            }
+        }
+    }
+    
+    func configure(user:User) {
+        setFollow()
+        enabled = false
+        User.currentUser()!.isFollowingUser(user, callback: {
+            (isFollowing:Bool) in
+            self.enabled = true
+            if isFollowing {
+                self.setUnfollow()
+            } else {
+                self.setFollow()
+            }
+        })
+    }
 
     /*
     // Only override drawRect: if you perform custom drawing.
@@ -17,5 +44,15 @@ class FollowButton: UIButton {
         // Drawing code
     }
     */
+    
+    func setFollow() {
+        following = false
+        setTitle("Follow", forState: .Normal)
+    }
+    
+    func setUnfollow() {
+        following = true
+        setTitle("Unfollow", forState: .Normal)
+    }
 
 }

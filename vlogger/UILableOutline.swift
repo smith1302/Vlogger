@@ -10,12 +10,19 @@ import UIKit
 
 class UILableOutline: UILabel {
 
-    /*
-    // Only override drawRect: if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func drawRect(rect: CGRect) {
-        // Drawing code
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        // Configure post image controls
+        if let text = text {
+            let attributedText = NSMutableAttributedString(string: text, attributes: [
+                NSFontAttributeName : font,
+                NSForegroundColorAttributeName: UIColor.whiteColor(),
+                NSStrokeColorAttributeName: UIColor(white: 0.2, alpha: 1),
+                NSStrokeWidthAttributeName: -2
+                ])
+            textAlignment = .Left
+            self.attributedText = attributedText
+        }
     }
-    */
 
 }

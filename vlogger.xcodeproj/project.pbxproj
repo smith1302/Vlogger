@@ -40,6 +40,15 @@
 		F76941341C3C8E6E0001496D /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76941331C3C8E6E0001496D /* FeedViewController.swift */; };
 		F76941361C3CB62B0001496D /* VideoPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76941351C3CB62A0001496D /* VideoPlayerViewController.swift */; };
 		F76AD18F1C3F9B3D0059C2DF /* UploadFailedVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76AD18E1C3F9B3D0059C2DF /* UploadFailedVideoView.swift */; };
+		F7A6B9F21C43770F00E6925D /* UILableOutline.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6B9F11C43770F00E6925D /* UILableOutline.swift */; };
+		F7A6B9F51C44541D00E6925D /* ChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6B9F41C44541D00E6925D /* ChatTableViewCell.swift */; };
+		F7A6B9F71C4454A600E6925D /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6B9F61C4454A600E6925D /* Message.swift */; };
+		F7A6B9F91C44D0FB00E6925D /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6B9F81C44D0FA00E6925D /* Extensions.swift */; };
+		F7A6B9FB1C459C6200E6925D /* StoryUpdateFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6B9FA1C459C6200E6925D /* StoryUpdateFeedViewController.swift */; };
+		F7A6B9FD1C459D0600E6925D /* StoryUpdateTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6B9FC1C459D0600E6925D /* StoryUpdateTableViewCell.swift */; };
+		F7A6B9FF1C45AEFC00E6925D /* OptionalButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6B9FE1C45AEFB00E6925D /* OptionalButton.swift */; };
+		F7A6BA011C45F16200E6925D /* Flag.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6BA001C45F16200E6925D /* Flag.swift */; };
+		F7A6BA051C472A2600E6925D /* SelectorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6BA041C472A2600E6925D /* SelectorViewController.swift */; };
 		F7C550EA1C3FA19E007DA374 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C550E91C3FA19E007DA374 /* Utilities.swift */; };
 		F7DC21F81C418FFA00D7966D /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DC21F71C418FFA00D7966D /* VideoPlayerView.swift */; };
 		F7DC21FA1C41B02900D7966D /* LikeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DC21F91C41B02900D7966D /* LikeButton.swift */; };
@@ -100,6 +109,15 @@
 		F76941331C3C8E6E0001496D /* FeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		F76941351C3CB62A0001496D /* VideoPlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerViewController.swift; sourceTree = "<group>"; };
 		F76AD18E1C3F9B3D0059C2DF /* UploadFailedVideoView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UploadFailedVideoView.swift; sourceTree = "<group>"; };
+		F7A6B9F11C43770F00E6925D /* UILableOutline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UILableOutline.swift; sourceTree = "<group>"; };
+		F7A6B9F41C44541D00E6925D /* ChatTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatTableViewCell.swift; sourceTree = "<group>"; };
+		F7A6B9F61C4454A600E6925D /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		F7A6B9F81C44D0FA00E6925D /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		F7A6B9FA1C459C6200E6925D /* StoryUpdateFeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoryUpdateFeedViewController.swift; sourceTree = "<group>"; };
+		F7A6B9FC1C459D0600E6925D /* StoryUpdateTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoryUpdateTableViewCell.swift; sourceTree = "<group>"; };
+		F7A6B9FE1C45AEFB00E6925D /* OptionalButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OptionalButton.swift; sourceTree = "<group>"; };
+		F7A6BA001C45F16200E6925D /* Flag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Flag.swift; sourceTree = "<group>"; };
+		F7A6BA041C472A2600E6925D /* SelectorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectorViewController.swift; sourceTree = "<group>"; };
 		F7C550E91C3FA19E007DA374 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		F7DC21F71C418FFA00D7966D /* VideoPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		F7DC21F91C41B02900D7966D /* LikeButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LikeButton.swift; sourceTree = "<group>"; };
@@ -200,6 +218,7 @@
 		F714CBD51C3B2A0700D8AC2D /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F79E56C01C4305EE0059F9A7 /* Custom */,
 				F7DC22111C42DA3A00D7966D /* Following */,
 				F7F2A9391C3DCCBB00AF81A4 /* VideoPlayer */,
 				F7F2A9281C3CCA3A00AF81A4 /* Feed */,
@@ -232,6 +251,8 @@
 				F714CBDD1C3B2D1800D8AC2D /* MessageHandler.swift */,
 				F7F635BB1C3F7DA80096FE66 /* Cache.swift */,
 				F7C550E91C3FA19E007DA374 /* Utilities.swift */,
+				F7A6B9F61C4454A600E6925D /* Message.swift */,
+				F7A6B9F81C44D0FA00E6925D /* Extensions.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -286,6 +307,7 @@
 				F714CBF31C3C3AB100D8AC2D /* Video.swift */,
 				F714CBF51C3C3C1500D8AC2D /* Like.swift */,
 				F7DC22141C42EC8F00D7966D /* Follow.swift */,
+				F7A6BA001C45F16200E6925D /* Flag.swift */,
 			);
 			name = Parse;
 			sourceTree = "<group>";
@@ -310,6 +332,21 @@
 			name = Feed;
 			sourceTree = "<group>";
 		};
+		F79E56C01C4305EE0059F9A7 /* Custom */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Custom;
+			sourceTree = "<group>";
+		};
+		F7A6B9F31C44540400E6925D /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				F7A6B9F41C44541D00E6925D /* ChatTableViewCell.swift */,
+			);
+			name = Chat;
+			sourceTree = "<group>";
+		};
 		F7DC21FB1C41CC6900D7966D /* Settings */ = {
 			isa = PBXGroup;
 			children = (
@@ -330,6 +367,9 @@
 			isa = PBXGroup;
 			children = (
 				F7DC22021C41CDA800D7966D /* HomeViewController.swift */,
+				F7A6B9FA1C459C6200E6925D /* StoryUpdateFeedViewController.swift */,
+				F7A6B9FC1C459D0600E6925D /* StoryUpdateTableViewCell.swift */,
+				F7A6BA041C472A2600E6925D /* SelectorViewController.swift */,
 			);
 			name = Home;
 			sourceTree = "<group>";
@@ -354,6 +394,7 @@
 		F7F2A9281C3CCA3A00AF81A4 /* Feed */ = {
 			isa = PBXGroup;
 			children = (
+				F7A6B9F31C44540400E6925D /* Chat */,
 				F7DC22081C42161C00D7966D /* Profile Card */,
 				F7F2A9311C3D98FD00AF81A4 /* VideoFeed */,
 			);
@@ -366,6 +407,8 @@
 				F76AD18E1C3F9B3D0059C2DF /* UploadFailedVideoView.swift */,
 				F7F2A9321C3D992E00AF81A4 /* UIButtonOutline.swift */,
 				F7DC21F91C41B02900D7966D /* LikeButton.swift */,
+				F7A6B9F11C43770F00E6925D /* UILableOutline.swift */,
+				F7A6B9FE1C45AEFB00E6925D /* OptionalButton.swift */,
 			);
 			name = VideoFeed;
 			sourceTree = "<group>";
@@ -426,6 +469,7 @@
 				TargetAttributes = {
 					F714CBA61C3B232A00D8AC2D = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = 297DDK36M7;
 					};
 				};
 			};
@@ -516,23 +560,28 @@
 			files = (
 				F7F2A92A1C3CCA5F00AF81A4 /* VideoProgressView.swift in Sources */,
 				F714CBE51C3B57A800D8AC2D /* RecordButton.swift in Sources */,
+				F7A6B9FB1C459C6200E6925D /* StoryUpdateFeedViewController.swift in Sources */,
 				F7DC22151C42EC8F00D7966D /* Follow.swift in Sources */,
 				F7C550EA1C3FA19E007DA374 /* Utilities.swift in Sources */,
 				F714CBDA1C3B2A7100D8AC2D /* ActivityIndicatorView.swift in Sources */,
 				F714CBEF1C3B9EFF00D8AC2D /* FaceDetectionView.swift in Sources */,
 				F76941361C3CB62B0001496D /* VideoPlayerViewController.swift in Sources */,
+				F7A6B9FD1C459D0600E6925D /* StoryUpdateTableViewCell.swift in Sources */,
+				F7A6BA011C45F16200E6925D /* Flag.swift in Sources */,
 				F769412F1C3C7AA40001496D /* LoginViewController.swift in Sources */,
 				F7DC22011C41CD9B00D7966D /* SettingsViewController.swift in Sources */,
 				F7DC21F81C418FFA00D7966D /* VideoPlayerView.swift in Sources */,
 				F7F635BC1C3F7DA80096FE66 /* Cache.swift in Sources */,
 				F714CBE21C3B316000D8AC2D /* VideoViewController.swift in Sources */,
 				F76AD18F1C3F9B3D0059C2DF /* UploadFailedVideoView.swift in Sources */,
+				F7A6B9F91C44D0FB00E6925D /* Extensions.swift in Sources */,
 				F714CBAD1C3B232A00D8AC2D /* AVFoundationViewController.swift in Sources */,
 				F7F635BA1C3F478D0096FE66 /* AVPlayerItemCustom.swift in Sources */,
 				F714CBEA1C3B7ADF00D8AC2D /* VideoSaveOverlayView.swift in Sources */,
 				F714CBDF1C3B2D1800D8AC2D /* ErrorHandler.swift in Sources */,
 				F7F2A9301C3CF1C500AF81A4 /* ChatFeedViewController.swift in Sources */,
 				F714CBAB1C3B232A00D8AC2D /* AppDelegate.swift in Sources */,
+				F7A6B9F71C4454A600E6925D /* Message.swift in Sources */,
 				F7F2A9331C3D992E00AF81A4 /* UIButtonOutline.swift in Sources */,
 				F7DC21FE1C41CD1000D7966D /* FollowingViewController.swift in Sources */,
 				F76941341C3C8E6E0001496D /* FeedViewController.swift in Sources */,
@@ -541,17 +590,21 @@
 				F714CBF61C3C3C1500D8AC2D /* Like.swift in Sources */,
 				F714CBF21C3C3A1600D8AC2D /* User.swift in Sources */,
 				F714CBF41C3C3AB100D8AC2D /* Video.swift in Sources */,
+				F7A6B9F21C43770F00E6925D /* UILableOutline.swift in Sources */,
 				F7DC220A1C42167C00D7966D /* FollowButton.swift in Sources */,
 				F7F2A92C1C3CE36900AF81A4 /* VideoProgressSegmentView.swift in Sources */,
 				F7DC22101C42174E00D7966D /* ProfileCardViewController.swift in Sources */,
 				F714CBE01C3B2D1800D8AC2D /* MessageHandler.swift in Sources */,
+				F7A6B9FF1C45AEFC00E6925D /* OptionalButton.swift in Sources */,
 				F7DC22131C42DA4F00D7966D /* FollowingTableViewCell.swift in Sources */,
 				F714CBDE1C3B2D1800D8AC2D /* Constants.swift in Sources */,
 				F7DC220E1C4216AE00D7966D /* ProfileCardView.swift in Sources */,
 				F7DC22031C41CDA800D7966D /* HomeViewController.swift in Sources */,
 				F714CBE71C3B779400D8AC2D /* LoopingPlayer.swift in Sources */,
+				F7A6B9F51C44541D00E6925D /* ChatTableViewCell.swift in Sources */,
 				F7DC21FA1C41B02900D7966D /* LikeButton.swift in Sources */,
 				F76941311C3C7B240001496D /* IntroViewController.swift in Sources */,
+				F7A6BA051C472A2600E6925D /* SelectorViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -663,6 +716,8 @@
 			baseConfigurationReference = 0074498CEF410DAECC9BF613 /* Pods-vlogger.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -671,6 +726,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = smith1302.vlogger;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -679,6 +735,8 @@
 			baseConfigurationReference = AC1279823F1F324E18BCB511 /* Pods-vlogger.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -687,6 +745,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = smith1302.vlogger;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

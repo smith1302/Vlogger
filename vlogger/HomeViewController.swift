@@ -10,10 +10,22 @@ import UIKit
 
 class HomeViewController: UIViewController {
 
+    @IBOutlet weak var searchBar: UISearchBar!
+    
+    @IBOutlet weak var selectorContainer: UIView!
+    @IBOutlet weak var trendingButton: UIButton!
+    @IBOutlet weak var subscriptionsButton: UIButton!
+    @IBOutlet weak var selectorCenterXConstraint: NSLayoutConstraint!
+    var selectorViewController:SelectorViewController!
+    
+    
     override func viewDidLoad() {
+        self.automaticallyAdjustsScrollViewInsets = false;
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        
+        // Selector View
+        selectorViewController = SelectorViewController(trendingButton: trendingButton, subscriptionsButton: subscriptionsButton, selectorCenterXConstraint: selectorCenterXConstraint, container: selectorContainer)
+        addChildViewController(selectorViewController)
     }
 
     override func didReceiveMemoryWarning() {
@@ -21,15 +33,16 @@ class HomeViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        UIApplication.sharedApplication().statusBarHidden = false
+        self.navigationController?.navigationBarHidden = false
     }
-    */
+    
+    override func childViewControllerForStatusBarStyle() -> UIViewController? {
+        return self
+    }
+    
+    
 
 }

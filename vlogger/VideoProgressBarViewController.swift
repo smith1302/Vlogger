@@ -13,6 +13,7 @@ protocol VideoProgressBarDelegate:class {
     func playerIsBuffering(isBuffering:Bool)
     func playerError()
     func playerDidAdvanceToNextItem()
+    func playerHasNoVideosToPlay()
 }
 
 class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
@@ -50,7 +51,7 @@ class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
     
     func getDurationsForItems(player:LoopingPlayer) -> [Float64] {
         var itemsDuration = [Float64]()
-        for item in player.items() {
+        for item in player.originalQueue {
             itemsDuration.append(getDurationForItem(item))
         }
         return itemsDuration
@@ -58,7 +59,7 @@ class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
     
     func getTotalDurationForPlayer(player:LoopingPlayer) -> Float64 {
         var totalDuration:Float64 = 0
-        for item in player.items() {
+        for item in player.originalQueue {
             totalDuration += getDurationForItem(item)
         }
         return totalDuration
@@ -123,4 +124,8 @@ class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
         delegate?.playerError()
     }
 
+    func playerHasNoVideosToPlay() {
+        delegate?.playerHasNoVideosToPlay()
+    }
+    
 }

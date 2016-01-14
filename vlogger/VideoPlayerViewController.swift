@@ -45,14 +45,13 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     init(user:User) {
         super.init(nibName: nil, bundle: nil)
         commonInit()
-        user.getVideos({
+        user.getFeedVideos({
             (videos:[Video]) in
             self.setVideos(videos)
         })
     }
     
     func commonInit() {
-
         videoGravity = AVLayerVideoGravityResizeAspectFill
         showsPlaybackControls = false
         
@@ -69,7 +68,7 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     }
     
     deinit {
-        self.player?.pause()
+        self.pause()
         (self.player as? LoopingPlayer)?.cleanUp()
         self.player = nil
         self.progressBarController.removeFromParentViewController()
@@ -95,25 +94,41 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     }
     
     func applicationDidEnterBackground() {
-        self.player?.pause()
+        self.pause()
     }
     
     func applicationWillEnterForeground() {
-        self.player?.play()
+        self.play()
     }
     
     private func setVideos(videos:[Video]) {
+        if videos.count == 0 {
+            activityIndicator.stopAnimating()
+            myDelegate?.currentVideoChanged(nil)
+            return
+        }
         self.videos = videos
         self.currentVideo = videos.first
         var items = [AVPlayerItem]()
+        var i = 0
         for video in videos {
             if let item = video.getAVPlayerItem() {
                 items.append(item)
+                video.tag = i++
             }
         }
         self.player = LoopingPlayer(items: items)
         progressBarController.setLoopingPlayer(self.player as! LoopingPlayer)
         
+    }
+    
+    func removeCurrentVideo() {
+        videos = Array(videos.dropFirst())
+        currentVideo = videos.first
+        if let player = player as? LoopingPlayer {
+            player.removeCurrentItem()
+            progressBarController.setLoopingPlayer(player)
+        }
     }
 
     func hidesProgressBar(val:Bool) {
@@ -135,23 +150,36 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
         ErrorHandler.showAlert("Player error")
     }
     
+    func playerDidAdvanceToNextItem() {
+        // Cycle the order of the videos queue
+        // Move the queue up and put the first element at the end
+        let first = videos.first
+        videos = Array(videos.dropFirst())
+        if first != nil {
+            videos.append(first!)
+        }
+        currentVideo = videos.first
+    }
+    
+    func pause() {
+        player?.pause()
+    }
+    
+    func play() {
+        player?.play()
+    }
+    
+    func playerHasNoVideosToPlay() {
+        myDelegate?.currentVideoChanged(nil)
+    }
+    
+    /* Actions
+    ------------------------------------------------------------------------------*/
+    
     func didTap() {
         if let player = self.player as? LoopingPlayer {
             player.advanceToNextItem()
         }
-    }
-    
-    func playerDidAdvanceToNextItem() {
-        // Move the queue up and put the first element at the end
-        let first = videos.first
-        for (index, video) in videos.enumerate() {
-            if index == 0 {continue}
-            videos[index-1] = video
-        }
-        if first != nil {
-            videos[videos.count-1] = first!
-        }
-        currentVideo = videos.first
     }
     
     /*

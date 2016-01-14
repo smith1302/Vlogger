@@ -82,11 +82,15 @@ class RecordButton: UIButton {
     
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
         isRecording = false
-        backgroundColor = normalColor
         circleLayer.removeAnimationForKey("animateCircle")
+        resetAppearance()
+        delegate?.recordFinished()
+    }
+    
+    func resetAppearance() {
+        backgroundColor = normalColor
         circleLayer.strokeEnd = 0.0
         transform = CGAffineTransformMakeScale(1, 1)
-        delegate?.recordFinished()
     }
     
     func animateCircle(duration: NSTimeInterval) {
@@ -94,6 +98,7 @@ class RecordButton: UIButton {
         CATransaction.begin()
         CATransaction.setCompletionBlock({
             self.delegate?.recordFinished()
+            self.resetAppearance()
         })
         
         // We want to animate the strokeEnd property of the circleLayer

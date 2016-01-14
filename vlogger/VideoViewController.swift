@@ -20,8 +20,6 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Setup
-        UIApplication.sharedApplication().statusBarHidden = true
         
         // Record button
         recordButton.delegate = self
@@ -35,13 +33,16 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
         // Dispose of any resources that can be recreated.
     }
     
-    override func prefersStatusBarHidden() -> Bool {
-        return true
+    override func viewWillAppear(animated: Bool) {
+        navigationController?.navigationBarHidden = true
+        UIApplication.sharedApplication().statusBarHidden = true
+        super.viewWillAppear(animated)
     }
     
     /* Record Button Delegate
     ------------------------------------------*/
     func recordFinished() {
+        activityIndicator.startAnimating()
         super.recordingStop()
         
     }
@@ -67,6 +68,7 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     
     // When we get the video output playback lets show the video overlay
     override func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError?) {
+        activityIndicator.stopAnimating()
         super.captureOutput(captureOutput, didFinishRecordingToOutputFileAtURL: outputFileURL, fromConnections: connections, error: error)
         if error == nil {
             addVideoSaveOverlay()
@@ -95,5 +97,11 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
         videoSaveOverlayView = VideoSaveOverlayView(frame: CGRectMake(0,view.frame.size.height-height,view.frame.size.width,height))
         videoSaveOverlayView!.delegate = self
         view.addSubview(videoSaveOverlayView!)
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if let destinationVC = segue.destinationViewController as? FeedViewController {
+            destinationVC.configure(User.currentUser()!)
+        }
     }
 }

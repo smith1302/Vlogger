@@ -26,7 +26,7 @@ class ProfileCardViewController: UIViewController {
     @IBOutlet weak var lineSeperator: UIView!
     weak var delegate:ProfileCardViewControllerDelegate?
     
-    var user:User?
+    var user:User!
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -45,11 +45,29 @@ class ProfileCardViewController: UIViewController {
     func configure(user:User) {
         self.user = user
         imageView.file = user.picture
+        imageView.image = UIImage(named: "Avatar.png")
         imageView.loadInBackground()
         
+        usernameLabel.text = user.username!
         viewsLabel.text = "0"
         rankLabel.text = "0"
         followersButton.setTitle("0", forState: .Normal)
+        
+        followersButton.alpha = 0.6
+        user.getTotalSubscribers({
+            (count:Int) in
+            self.followersButton.alpha = 1
+            self.followersButton.setTitle("\(count)", forState: .Normal)
+        })
+        
+        viewsLabel.alpha = 0.6
+        user.getTotalViews({
+            (count:Int) in
+            self.viewsLabel.alpha = 1
+            self.viewsLabel.text = "\(count)"
+        })
+        
+        followButton.configure(user)
     }
     
     override func viewDidLoad() {
@@ -82,8 +100,8 @@ class ProfileCardViewController: UIViewController {
         
         // Round imageview
         imageView.layer.cornerRadius = imageView.frame.size.height/2
-        imageView.layer.borderWidth = 6
-        imageView.layer.borderColor = top.backgroundColor?.CGColor
+        imageView.layer.borderWidth = 7
+        imageView.layer.borderColor = Constants.darkPrimaryColor.CGColor
         imageView.layer.masksToBounds = true
         
         // Round edges of view
@@ -102,13 +120,21 @@ class ProfileCardViewController: UIViewController {
     
     @IBAction func showFollowers(sender: AnyObject) {
         let storyboard = self.storyboard
-        if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FollowingViewController") as? FollowingViewController, parentVC = parentViewController {
+        if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FollowingViewController") as? FollowingViewController {
+            destinationVC.configure(user)
             self.navigationController?.pushViewController(destinationVC, animated: true)
         }
     }
 
     @IBAction func followButtonClicked(sender: AnyObject) {
-        user?.followUser()
+        if followButton.following {
+            user?.unfollowUser()
+            // Now that we are unfollowing them, show "Follow"
+            followButton.setFollow()
+        } else {
+            user?.followUser()
+            followButton.setUnfollow()
+        }
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
