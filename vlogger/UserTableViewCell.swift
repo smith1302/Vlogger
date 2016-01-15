@@ -1,15 +1,12 @@
-//
-//  FollowingTableViewCell.swift
-//  vlogger
-//
-//  Created by Eric Smith on 1/10/16.
-//  Copyright © 2016 smith1302. All rights reserved.
-//
 
 import UIKit
 import ParseUI
 
-class FollowingTableViewCell: PFTableViewCell {
+protocol UserTableViewCellDelegate:class {
+    func cellActivated()
+}
+
+class UserTableViewCell: PFTableViewCell {
 
 
     @IBOutlet weak var nameLabel: UILabel!
@@ -17,6 +14,7 @@ class FollowingTableViewCell: PFTableViewCell {
     
     var following:Bool = false
     var user:User!
+    weak var delegate:UserTableViewCellDelegate?
     
     func configure(user:User) {
         setFollow(false, enabled: false)
@@ -29,7 +27,7 @@ class FollowingTableViewCell: PFTableViewCell {
         pfImageView.layer.cornerRadius = pfImageView.frame.size.height/2
         pfImageView.layer.masksToBounds = true
         pfImageView.backgroundColor = UIColor.lightGrayColor()
-        pfImageView.layer.borderWidth = 4
+        pfImageView.layer.borderWidth = 5
         pfImageView.layer.borderColor = UIColor(white: 0.9, alpha: 1).CGColor
     }
     
@@ -48,7 +46,7 @@ class FollowingTableViewCell: PFTableViewCell {
     }
     
     func followUser() {
-        self.user.followUser()
+        delegate?.cellActivated()
         setFollow(true, enabled: true)
     }
     

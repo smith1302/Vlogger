@@ -1,13 +1,10 @@
 
-// Use Parse.Cloud.define to define as many cloud functions as you want.
-// For example:
-Parse.Cloud.define("hello", function(request, response) {
-  response.success("Hello world!");
-});
 
+var Videos = Parse.Object.extend("Videos");
 var Follows = Parse.Object.extend("Follows");
 var Likes = Parse.Object.extend("Likes");
 var Flags = Parse.Object.extend("Flags");
+var VideoUpdates = Parse.Object.extend("VideoUpdates");
 
 // Only like video once
 Parse.Cloud.beforeSave("Likes", function(request, response) {
@@ -102,6 +99,7 @@ Parse.Cloud.define("totalViews", function(request, response) {
 	}
 }
 */
+
 Parse.Cloud.define("getFeedVideos", function(request, response) {
   var query = new Parse.Query("Videos");
   var user = new Parse.Object.extend("_User");
@@ -109,6 +107,7 @@ Parse.Cloud.define("getFeedVideos", function(request, response) {
 
   query.equalTo("user", user);
   query.greaterThanOrEqualTo("createdAt", request.params.oneDayAgo);
+  query.ascending("createdAt")
   query.find({
     success: function(recentVideos) {
       var resultsLength = recentVideos.length;
@@ -117,19 +116,44 @@ Parse.Cloud.define("getFeedVideos", function(request, response) {
       	var query = new Parse.Query("Videos");
 		query.equalTo("user", user);
 		query.lessThan("createdAt", request.params.oneDayAgo);
+		query.descending("createdAt")
 		query.limit(videosNeeded);
 		query.find({
     		success: function(olderVideos) {
-    			response.success(olderVideos.concat(recentVideos));
+    			response.success(olderVideos.reverse().concat(recentVideos));
     		},
     		error: function() {
 		      response.error("Get old feed videos failed");
 		    }
 		});
+      } else {
+      	response.success(recentVideos);
       }
     },
     error: function() {
       response.error("Get recent feed videos failed");
     }
   });
+});
+
+// Create updates for video adds
+Parse.Cloud.afterSave("Videos", function(request) {
+	var query = new Parse.Query(VideoUpdates);
+	query.equalTo("user", request.object.get("user"));
+	query.first({
+	  success: function(object) {
+	    if (object) { // Object exists. Update it.
+	    	object.set("video", request.object);
+	    	object.save();
+	    } else { // object doesnt exist, create it
+	    	var videoUpdates = new VideoUpdates();
+			videoUpdates.set("video", request.object);
+			videoUpdates.set("user", request.object.get("user"));
+			videoUpdates.save();
+		}
+	  },
+	  error: function(error) {
+	  	console.error("Got an error " + error.code + " : " + error.message);
+	  }
+	});
 });

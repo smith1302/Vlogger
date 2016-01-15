@@ -44,9 +44,8 @@ class OptionalButton: UIButton {
     }
 
     func configure(user:User) {
-        
         hidden = false
-        if user == User.currentUser()! {
+        if user.objectId == User.currentUser()!.objectId {
             buttonState = State.Delete
         } else {
             buttonState = State.Flag

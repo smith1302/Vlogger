@@ -39,7 +39,6 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     override func viewDidLoad() {
         super.viewDidLoad()
         view.userInteractionEnabled = true
-        view.backgroundColor = UIColor.redColor()
         
         likeButton.delegate = self
         likeCountLabel.textAlignment = .Right
@@ -48,13 +47,13 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         // Configure name button title
         nameButton.setTitle(user.username!, forState: .Normal)
         // Configure video player
-        videoPlayerViewController = VideoPlayerViewController(user: user)
-        videoPlayerViewController.myDelegate = self
-        videoPlayerViewController.view.frame = view.frame
-        addChildViewController(videoPlayerViewController)
-        view.addSubview(videoPlayerViewController.view)
-        view.bringSubviewToFront(customOverlayView)
-        Utilities.autolayoutSubviewToViewEdges(videoPlayerViewController.view, view: view)
+        self.videoPlayerViewController = VideoPlayerViewController(user: self.user)
+        self.videoPlayerViewController.myDelegate = self
+        self.videoPlayerViewController.view.frame = self.view.frame
+        self.addChildViewController(self.videoPlayerViewController)
+        self.view.addSubview(self.videoPlayerViewController.view)
+        self.view.bringSubviewToFront(self.customOverlayView)
+        Utilities.autolayoutSubviewToViewEdges(self.videoPlayerViewController.view, view: self.view)
         
         // Optional Button
         optionalButton.delegate = self

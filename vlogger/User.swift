@@ -2,6 +2,7 @@ import Parse
 
 class User : PFUser {
     
+    @NSManaged var usernameLowercase:String
     @NSManaged var videos: PFRelation
     @NSManaged var likes: PFRelation
     @NSManaged var picture: PFFile

@@ -388,6 +388,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         let newUser = User()
         newUser.username = usernameBox.text!.stripWhitespace()
         newUser.password = passwordBox.text!.stripWhitespace()
+        newUser.usernameLowercase = usernameBox.text!.stripWhitespace().lowercaseString
         
         // Sign up the user asynchronously
         newUser.signUpInBackgroundWithBlock({ (succeed, error) -> Void in

@@ -22,6 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Like.registerSubclass()
         Follow.registerSubclass()
         Flag.registerSubclass()
+        VideoUpdates.registerSubclass()
         // [Optional] Power your app with Local Datastore. For more info, go to
         // https://parse.com/docs/ios/guide#local-datastore
         //Parse.enableLocalDatastore()
@@ -31,6 +32,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // [Optional] Track statistics around application opens.
         PFAnalytics.trackAppOpenedWithLaunchOptions(launchOptions)
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: NSBundle.mainBundle());
+        let currentUser = PFUser.currentUser()
+        if currentUser != nil {
+            self.window?.rootViewController = storyboard.instantiateViewControllerWithIdentifier("MainNavigationViewController");
+        }
         
         // ...
         return true
