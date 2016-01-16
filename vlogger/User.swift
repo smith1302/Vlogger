@@ -3,7 +3,7 @@ import Parse
 class User : PFUser {
     
     @NSManaged var usernameLowercase:String
-    @NSManaged var videos: PFRelation
+    //@NSManaged var videos: PFRelation
     @NSManaged var likes: PFRelation
     @NSManaged var picture: PFFile
     @NSManaged var plays: Int
@@ -33,9 +33,9 @@ class User : PFUser {
     
     // When video is uploaded add to our relations list
     func videoUploadSuccess(video:Video) {
-        videos.addObject(video)
+        //videos.addObject(video)
         removeTemporaryVideo(video)
-        saveEventually()
+        //saveEventually()
     }
     
     func removeTemporaryVideo(video:Video) {
@@ -206,5 +206,14 @@ class User : PFUser {
             return hasFlagged
         }
         return false
+    }
+    
+    /*  Story
+    -----------------------------------------------------*/
+    
+    func getCurrentStory() {
+        let query = Story.query()
+        query?.whereKey("user", equalTo: self)
+        query?.whereKey("day", equalTo: NSDate.getCurrentDay())
     }
 }

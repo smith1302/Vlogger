@@ -9,10 +9,6 @@
 import UIKit
 import AVFoundation
 
-protocol VideoFeedViewControllerDelegate:class {
-    func showProfileCard()
-}
-
 class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelegate, LikeButtonDelegate, OptionalButtonDelegate {
     
     // Outlets
@@ -30,7 +26,7 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     var videoPlayerViewController:VideoPlayerViewController!
     var currentVideo:Video?
     var user:User!
-    weak var delegate:VideoFeedViewControllerDelegate?
+    var story:Story?
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -47,7 +43,11 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         // Configure name button title
         nameButton.setTitle(user.username!, forState: .Normal)
         // Configure video player
-        self.videoPlayerViewController = VideoPlayerViewController(user: self.user)
+        if let story = story {
+            self.videoPlayerViewController = VideoPlayerViewController(story: story)
+        } else {
+            self.videoPlayerViewController = VideoPlayerViewController(user: user)
+        }
         self.videoPlayerViewController.myDelegate = self
         self.videoPlayerViewController.view.frame = self.view.frame
         self.addChildViewController(self.videoPlayerViewController)
@@ -65,9 +65,13 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         // Dispose of any resources that can be recreated.
     }
     
-    func configure(user:User) {
+    func configureWithUser(user:User) {
         self.user = user
-        // Views aren't ready yet so we must configure them in viewDidLoad
+    }
+    
+    func configureStory(story:Story) {
+        self.user = story.user
+        self.story = story
     }
     
     /* VideoPlayerViewController Delegate
@@ -151,10 +155,6 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         }
     }
     
-    @IBAction func usernameClicked(sender: AnyObject) {
-        delegate?.showProfileCard()
-    }
-    
     /* Visual Effects
     ------------------------------------------------------------------*/
     
@@ -210,6 +210,12 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         
         if currentVideo == nil {
             optionalButton.hide()
+        }
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if let vc = segue.destinationViewController as? ProfileViewController {
+            vc.configure(user)
         }
     }
 }

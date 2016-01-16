@@ -1,5 +1,5 @@
 //
-//  StoryUpdateFeedViewController.swift
+//  TrendingViewController
 //  vlogger
 //
 //  Created by Eric Smith on 1/9/16.
@@ -9,7 +9,7 @@
 import UIKit
 import ParseUI
 
-class StoryUpdateFeedViewController: PFQueryTableViewController {
+class TrendingViewController: PFQueryTableViewController {
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -27,22 +27,19 @@ class StoryUpdateFeedViewController: PFQueryTableViewController {
     override func queryForTable() -> PFQuery {
         
         // Get users that we follow
-        let followQuery = Follow.query()
-        followQuery?.whereKey("fromUser", equalTo: User.currentUser()!)
-    
-        let videoUpdatesQuery = VideoUpdates.query()
-        videoUpdatesQuery!.whereKey("user", matchesKey: "toUser", inQuery: followQuery!)
-        videoUpdatesQuery!.includeKey("user")
-        videoUpdatesQuery!.includeKey("video")
-        videoUpdatesQuery!.orderByAscending("updatedAt")
-        return videoUpdatesQuery!
+        let storyQuery = Story.query()
+        storyQuery?.whereKey("createdAt", greaterThan: NSDate(timeIntervalSinceNow: -60*60*24*7))
+        storyQuery?.orderByDescending("views")
+        storyQuery?.includeKey("user")
+        storyQuery?.includeKey("video")
+        return storyQuery!
     }
     
     /*
-        New class called VideoUpdates
-        keys:
-            User
-            Video
+    New class called VideoUpdates
+    keys:
+        User
+        Video
     */
     
     override func viewDidLoad() {
@@ -50,24 +47,24 @@ class StoryUpdateFeedViewController: PFQueryTableViewController {
         tableView.estimatedRowHeight = 55
         tableView.rowHeight = UITableViewAutomaticDimension
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath, object: PFObject?) -> StoryUpdateTableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("StoryUpdateCell") as! StoryUpdateTableViewCell!
-        if let videoUpdate = object as? VideoUpdates {
-            cell.configure(videoUpdate)
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath, object: PFObject?) -> TrendingTableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier("TrendingCell") as! TrendingTableViewCell!
+        if let story = object as? Story {
+            cell.configure(story)
         }
         return cell
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        if let videoUpdate = self.objectAtIndexPath(indexPath) as? VideoUpdates {
-            let user = videoUpdate.user
+        if let story = self.objectAtIndexPath(indexPath) as? Story {
+            let user = story.user
             let storyboard = self.storyboard
             if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {
                 self.navigationController?.pushViewController(destinationVC, animated: true)

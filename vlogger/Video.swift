@@ -8,6 +8,7 @@ class Video : PFObject, PFSubclassing  {
     @NSManaged var user: User
     @NSManaged var views: Int
     @NSManaged var likes: Int
+    @NSManaged var day: Int
     
     var tag:Int = 0
     var alreadyViewed:Bool = false
@@ -22,9 +23,8 @@ class Video : PFObject, PFSubclassing  {
         super.init()
         self.user = User.currentUser()!
         self.views = 0
-//        let asset = AVURLAsset(URL: fileURL!, options: nil)
-//        let assetDuration = asset.duration
-//        self.duration = CMTimeGetSeconds(assetDuration)
+        self.likes = 0
+        self.day = NSDate.getCurrentDay()
     }
     
     override init() {
@@ -279,7 +279,6 @@ class Video : PFObject, PFSubclassing  {
     
     override func deleteEventually() -> BFTask {
         User.currentUser()?.removeTemporaryVideo(self)
-        User.currentUser()?.videos.removeObject(self)
         return super.deleteEventually()
     }
     

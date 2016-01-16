@@ -43,6 +43,12 @@
 		F76E847A1C478E05004C8C0E /* VideoUpdates.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76E84791C478E05004C8C0E /* VideoUpdates.swift */; };
 		F76E847C1C488447004C8C0E /* UserListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76E847B1C488447004C8C0E /* UserListViewController.swift */; };
 		F76E84801C488834004C8C0E /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76E847F1C488834004C8C0E /* SearchViewController.swift */; };
+		F76E84821C48BF6D004C8C0E /* TrendingTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76E84811C48BF6D004C8C0E /* TrendingTableViewCell.swift */; };
+		F76E84861C48C199004C8C0E /* TrendingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76E84851C48C199004C8C0E /* TrendingViewController.swift */; };
+		F76E84881C48D671004C8C0E /* Story.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76E84871C48D671004C8C0E /* Story.swift */; };
+		F76E848B1C49E432004C8C0E /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76E848A1C49E432004C8C0E /* ProfileViewController.swift */; };
+		F76E848D1C49E45B004C8C0E /* ProfileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76E848C1C49E45B004C8C0E /* ProfileTableViewCell.swift */; };
+		F76E848F1C4ACCD6004C8C0E /* ProfileTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F76E848E1C4ACCD6004C8C0E /* ProfileTableViewController.swift */; };
 		F7A6B9F21C43770F00E6925D /* UILableOutline.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6B9F11C43770F00E6925D /* UILableOutline.swift */; };
 		F7A6B9F51C44541D00E6925D /* ChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6B9F41C44541D00E6925D /* ChatTableViewCell.swift */; };
 		F7A6B9F71C4454A600E6925D /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6B9F61C4454A600E6925D /* Message.swift */; };
@@ -115,6 +121,12 @@
 		F76E84791C478E05004C8C0E /* VideoUpdates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoUpdates.swift; sourceTree = "<group>"; };
 		F76E847B1C488447004C8C0E /* UserListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserListViewController.swift; sourceTree = "<group>"; };
 		F76E847F1C488834004C8C0E /* SearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		F76E84811C48BF6D004C8C0E /* TrendingTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrendingTableViewCell.swift; sourceTree = "<group>"; };
+		F76E84851C48C199004C8C0E /* TrendingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrendingViewController.swift; sourceTree = "<group>"; };
+		F76E84871C48D671004C8C0E /* Story.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Story.swift; sourceTree = "<group>"; };
+		F76E848A1C49E432004C8C0E /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		F76E848C1C49E45B004C8C0E /* ProfileTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileTableViewCell.swift; sourceTree = "<group>"; };
+		F76E848E1C4ACCD6004C8C0E /* ProfileTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileTableViewController.swift; sourceTree = "<group>"; };
 		F7A6B9F11C43770F00E6925D /* UILableOutline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UILableOutline.swift; sourceTree = "<group>"; };
 		F7A6B9F41C44541D00E6925D /* ChatTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatTableViewCell.swift; sourceTree = "<group>"; };
 		F7A6B9F61C4454A600E6925D /* Message.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
@@ -237,6 +249,7 @@
 		F714CBD61C3B2A1100D8AC2D /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				F76E84891C49E41E004C8C0E /* Profile */,
 				F76E847E1C48881A004C8C0E /* Search */,
 				F76E847D1C48867A004C8C0E /* UserList */,
 				F7DC21FF1C41CD4900D7966D /* Home */,
@@ -317,6 +330,7 @@
 				F7DC22141C42EC8F00D7966D /* Follow.swift */,
 				F7A6BA001C45F16200E6925D /* Flag.swift */,
 				F76E84791C478E05004C8C0E /* VideoUpdates.swift */,
+				F76E84871C48D671004C8C0E /* Story.swift */,
 			);
 			name = Parse;
 			sourceTree = "<group>";
@@ -357,6 +371,34 @@
 			name = Search;
 			sourceTree = "<group>";
 		};
+		F76E84831C48C17F004C8C0E /* Subs */ = {
+			isa = PBXGroup;
+			children = (
+				F7A6B9FA1C459C6200E6925D /* StoryUpdateFeedViewController.swift */,
+				F7A6B9FC1C459D0600E6925D /* StoryUpdateTableViewCell.swift */,
+			);
+			name = Subs;
+			sourceTree = "<group>";
+		};
+		F76E84841C48C188004C8C0E /* Trending */ = {
+			isa = PBXGroup;
+			children = (
+				F76E84811C48BF6D004C8C0E /* TrendingTableViewCell.swift */,
+				F76E84851C48C199004C8C0E /* TrendingViewController.swift */,
+			);
+			name = Trending;
+			sourceTree = "<group>";
+		};
+		F76E84891C49E41E004C8C0E /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				F76E848A1C49E432004C8C0E /* ProfileViewController.swift */,
+				F76E848C1C49E45B004C8C0E /* ProfileTableViewCell.swift */,
+				F76E848E1C4ACCD6004C8C0E /* ProfileTableViewController.swift */,
+			);
+			name = Profile;
+			sourceTree = "<group>";
+		};
 		F79E56C01C4305EE0059F9A7 /* Custom */ = {
 			isa = PBXGroup;
 			children = (
@@ -391,9 +433,9 @@
 		F7DC21FF1C41CD4900D7966D /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				F76E84841C48C188004C8C0E /* Trending */,
+				F76E84831C48C17F004C8C0E /* Subs */,
 				F7DC22021C41CDA800D7966D /* HomeViewController.swift */,
-				F7A6B9FA1C459C6200E6925D /* StoryUpdateFeedViewController.swift */,
-				F7A6B9FC1C459D0600E6925D /* StoryUpdateTableViewCell.swift */,
 				F7A6BA041C472A2600E6925D /* SelectorViewController.swift */,
 			);
 			name = Home;
@@ -585,15 +627,20 @@
 			files = (
 				F76E847C1C488447004C8C0E /* UserListViewController.swift in Sources */,
 				F7F2A92A1C3CCA5F00AF81A4 /* VideoProgressView.swift in Sources */,
+				F76E84881C48D671004C8C0E /* Story.swift in Sources */,
+				F76E848D1C49E45B004C8C0E /* ProfileTableViewCell.swift in Sources */,
 				F714CBE51C3B57A800D8AC2D /* RecordButton.swift in Sources */,
 				F7A6B9FB1C459C6200E6925D /* StoryUpdateFeedViewController.swift in Sources */,
 				F7DC22151C42EC8F00D7966D /* Follow.swift in Sources */,
+				F76E848B1C49E432004C8C0E /* ProfileViewController.swift in Sources */,
 				F7C550EA1C3FA19E007DA374 /* Utilities.swift in Sources */,
 				F714CBDA1C3B2A7100D8AC2D /* ActivityIndicatorView.swift in Sources */,
 				F714CBEF1C3B9EFF00D8AC2D /* FaceDetectionView.swift in Sources */,
 				F76941361C3CB62B0001496D /* VideoPlayerViewController.swift in Sources */,
 				F7A6B9FD1C459D0600E6925D /* StoryUpdateTableViewCell.swift in Sources */,
 				F7A6BA011C45F16200E6925D /* Flag.swift in Sources */,
+				F76E848F1C4ACCD6004C8C0E /* ProfileTableViewController.swift in Sources */,
+				F76E84821C48BF6D004C8C0E /* TrendingTableViewCell.swift in Sources */,
 				F76E847A1C478E05004C8C0E /* VideoUpdates.swift in Sources */,
 				F769412F1C3C7AA40001496D /* LoginViewController.swift in Sources */,
 				F7DC22011C41CD9B00D7966D /* SettingsViewController.swift in Sources */,
@@ -611,6 +658,7 @@
 				F7A6B9F71C4454A600E6925D /* Message.swift in Sources */,
 				F7F2A9331C3D992E00AF81A4 /* UIButtonOutline.swift in Sources */,
 				F7DC21FE1C41CD1000D7966D /* FollowingViewController.swift in Sources */,
+				F76E84861C48C199004C8C0E /* TrendingViewController.swift in Sources */,
 				F76941341C3C8E6E0001496D /* FeedViewController.swift in Sources */,
 				F7F2A92E1C3CF18400AF81A4 /* VideoFeedViewController.swift in Sources */,
 				F7F2A9361C3DC40600AF81A4 /* VideoProgressBarViewController.swift in Sources */,

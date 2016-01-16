@@ -8,6 +8,7 @@
 
 import UIKit
 import AVFoundation
+import Parse
 import AVKit
 
 protocol VideoPlayerViewControllerDelegate: class {
@@ -40,6 +41,18 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
         super.init(nibName: nil, bundle: nil)
         commonInit()
         setVideos(videos)
+    }
+    
+    init(story:Story) {
+        super.init(nibName: nil, bundle: nil)
+        commonInit()
+        let query = story.videos.query()
+        query.findObjectsInBackgroundWithBlock({
+            (objects:[PFObject]?, error:NSError?) in
+            if let videos = objects as? [Video] {
+                self.setVideos(videos)
+            }
+        })
     }
     
     init(user:User) {

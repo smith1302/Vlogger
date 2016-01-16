@@ -56,6 +56,20 @@ extension NSDate {
         return returnString
     }
     
+    class func getReadableTimeFromDay(day:Int) -> String {
+        let formatter = NSDateFormatter()
+        let hour = day*24
+        let minute = hour*60
+        let second = minute*60
+        let date = NSDate(timeIntervalSince1970:  NSTimeInterval(second))
+        formatter.dateFormat = "MMM d, yyyy"
+        return formatter.stringFromDate(date)
+    }
+    
+    class func getCurrentDay() -> Int {
+        return NSDate(timeIntervalSince1970: 0).daysFrom(NSDate())
+    }
+    
     func isGreaterThanDate(dateToCompare : NSDate) -> Bool {
         var isGreater = false
         if self.compare(dateToCompare) == NSComparisonResult.OrderedDescending {
@@ -106,7 +120,6 @@ extension String {
     func stripWhitespace() -> String {
         return self.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceCharacterSet())
     }
-    
     static func randomStringWithLength (len : Int) -> String {
         let letters : NSString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         let randomString : NSMutableString = NSMutableString(capacity: len)
@@ -154,5 +167,13 @@ extension UIView {
             }
         }
         return nil
+    }
+}
+
+extension Int {
+    func pretty() -> String {
+        let numberFormatter = NSNumberFormatter()
+        numberFormatter.numberStyle = NSNumberFormatterStyle.DecimalStyle
+        return numberFormatter.stringFromNumber(self)!
     }
 }

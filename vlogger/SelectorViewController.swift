@@ -8,14 +8,21 @@
 
 import UIKit
 
+protocol SelectorViewControllerDelegate: class {
+    func subscriptionClicked()
+    func trendingClicked()
+}
+
 class SelectorViewController: UIViewController {
     
+    weak var selectedButton: UIButton!
     weak var trendingButton: UIButton!
     weak var subscriptionsButton: UIButton!
     weak var container: UIView!
     weak var selectorCenterXConstraint: NSLayoutConstraint!
     var selectedColor:UIColor = UIColor(hex: 0x3697FF)
     var nonSelectedColor:UIColor = UIColor.grayColor()
+    weak var delegate:SelectorViewControllerDelegate?
     
     init(trendingButton:UIButton, subscriptionsButton:UIButton, selectorCenterXConstraint: NSLayoutConstraint, container:UIView) {
         self.trendingButton = trendingButton
@@ -25,6 +32,7 @@ class SelectorViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         self.trendingButton.addTarget(self, action: "trendingButtonClicked", forControlEvents: .TouchUpInside)
         self.subscriptionsButton.addTarget(self, action: "subscriptionButtonClicked", forControlEvents: .TouchUpInside)
+        selectedButton = subscriptionsButton
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -43,17 +51,23 @@ class SelectorViewController: UIViewController {
     }
     
     func trendingButtonClicked() {
+        if selectedButton == trendingButton { return }
         selectorCenterXConstraint.constant = trendingButton.frame.origin.x
         trendingButton.setTitleColor(selectedColor, forState: .Normal)
         subscriptionsButton.setTitleColor(nonSelectedColor, forState: .Normal)
         animateSelector()
+        selectedButton = trendingButton
+        delegate?.trendingClicked()
     }
     
     func subscriptionButtonClicked() {
+        if selectedButton == subscriptionsButton { return }
         selectorCenterXConstraint.constant = subscriptionsButton.frame.origin.x
         trendingButton.setTitleColor(nonSelectedColor, forState: .Normal)
         subscriptionsButton.setTitleColor(selectedColor, forState: .Normal)
         animateSelector()
+        selectedButton = subscriptionsButton
+        delegate?.subscriptionClicked()
     }
     
     func animateSelector() {

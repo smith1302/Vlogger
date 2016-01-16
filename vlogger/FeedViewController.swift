@@ -11,7 +11,7 @@ import AVFoundation
 import AVKit
 import Parse
 
-class FeedViewController: UIViewController, VideoFeedViewControllerDelegate, ProfileCardViewControllerDelegate, ChatFeedViewControllerDelegate {
+class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, ChatFeedViewControllerDelegate {
     
     @IBOutlet weak var chatDragTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var chatDragView: UIView!
@@ -19,13 +19,19 @@ class FeedViewController: UIViewController, VideoFeedViewControllerDelegate, Pro
     var profileCardViewController:ProfileCardViewController?
     var activityIndicator:ActivityIndicatorView!
     private var user:User!
+    private var story:Story?
     
     var topDragSnapLimit:CGFloat!
     var bottomDragSnapLimit:CGFloat! // Where we auto snap to bottom
     var bottomDragLimit:CGFloat!    // Lowest possible drag point
     
-    func configure(user:User) {
+    func configureWithUser(user:User) {
         self.user = user
+    }
+    
+    func configureWithStory(story:Story) {
+        self.user = story.user
+        self.story = story
     }
     
     deinit {
@@ -103,24 +109,6 @@ class FeedViewController: UIViewController, VideoFeedViewControllerDelegate, Pro
         }
     }
     
-    /* VideoFeedViewControllerDelegate
-    ------------------------------------------------------*/
-    
-    func showProfileCard() {
-        if profileCardViewController != nil {
-            return
-        }
-        
-        let storyboard = self.storyboard
-        if let vc = storyboard?.instantiateViewControllerWithIdentifier("ProfileCardViewController") as? ProfileCardViewController {
-            self.profileCardViewController = vc
-            addChildViewController(vc)
-            view.addSubview(vc.view)
-            vc.view.frame = view.frame
-            vc.delegate = self
-            vc.configure(user)
-        }
-    }
     
     /* ProfileCardViewControllerDelegate
     ------------------------------------------------------*/
@@ -197,8 +185,11 @@ class FeedViewController: UIViewController, VideoFeedViewControllerDelegate, Pro
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if let vc = segue.destinationViewController as? VideoFeedViewController {
-            vc.delegate = self
-            vc.configure(user)
+            if let story = story {
+                vc.configureStory(story)
+            } else {
+                vc.configureWithUser(user)
+            }
         }
         
         if let vc = segue.destinationViewController as? ChatFeedViewController {

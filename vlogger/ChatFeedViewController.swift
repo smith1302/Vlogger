@@ -186,8 +186,7 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
         let storyboard = self.storyboard
         if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {
             self.navigationController?.pushViewController(destinationVC, animated: true)
-            destinationVC.configure(user)
+            destinationVC.configureWithUser(user)
         }
     }
-
 }

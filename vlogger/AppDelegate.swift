@@ -23,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Follow.registerSubclass()
         Flag.registerSubclass()
         VideoUpdates.registerSubclass()
+        Story.registerSubclass()
         // [Optional] Power your app with Local Datastore. For more info, go to
         // https://parse.com/docs/ios/guide#local-datastore
         //Parse.enableLocalDatastore()

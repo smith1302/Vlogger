@@ -101,7 +101,7 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if let destinationVC = segue.destinationViewController as? FeedViewController {
-            destinationVC.configure(User.currentUser()!)
+            destinationVC.configureWithUser(User.currentUser()!)
         }
     }
 }

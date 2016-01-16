@@ -5,6 +5,7 @@ var Follows = Parse.Object.extend("Follows");
 var Likes = Parse.Object.extend("Likes");
 var Flags = Parse.Object.extend("Flags");
 var VideoUpdates = Parse.Object.extend("VideoUpdates");
+var Story = Parse.Object.extend("Story");
 
 // Only like video once
 Parse.Cloud.beforeSave("Likes", function(request, response) {
@@ -136,6 +137,30 @@ Parse.Cloud.define("getFeedVideos", function(request, response) {
   });
 });
 
+
+// Update the likes/view on a story
+Parse.Cloud.beforeSave("Videos", function(request, response) {
+	var query = new Parse.Query(Story);
+	query.equalTo("day", request.object.get("day"));
+	query.first({
+	  success: function(object) {
+	    if (object) { // Object exists. Update it.
+	    	if (request.object.dirty("likes")) {
+	    		object.increment("likes", 1);
+	    	}
+	    	if (request.object.dirty("views")) {
+	    		object.increment("views", 1);
+	    	}
+	    	object.save();
+	    }
+	    response.success();
+	  },
+	  error: function(error) {
+	  	response.error("Videos before save error: "+error.message);
+	  }
+	});
+});
+
 // Create updates for video adds
 Parse.Cloud.afterSave("Videos", function(request) {
 	var query = new Parse.Query(VideoUpdates);
@@ -156,4 +181,49 @@ Parse.Cloud.afterSave("Videos", function(request) {
 	  	console.error("Got an error " + error.code + " : " + error.message);
 	  }
 	});
+
+	var query = new Parse.Query(Story);
+	// Check if we have that days story already
+	query.equalTo("day", request.object.get("day"));
+	query.first({
+	  success: function(object) {
+	    if (object) { // Object exists. Update it.
+	    	// If its a new video object add it to the relation
+	    	if (!request.object.existed()) {
+		    	var relation = object.relation("videos");
+				relation.add(request.object);
+			}
+	    	object.save();
+	    } else { // object doesnt exist, create it
+	    	if (!request.object.existed()) {
+		    	var story = new Story();
+		    	story.set("day", request.object.get("day"));
+				story.set("user", request.object.get("user"));
+				story.increment("likes", request.object.get("likes"));
+		    	story.increment("views", request.object.get("views"));
+				var relation = story.relation("videos");
+				relation.add(request.object);
+				story.save();
+			}
+		}
+	  },
+	  error: function(error) {
+	  	console.error("Got an error " + error.code + " : " + error.message);
+	  }
+	});
+});
+
+Parse.Cloud.beforeDelete("Story", function(request, response) {
+  var relation = request.object.relation("videos");
+  var query = relation.query();
+  query.find({
+    success: function(posts) {
+        Parse.Object.destroyAll(posts).then(function() {
+            status.success();
+        });
+    },
+    error: function(error) {
+        status.error("Error finding videos in story " + error.code + ": " + error.message);
+    }
+  });
 });
