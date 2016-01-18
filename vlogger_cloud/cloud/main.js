@@ -112,7 +112,7 @@ Parse.Cloud.define("getFeedVideos", function(request, response) {
   query.find({
     success: function(recentVideos) {
       var resultsLength = recentVideos.length;
-      var videosNeeded = 5 - resultsLength;
+      var videosNeeded = 2 - resultsLength;
       if (videosNeeded > 0) {
       	var query = new Parse.Query("Videos");
 		query.equalTo("user", user);
@@ -219,11 +219,13 @@ Parse.Cloud.beforeDelete("Story", function(request, response) {
   query.find({
     success: function(posts) {
         Parse.Object.destroyAll(posts).then(function() {
-            status.success();
-        });
+            response.success();
+        }, function(error) {
+			response.error("Oops! Something went wrong: " + error.message + " (" + error.code + ")");
+		});
     },
     error: function(error) {
-        status.error("Error finding videos in story " + error.code + ": " + error.message);
+        response.error("Error finding videos in story " + error.code + ": " + error.message);
     }
   });
 });

@@ -77,7 +77,7 @@ class Video : PFObject, PFSubclassing  {
             do {
                 try NSFileManager.defaultManager().removeItemAtPath(fileURL!.path!)
             } catch {
-                //print("[cleanupTempFile]:\(error)")
+                print("[cleanupTempFile]:\(error)")
             }
         }
     }
@@ -150,7 +150,6 @@ class Video : PFObject, PFSubclassing  {
                 self.uploadFailed()
                 return
             }
-            
             // 2) Attach data to PFFile
             self.file = PFFile(data: videoData!, contentType: "video/mp4")
             User.currentUser()!.addTemporaryVideo(self)

@@ -40,10 +40,18 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Start it off hidden
+        chatDragTopConstraint.constant = view.frame.size.height
         view.userInteractionEnabled = true
         topDragSnapLimit = 150
         bottomDragSnapLimit = view.frame.size.height-chatDragView.frame.size.height-100
-        bottomDragLimit = view.frame.size.height-chatDragView.frame.size.height
+        
+        // If we are viewing a story from a different, hide the dragger
+        if let story = story where story.day != NSDate.getCurrentDay() {
+            bottomDragLimit = view.frame.size.height
+        } else {
+            bottomDragLimit = view.frame.size.height-chatDragView.frame.size.height
+        }
         
         // Notifications
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardNotification:", name: UIKeyboardWillShowNotification, object: nil)

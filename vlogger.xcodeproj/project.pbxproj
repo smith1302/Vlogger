@@ -392,6 +392,7 @@
 		F76E84891C49E41E004C8C0E /* Profile */ = {
 			isa = PBXGroup;
 			children = (
+				F7DC22091C42167C00D7966D /* FollowButton.swift */,
 				F76E848A1C49E432004C8C0E /* ProfileViewController.swift */,
 				F76E848C1C49E45B004C8C0E /* ProfileTableViewCell.swift */,
 				F76E848E1C4ACCD6004C8C0E /* ProfileTableViewController.swift */,
@@ -444,7 +445,6 @@
 		F7DC22081C42161C00D7966D /* Profile Card */ = {
 			isa = PBXGroup;
 			children = (
-				F7DC22091C42167C00D7966D /* FollowButton.swift */,
 				F7DC220D1C4216AE00D7966D /* ProfileCardView.swift */,
 			);
 			name = "Profile Card";

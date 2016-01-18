@@ -86,9 +86,10 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     ------------------------------------------*/
     
     func uploadImage() {
-        videoSaveOverlayView?.remove()
         currentVideo?.uploadVideo({
+                self.cleanupCurrentVideo()
             }, successCallback: {
+                self.cleanupCurrentVideo()
         })
     }
     

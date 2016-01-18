@@ -64,6 +64,8 @@ class SearchViewController: UserListViewController {
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
+        if objects?.count == 0 {
+        } else
         if let user = self.objectAtIndexPath(indexPath) as? User {
             let storyboard = self.storyboard
             if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {

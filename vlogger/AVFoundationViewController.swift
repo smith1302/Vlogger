@@ -212,6 +212,7 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     ------------------------------------------*/
     
     func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError?) {
+        print("Capture output callback")
         let videoFile = outputFileURL as NSURL!
         if error != nil {
             AVFoundationViewController.cleanupTempFile(videoFile.path)
@@ -225,6 +226,7 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         videoPlayerController?.hidesProgressBar(true)
         self.addChildViewController(videoPlayerController!)
         self.view.addSubview(videoPlayerController!.view)
+        print("Video Player made")
     }
     
     /* Actions
@@ -244,6 +246,7 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     }
     
     func recordingStop() {
+        print("Recording stopped")
         videoDeviceOutput?.stopRecording()
     }
     

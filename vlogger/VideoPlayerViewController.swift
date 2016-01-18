@@ -98,8 +98,17 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     }
     
     override func viewWillDisappear(animated: Bool) {
+        self.pause()
         NSNotificationCenter.defaultCenter().removeObserver(self)
+        super.viewWillAppear(animated)
     }
+    
+    override func viewWillAppear(animated: Bool) {
+        // Possible reattach notifications and play ----------~~~~~~~~-----------~~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        super.viewWillAppear(animated)
+    }
+    
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -124,8 +133,16 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
         self.currentVideo = videos.first
         var items = [AVPlayerItem]()
         var i = 0
+        var addedVideoIds = [String:Bool]() // To keep track incase there are dupes
         for video in videos {
+            // Make sure we havent already added this video
+            if let objectId = video.objectId, _ = addedVideoIds[objectId] {
+                continue
+            }
             if let item = video.getAVPlayerItem() {
+                if let objectId = video.objectId {
+                    addedVideoIds[objectId] = true
+                }
                 items.append(item)
                 video.tag = i++
             }

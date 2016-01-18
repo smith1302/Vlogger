@@ -58,6 +58,7 @@ class VideoSaveOverlayView: UIView {
     }
     
     func continuePressed() {
+        remove()
         delegate?.continuePressed()
     }
     

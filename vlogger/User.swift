@@ -26,6 +26,25 @@ class User : PFUser {
         return PFUser.currentUser() as? User
     }
     
+    var fileUploadBackgroundTaskID:UIBackgroundTaskIdentifier?
+    func changeProfilePicture(file:PFFile) {
+        // Create a background thread to continue the operation if the user backgrounds the app
+        self.fileUploadBackgroundTaskID = UIApplication.sharedApplication().beginBackgroundTaskWithExpirationHandler({
+            UIApplication.sharedApplication().endBackgroundTask(self.fileUploadBackgroundTaskID!)
+        })
+        // Save the video
+        picture = file
+        picture.saveInBackgroundWithBlock {
+            (success:Bool, error:NSError?) -> Void in
+            UIApplication.sharedApplication().endBackgroundTask(self.fileUploadBackgroundTaskID!)
+            if error != nil {
+                ErrorHandler.showAlert(error?.description)
+            } else {
+                self.saveEventually()
+            }
+        }
+    }
+    
     // Add video when first made so the user can see it
     func addTemporaryVideo(video:Video) {
         temporaryVideos.append(video)
@@ -39,11 +58,8 @@ class User : PFUser {
     }
     
     func removeTemporaryVideo(video:Video) {
-        for (index, tempVideo) in temporaryVideos.enumerate() {
-            if tempVideo == video {
-                temporaryVideos.removeAtIndex(index)
-                break
-            }
+        if let index = temporaryVideos.indexOf(video) {
+            temporaryVideos.removeAtIndex(index)
         }
     }
     
@@ -64,7 +80,7 @@ class User : PFUser {
     
     // Get videos we should show in our feed which consists of:
     // All video in the past 24 hours 
-    // If no videos in the past 24 hours show the last 5 available videos
+    // If no videos in the past 24 hours show the last 2 available videos
     func getFeedVideos(callback:([Video]->Void)) {
         let oneDayAgo = NSDate(timeIntervalSinceNow: -60*60*24*1)
         PFCloud.callFunctionInBackground("getFeedVideos", withParameters: ["userID":self.objectId!,"oneDayAgo":oneDayAgo], block: {

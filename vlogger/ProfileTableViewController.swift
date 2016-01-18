@@ -46,15 +46,7 @@ class ProfileTableViewController: PFQueryTableViewController {
         return storyQuery!
     }
     
-    override func objectsWillLoad() {
-        print("will load")
-    }
-    
-    override func objectsDidLoad(error: NSError?) {
-        print(error)
-    }
-    
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath, object: PFObject?) -> ProfileTableViewCell {
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath, object: PFObject?) -> PFTableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("ProfileCell") as! ProfileTableViewCell!
         if let story = object as? Story {
             cell.configure(story)
@@ -71,6 +63,19 @@ class ProfileTableViewController: PFQueryTableViewController {
                 // We already have user downloaded in this case so lets just pass it off
                 story.user = self.user
                 destinationVC.configureWithStory(story)
+            }
+        }
+    }
+    
+    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return true
+    }
+    
+    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        if (editingStyle == UITableViewCellEditingStyle.Delete) {
+            if let story = self.objectAtIndexPath(indexPath) as? Story {
+                removeObjectAtIndexPath(indexPath, animated: true)
+                story.deleteEventually()
             }
         }
     }

@@ -35,17 +35,11 @@ class TrendingViewController: PFQueryTableViewController {
         return storyQuery!
     }
     
-    /*
-    New class called VideoUpdates
-    keys:
-        User
-        Video
-    */
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.estimatedRowHeight = 55
         tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.separatorStyle = .None
     }
     
     override func didReceiveMemoryWarning() {
@@ -59,6 +53,16 @@ class TrendingViewController: PFQueryTableViewController {
             cell.configure(story)
         }
         return cell
+    }
+    
+    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 10
+    }
+    
+    override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let view =  UIView(frame: CGRectMake(0,0,tableView.frame.size.width,10))
+        view.backgroundColor = UIColor.whiteColor()
+        return view
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
