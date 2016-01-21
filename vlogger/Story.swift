@@ -5,6 +5,7 @@ class Story : PFObject, PFSubclassing  {
     
     @NSManaged var user: User
     @NSManaged var videos: PFRelation
+    @NSManaged var title: String
     @NSManaged var day: Int
     @NSManaged var views: Int
     @NSManaged var likes: Int

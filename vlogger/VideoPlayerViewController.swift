@@ -58,10 +58,11 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     init(user:User) {
         super.init(nibName: nil, bundle: nil)
         commonInit()
-        user.getFeedVideos({
-            (videos:[Video]) in
-            self.setVideos(videos)
-        })
+        self.setVideos([])
+//        user.getFeedVideos({
+//            (videos:[Video]) in
+//            self.setVideos(videos)
+//        })
     }
     
     func commonInit() {

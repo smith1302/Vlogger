@@ -15,15 +15,21 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     
     @IBOutlet weak var chatDragTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var chatDragView: UIView!
+    @IBOutlet weak var chatDragIndicator: UIView!
     
     var profileCardViewController:ProfileCardViewController?
     var activityIndicator:ActivityIndicatorView!
     private var user:User!
     private var story:Story?
     
-    var topDragSnapLimit:CGFloat!
-    var bottomDragSnapLimit:CGFloat! // Where we auto snap to bottom
+    var topDragLimit:CGFloat!
     var bottomDragLimit:CGFloat!    // Lowest possible drag point
+    let snapThreshold:CGFloat = 0.25
+    var draggingEnabled:Bool {
+        get {
+            return story == nil
+        }
+    }
     
     func configureWithUser(user:User) {
         self.user = user
@@ -43,15 +49,9 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         // Start it off hidden
         chatDragTopConstraint.constant = view.frame.size.height
         view.userInteractionEnabled = true
-        topDragSnapLimit = 150
-        bottomDragSnapLimit = view.frame.size.height-chatDragView.frame.size.height-100
-        
-        // If we are viewing a story from a different, hide the dragger
-        if let story = story where story.day != NSDate.getCurrentDay() {
-            bottomDragLimit = view.frame.size.height
-        } else {
-            bottomDragLimit = view.frame.size.height-chatDragView.frame.size.height
-        }
+        topDragLimit = 0
+        bottomDragLimit = view.frame.size.height
+        chatDragIndicator.alpha = (draggingEnabled) ? 1 : 0
         
         // Notifications
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardNotification:", name: UIKeyboardWillShowNotification, object: nil)
@@ -63,7 +63,7 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         Utilities.autolayoutSubviewToViewEdges(activityIndicator, view: view)
         
         // Move dragger to the bottom to show video full screen
-        animateChatDraggerToConstraintConstant(bottomDragLimit)
+        closeChat()
 
     }
     
@@ -84,11 +84,14 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     }
 
     @IBAction func chatDrag(sender: UIPanGestureRecognizer) {
+        // No chat enabled for viewing past stories
+        if !draggingEnabled { return }
+        
         let translation = sender.translationInView(self.view)
-        let newY = sender.view!.frame.origin.y + translation.y
+        let newY = chatDragView.frame.origin.y + translation.y
         
         // Don't hide textbox when keyboard is open
-        if newY >= bottomDragLimit+2 || newY < 0 {
+        if newY >= bottomDragLimit || newY < 0 {
             return
         }
         
@@ -103,10 +106,10 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
 
     func chatDragRelease(sender: UIView) {
         let y = sender.center.y
-        if y < topDragSnapLimit {
+        if y < topDragLimit + view.frame.size.height * snapThreshold {
             animateChatDraggerToConstraintConstant(0)
-        } else if y >= bottomDragSnapLimit {
-            animateChatDraggerToConstraintConstant(bottomDragLimit)
+        } else if y >= bottomDragLimit - view.frame.size.height * snapThreshold {
+            closeChat()
         }
     }
     
@@ -115,6 +118,28 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         UIView.animateWithDuration(0.3) {
             self.view.layoutIfNeeded()
         }
+    }
+    
+    func openChat() {
+        chatDragTopConstraint.constant = topDragLimit
+        UIView.animateWithDuration(0.3) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    func closeChat() {
+        chatDragTopConstraint.constant = bottomDragLimit
+        UIView.animateWithDuration(0.3) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    override func viewDidLayoutSubviews() {
+        if !draggingEnabled { return }
+        let distance = (bottomDragLimit - bottomDragLimit*2/3)
+        let positionOffset = chatDragTopConstraint.constant - bottomDragLimit*2/3
+        let percent = positionOffset/distance
+        chatDragIndicator.alpha = max(0,percent)
     }
     
     
