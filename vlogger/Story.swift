@@ -22,4 +22,17 @@ class Story : PFObject, PFSubclassing  {
     static func parseClassName() -> String {
         return "Story"
     }
+    
+    func getVideos(callback:([Video]->Void)) {
+        let query = videos.query()
+        query.orderByAscending("createdAt")
+        query.findObjectsInBackgroundWithBlock({
+            (objects:[PFObject]?, error:NSError?) in
+            if let videos = objects as? [Video] {
+                callback(videos + self.user.temporaryVideos)
+            } else {
+                callback(self.user.temporaryVideos)
+            }
+        })
+    }
 }

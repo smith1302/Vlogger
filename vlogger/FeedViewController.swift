@@ -11,28 +11,42 @@ import AVFoundation
 import AVKit
 import Parse
 
-class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, ChatFeedViewControllerDelegate {
-    
+class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, ChatFeedViewControllerDelegate, UITextFieldDelegate {
+
+    @IBOutlet weak var titleLabel: UITextField!
     @IBOutlet weak var chatDragTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var chatDragView: UIView!
     @IBOutlet weak var chatDragIndicator: UIView!
     
     var profileCardViewController:ProfileCardViewController?
     var activityIndicator:ActivityIndicatorView!
+    var videoFeedController:VideoFeedViewController?
+    var chatFeedController:ChatFeedViewController?
     private var user:User!
-    private var story:Story?
+    private var story:Story? {
+        didSet {
+            if let story = self.story {
+                isStoryOld = story.day < NSDate.getCurrentDay()
+            }
+        }
+    }
     
     var topDragLimit:CGFloat!
     var bottomDragLimit:CGFloat!    // Lowest possible drag point
     let snapThreshold:CGFloat = 0.25
-    var draggingEnabled:Bool {
-        get {
-            return story == nil
-        }
-    }
+    var isStoryOld:Bool = false
     
     func configureWithUser(user:User) {
         self.user = user
+        user.getCurrentStory({
+            (story:Story?) in
+            if let story = story {
+                self.story = story
+                self.videoFeedController?.configureStory(story)
+            } else {
+                self.videoFeedController?.noVideosFound()
+            }
+        })
     }
     
     func configureWithStory(story:Story) {
@@ -51,11 +65,17 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         view.userInteractionEnabled = true
         topDragLimit = 0
         bottomDragLimit = view.frame.size.height
-        chatDragIndicator.alpha = (draggingEnabled) ? 1 : 0
+        chatDragIndicator.alpha = (isStoryOld) ? 0 : 1
         
         // Notifications
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardNotification:", name: UIKeyboardWillShowNotification, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardNotification:", name: UIKeyboardWillHideNotification, object: nil)
+        
+        // Keyboard
+        keyboardSetup()
+        
+        // Title Label
+        titleLabel.delegate = self
         
         // Activity Indicator View
         activityIndicator = ActivityIndicatorView(frame: view.bounds)
@@ -64,6 +84,7 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         
         // Move dragger to the bottom to show video full screen
         closeChat()
+        
 
     }
     
@@ -85,7 +106,9 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
 
     @IBAction func chatDrag(sender: UIPanGestureRecognizer) {
         // No chat enabled for viewing past stories
-        if !draggingEnabled { return }
+        if isStoryOld {
+            return
+        }
         
         let translation = sender.translationInView(self.view)
         let newY = chatDragView.frame.origin.y + translation.y
@@ -135,7 +158,7 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     }
     
     override func viewDidLayoutSubviews() {
-        if !draggingEnabled { return }
+        if isStoryOld { return }
         let distance = (bottomDragLimit - bottomDragLimit*2/3)
         let positionOffset = chatDragTopConstraint.constant - bottomDragLimit*2/3
         let percent = positionOffset/distance
@@ -172,6 +195,12 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     var keyboardShowing:Bool = false
     var chatTopConstraintBeforeKeyboard:CGFloat!
     var originalViewHeight:CGFloat!
+    
+    func keyboardSetup() {
+        chatTopConstraintBeforeKeyboard = self.chatDragTopConstraint.constant
+        originalViewHeight = view.frame.size.height
+    }
+    
     func keyboardNotification(notification: NSNotification) {
         if let userInfo = notification.userInfo {
             let endFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue()
@@ -182,8 +211,7 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
             
             if keyboardShowing == false && notification.name == UIKeyboardWillShowNotification {
                 keyboardShowing = true
-                chatTopConstraintBeforeKeyboard = self.chatDragTopConstraint.constant
-                originalViewHeight = view.frame.size.height
+                keyboardSetup()
             } else if keyboardShowing == true && notification.name == UIKeyboardWillHideNotification {
                 bottomDragLimit = originalViewHeight-chatDragView.frame.size.height
                 keyboardShowing = false
@@ -213,21 +241,39 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         }
     }
     
+    /* Title Text Field
+    ------------------------------------------------------*/
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        titleLabel.resignFirstResponder()
+        return false
+    }
+    
+    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+        let oldString = textField.text ?? ""
+        let startIndex = oldString.startIndex.advancedBy(range.location)
+        let endIndex = startIndex.advancedBy(range.length)
+        let newString = oldString.stringByReplacingCharactersInRange(startIndex ..< endIndex, withString: string)
+        return newString.characters.count <= 40
+    }
+    
+    
     /* Helpers
     ------------------------------------------------------*/
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if let vc = segue.destinationViewController as? VideoFeedViewController {
+            videoFeedController = vc
+            videoFeedController?.configureWithUser(user)
             if let story = story {
-                vc.configureStory(story)
-            } else {
-                vc.configureWithUser(user)
+                videoFeedController?.configureStory(story)
             }
         }
         
         if let vc = segue.destinationViewController as? ChatFeedViewController {
+            chatFeedController = vc
             vc.delegate = self
-            vc.configure(user)
+            chatFeedController?.configure(user)
         }
     }
     

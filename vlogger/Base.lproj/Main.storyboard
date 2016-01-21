@@ -160,7 +160,7 @@
                                     <segue destination="tu9-T4-MDg" kind="embed" id="E3i-Li-t2i"/>
                                 </connections>
                             </containerView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CJq-M5-xOq" userLabel="Dragger">
+                            <view contentMode="scaleToFill" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="CJq-M5-xOq" userLabel="Dragger">
                                 <rect key="frame" x="0.0" y="540" width="414" height="47"/>
                                 <subviews>
                                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Date" placeholder="Story Title" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="idM-5T-RMy">
@@ -170,7 +170,7 @@
                                         </constraints>
                                         <color key="textColor" red="1" green="1" blue="1" alpha="0.65000000000000002" colorSpace="calibratedRGB"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="19"/>
-                                        <textInputTraits key="textInputTraits"/>
+                                        <textInputTraits key="textInputTraits" returnKeyType="done"/>
                                     </textField>
                                 </subviews>
                                 <color key="backgroundColor" red="0.18823529411764706" green="0.18823529411764706" blue="0.18823529411764706" alpha="0.0" colorSpace="calibratedRGB"/>
@@ -188,7 +188,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yOj-J7-yKJ" userLabel="Chat ^">
                                 <rect key="frame" x="80" y="466" width="254" height="74"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" alpha="0.40000000000000002" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Chat" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JB8-FJ-b18">
+                                    <label opaque="NO" userInteractionEnabled="NO" alpha="0.45000000000000001" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Chat" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JB8-FJ-b18">
                                         <rect key="frame" x="110" y="28" width="34" height="21"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="21" id="Qq7-ha-Hfw"/>
@@ -197,7 +197,7 @@
                                         <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <imageView userInteractionEnabled="NO" alpha="0.40000000000000002" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Up" translatesAutoresizingMaskIntoConstraints="NO" id="oDL-MS-X56">
+                                    <imageView userInteractionEnabled="NO" alpha="0.45000000000000001" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Up" translatesAutoresizingMaskIntoConstraints="NO" id="oDL-MS-X56">
                                         <rect key="frame" x="117" y="5" width="20" height="21"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="20" id="g3W-8C-MlW"/>
@@ -240,6 +240,7 @@
                         <outlet property="chatDragIndicator" destination="yOj-J7-yKJ" id="hLL-Ce-p65"/>
                         <outlet property="chatDragTopConstraint" destination="jD5-ji-2XI" id="B9N-PT-fko"/>
                         <outlet property="chatDragView" destination="CJq-M5-xOq" id="WUh-fy-LMq"/>
+                        <outlet property="titleLabel" destination="idM-5T-RMy" id="EZS-M6-7qk"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Nou-1T-hrx" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -414,7 +415,7 @@
                                             <constraint firstAttribute="height" constant="35" id="bnd-3x-1oW"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                        <textInputTraits key="textInputTraits"/>
+                                        <textInputTraits key="textInputTraits" returnKeyType="send"/>
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="76p-lL-EOU">
                                         <rect key="frame" x="319" y="13" width="45" height="35"/>
@@ -1095,7 +1096,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="86"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Vy0-iN-fxf" customClass="PFImageView">
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Vy0-iN-fxf" customClass="PFImageView">
                                             <rect key="frame" x="13" y="9" width="40" height="40"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="40" id="fJX-Ht-flr"/>

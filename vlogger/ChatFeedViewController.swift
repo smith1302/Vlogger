@@ -163,6 +163,11 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
         }
     }
     
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        sendButtonClicked()
+        return false
+    }
+    
     /* Actions
     -------------------------------------------*/
     

@@ -30,6 +30,9 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        
+        self.videoPlayerViewController = VideoPlayerViewController()
+        self.videoPlayerViewController.myDelegate = self
     }
     
     override func viewDidLoad() {
@@ -43,12 +46,6 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         // Configure name button title
         nameButton.setTitle(user.username!, forState: .Normal)
         // Configure video player
-        if let story = story {
-            self.videoPlayerViewController = VideoPlayerViewController(story: story)
-        } else {
-            self.videoPlayerViewController = VideoPlayerViewController(user: user)
-        }
-        self.videoPlayerViewController.myDelegate = self
         self.videoPlayerViewController.view.frame = self.view.frame
         self.addChildViewController(self.videoPlayerViewController)
         self.view.addSubview(self.videoPlayerViewController.view)
@@ -70,8 +67,8 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     }
     
     func configureStory(story:Story) {
-        self.user = story.user
         self.story = story
+        self.videoPlayerViewController.configureWithStory(story)
     }
     
     /* VideoPlayerViewController Delegate

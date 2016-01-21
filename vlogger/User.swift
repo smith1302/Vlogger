@@ -93,6 +93,34 @@ class User : PFUser {
         })
     }
     
+    func getCurrentStoryVideos(callback:([Video]->Void)) {
+        getCurrentStory({
+            (story:Story?) in
+            if story != nil {
+                story!.getVideos({
+                    (videos:[Video]) in
+                    callback(videos)
+                })
+            } else {
+                callback([])
+            }
+        })
+    }
+    
+    func getCurrentStory(callback:(Story?->Void)) {
+        let query = Story.query()
+        query?.whereKey("user", equalTo: self)
+        query?.whereKey("day", equalTo: NSDate.getCurrentDay())
+        query?.getFirstObjectInBackgroundWithBlock({
+            (object:PFObject?, error:NSError?) in
+            if let story = object as? Story {
+                callback(story)
+            } else {
+                callback(nil)
+            }
+        })
+    }
+    
     func getTotalViews(callback:(Int->Void)) {
         PFCloud.callFunctionInBackground("totalViews", withParameters: ["userID":self.objectId!], block: {
             (object:AnyObject?, error:NSError?) in

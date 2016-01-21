@@ -32,6 +32,11 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
         commonInit()
     }
     
+    init() {
+        super.init(nibName: nil, bundle: nil)
+        commonInit()
+    }
+    
     init(frame:CGRect) {
         super.init(nibName: nil, bundle: nil)
         commonInit()
@@ -58,11 +63,10 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     init(user:User) {
         super.init(nibName: nil, bundle: nil)
         commonInit()
-        self.setVideos([])
-//        user.getFeedVideos({
-//            (videos:[Video]) in
-//            self.setVideos(videos)
-//        })
+        user.getCurrentStoryVideos({
+            (videos:[Video]) in
+            self.setVideos(videos)
+        })
     }
     
     func commonInit() {
@@ -81,6 +85,13 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
         Utilities.autolayoutSubviewToViewEdges(activityIndicator, view: view)
     }
     
+    func configureWithStory(story:Story) {
+        story.getVideos({
+            (videos:[Video]) in
+            self.setVideos(videos)
+        })
+    }
+    
     deinit {
         self.pause()
         (self.player as? LoopingPlayer)?.cleanUp()
@@ -93,9 +104,6 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         view.userInteractionEnabled = true
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationDidEnterBackground", name: UIApplicationDidEnterBackgroundNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillEnterForeground", name: UIApplicationWillEnterForegroundNotification, object: nil)
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -105,8 +113,9 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     }
     
     override func viewWillAppear(animated: Bool) {
-        // Possible reattach notifications and play ----------~~~~~~~~-----------~~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationDidEnterBackground", name: UIApplicationDidEnterBackgroundNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillEnterForeground", name: UIApplicationWillEnterForegroundNotification, object: nil)
+        self.play()
         super.viewWillAppear(animated)
     }
     
