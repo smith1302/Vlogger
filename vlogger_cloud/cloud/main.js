@@ -196,9 +196,14 @@ Parse.Cloud.afterSave("Videos", function(request) {
 	    	object.save();
 	    } else { // object doesnt exist, create it
 	    	if (!request.object.existed()) {
+
+	    		var date = request.object.get("createdAt");
+	    		var title = monthToReadable(date.getMonth())+" "+date.getDay()+", "+date.getFullYear();
+
 		    	var story = new Story();
 		    	story.set("day", request.object.get("day"));
 				story.set("user", request.object.get("user"));
+				story.set("title", title);
 				story.increment("likes", request.object.get("likes"));
 		    	story.increment("views", request.object.get("views"));
 				var relation = story.relation("videos");
@@ -209,6 +214,40 @@ Parse.Cloud.afterSave("Videos", function(request) {
 	  },
 	  error: function(error) {
 	  	console.error("Got an error " + error.code + " : " + error.message);
+	  }
+	});
+});
+
+Parse.Cloud.afterDelete("Videos", function(request) {
+	// Count how many videos in the relation of story
+	// where story day = video delete day
+	// If count == 0 then delete story
+	var query = new Parse.Query(Story);
+	query.equalTo("user", request.object.get("user"));
+	query.equalTo("day", request.object.get("day"));
+	query.first({
+	  success: function(story) {
+	    if (story) {
+	    	story.increment("likes", -1*request.object.get("likes"));
+		    story.increment("views", -1*request.object.get("views"));
+	    	var relation = story.relation("videos");
+	    	var query = relation.query();
+	    	query.count({
+			  success: function(count) {
+			    if (count == 0) {
+			    	story.destroy();
+			    } else {
+			    	story.save();
+			    }
+			  },
+			  error: function(error) {
+			    console.error("Got an error " + error.code + " : " + error.message);
+			  }
+			});
+	    }
+	  },
+	  error: function(error) {
+	    console.error("Got an error " + error.code + " : " + error.message);
 	  }
 	});
 });
@@ -229,3 +268,31 @@ Parse.Cloud.beforeDelete("Story", function(request, response) {
     }
   });
 });
+
+function monthToReadable(date) {
+	if (date == 0) {
+		return "Jan";
+	} else if (date == 1) {
+		return "Feb";
+	} else if (date == 2) {
+		return "Mar";
+	} else if (date == 3) {
+		return "Apr";
+	} else if (date == 4) {
+		return "May";
+	} else if (date == 5) {
+		return "Jun";
+	} else if (date == 6) {
+		return "Jul";
+	} else if (date == 7) {
+		return "Aug";
+	} else if (date == 8) {
+		return "Sep";
+	} else if (date == 9) {
+		return "Oct";
+	} else if (date == 10) {
+		return "Nov";
+	} else {
+		return "Dec";
+	}
+}
