@@ -182,40 +182,40 @@ Parse.Cloud.afterSave("Videos", function(request) {
 	  }
 	});
 
-	var query = new Parse.Query(Story);
-	// Check if we have that days story already
-	query.equalTo("day", request.object.get("day"));
-	query.first({
-	  success: function(object) {
-	    if (object) { // Object exists. Update it.
-	    	// If its a new video object add it to the relation
-	    	if (!request.object.existed()) {
-		    	var relation = object.relation("videos");
-				relation.add(request.object);
-			}
-	    	object.save();
-	    } else { // object doesnt exist, create it
-	    	if (!request.object.existed()) {
+	// var query = new Parse.Query(Story);
+	// // Check if we have that days story already
+	// query.equalTo("day", request.object.get("day"));
+	// query.first({
+	//   success: function(object) {
+	//     if (object) { // Object exists. Update it.
+	//     	// If its a new video object add it to the relation
+	//     	if (!request.object.existed()) {
+	// 	    	var relation = object.relation("videos");
+	// 			relation.add(request.object);
+	// 		}
+	//     	object.save();
+	//     } else { // object doesnt exist, create it
+	//     	if (!request.object.existed()) {
 
-	    		var date = request.object.get("createdAt");
-	    		var title = monthToReadable(date.getMonth())+" "+date.getDay()+", "+date.getFullYear();
+	//     		var date = request.object.get("createdAt");
+	//     		var title = monthToReadable(date.getMonth())+" "+date.getDay()+", "+date.getFullYear();
 
-		    	var story = new Story();
-		    	story.set("day", request.object.get("day"));
-				story.set("user", request.object.get("user"));
-				story.set("title", title);
-				story.increment("likes", request.object.get("likes"));
-		    	story.increment("views", request.object.get("views"));
-				var relation = story.relation("videos");
-				relation.add(request.object);
-				story.save();
-			}
-		}
-	  },
-	  error: function(error) {
-	  	console.error("Got an error " + error.code + " : " + error.message);
-	  }
-	});
+	// 	    	var story = new Story();
+	// 	    	story.set("day", request.object.get("day"));
+	// 			story.set("user", request.object.get("user"));
+	// 			story.set("title", title);
+	// 			story.increment("likes", request.object.get("likes"));
+	// 	    	story.increment("views", request.object.get("views"));
+	// 			var relation = story.relation("videos");
+	// 			relation.add(request.object);
+	// 			story.save();
+	// 		}
+	// 	}
+	//   },
+	//   error: function(error) {
+	//   	console.error("Got an error " + error.code + " : " + error.message);
+	//   }
+	// });
 });
 
 Parse.Cloud.afterDelete("Videos", function(request) {
@@ -248,6 +248,29 @@ Parse.Cloud.afterDelete("Videos", function(request) {
 	  },
 	  error: function(error) {
 	    console.error("Got an error " + error.code + " : " + error.message);
+	  }
+	});
+});
+
+Parse.Cloud.beforeSave("Story", function(request, response) {
+	if (!request.object.isNew()) {
+		response.success();
+		return;
+	}
+	// If we are saving a new story, set any previously active ones to inactive
+	var query = new Parse.Query(Story);
+	query.equalTo("user", request.object.get("user"));
+	query.equalTo("active", true);
+	query.first({
+	  success: function(oldActiveStory) {
+	    if (oldActiveStory) {
+	    	oldActiveStory.set("active", false);
+	    	oldActiveStory.save();
+	    }
+	    response.success();
+	  },
+	  error: function(error) {
+	  	response.error("Videos before save error: "+error.message);
 	  }
 	});
 });
