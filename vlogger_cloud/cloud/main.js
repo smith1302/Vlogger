@@ -6,6 +6,7 @@ var Likes = Parse.Object.extend("Likes");
 var Flags = Parse.Object.extend("Flags");
 var VideoUpdates = Parse.Object.extend("VideoUpdates");
 var Story = Parse.Object.extend("Story");
+var User = Parse.Object.extend("_User");
 
 // Only like video once
 Parse.Cloud.beforeSave("Likes", function(request, response) {
@@ -50,6 +51,7 @@ Parse.Cloud.beforeSave("Follows", function(request, response) {
   if (!request.object.get("toUser") || !request.object.get("fromUser")) {
     response.error('Follows must have a toUser and fromUser');
   } else {
+  	Parse.Cloud.useMasterKey();
     var query = new Parse.Query(Follows);
     query.equalTo("toUser", request.object.get("toUser"));
     query.equalTo("fromUser", request.object.get("fromUser"));
@@ -58,7 +60,28 @@ Parse.Cloud.beforeSave("Follows", function(request, response) {
         if (object) {
           response.error("Already following this user");
         } else {
-          response.success();
+        	// Not following the user yet
+        	// Update toUser's subscriber count
+			var toUserID = request.object.get("toUser").id;
+			var query = new Parse.Query(User);
+			query.equalTo("objectId", toUserID);
+		    query.first({
+		      success: function(user) {
+		      	user.increment("subscriberCount", 1);
+				user.save(null, {
+			            success:function (object) {
+			                response.success();
+			            },
+			            error:function (error) {
+			                response.error("Follows before save error: "+error.message);
+			            }
+			        }
+			    );
+		      },
+		      error: function(error) {
+		        response.error("Follows before save error: "+error.message);
+		      }
+		    });
         }
       },
       error: function(error) {
@@ -66,6 +89,31 @@ Parse.Cloud.beforeSave("Follows", function(request, response) {
       }
     });
   }
+});
+
+Parse.Cloud.beforeDelete("Follows", function(request, response) {
+	// Decrement toUser's subscriber count
+	Parse.Cloud.useMasterKey();
+	var toUserID = request.object.get("toUser").id;
+	var query = new Parse.Query(User);
+	query.equalTo("objectId", toUserID);
+    query.first({
+      success: function(user) {
+      	user.increment("subscriberCount", -1);
+		user.save(null, {
+	            success:function (object) {
+	                response.success();
+	            },
+	            error:function (error) {
+	                response.error("Follows before delete error: "+error.message);
+	            }
+	        }
+	    );
+      },
+      error: function(error) {
+        response.error("Follows before delete error: "+error.message);
+      }
+    });
 });
 
 Parse.Cloud.define("totalViews", function(request, response) {
@@ -181,6 +229,7 @@ Parse.Cloud.afterSave("Videos", function(request) {
 	  	console.error("Got an error " + error.code + " : " + error.message);
 	  }
 	});
+});
 
 	// var query = new Parse.Query(Story);
 	// // Check if we have that days story already
@@ -216,41 +265,40 @@ Parse.Cloud.afterSave("Videos", function(request) {
 	//   	console.error("Got an error " + error.code + " : " + error.message);
 	//   }
 	// });
-});
 
-Parse.Cloud.afterDelete("Videos", function(request) {
-	// Count how many videos in the relation of story
-	// where story day = video delete day
-	// If count == 0 then delete story
-	var query = new Parse.Query(Story);
-	query.equalTo("user", request.object.get("user"));
-	query.equalTo("day", request.object.get("day"));
-	query.first({
-	  success: function(story) {
-	    if (story) {
-	    	story.increment("likes", -1*request.object.get("likes"));
-		    story.increment("views", -1*request.object.get("views"));
-	    	var relation = story.relation("videos");
-	    	var query = relation.query();
-	    	query.count({
-			  success: function(count) {
-			    if (count == 0) {
-			    	story.destroy();
-			    } else {
-			    	story.save();
-			    }
-			  },
-			  error: function(error) {
-			    console.error("Got an error " + error.code + " : " + error.message);
-			  }
-			});
-	    }
-	  },
-	  error: function(error) {
-	    console.error("Got an error " + error.code + " : " + error.message);
-	  }
-	});
-});
+// Parse.Cloud.afterDelete("Videos", function(request) {
+// 	// Count how many videos in the relation of story
+// 	// where story day = video delete day
+// 	// If count == 0 then delete story
+// 	var query = new Parse.Query(Story);
+// 	query.equalTo("user", request.object.get("user"));
+// 	query.equalTo("day", request.object.get("day"));
+// 	query.first({
+// 	  success: function(story) {
+// 	    if (story) {
+// 	    	story.increment("likes", -1*request.object.get("likes"));
+// 		    story.increment("views", -1*request.object.get("views"));
+// 	    	var relation = story.relation("videos");
+// 	    	var query = relation.query();
+// 	    	query.count({
+// 			  success: function(count) {
+// 			    if (count == 0) {
+// 			    	story.destroy();
+// 			    } else {
+// 			    	story.save();
+// 			    }
+// 			  },
+// 			  error: function(error) {
+// 			    console.error("Got an error " + error.code + " : " + error.message);
+// 			  }
+// 			});
+// 	    }
+// 	  },
+// 	  error: function(error) {
+// 	    console.error("Got an error " + error.code + " : " + error.message);
+// 	  }
+// 	});
+// });
 
 Parse.Cloud.beforeSave("Story", function(request, response) {
 	if (!request.object.isNew()) {
