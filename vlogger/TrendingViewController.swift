@@ -9,7 +9,10 @@
 import UIKit
 import ParseUI
 
-class TrendingViewController: PFQueryTableViewController {
+class TrendingViewController: CustomPFQueryTableViewController {
+    
+    var fullMessageView:FullMessageView?
+    weak var delegate:TransitionToFeedDelegate?
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -18,7 +21,7 @@ class TrendingViewController: PFQueryTableViewController {
         self.textKey = "username"
         self.pullToRefreshEnabled = true
         self.paginationEnabled = false
-        self.objectsPerPage = 20
+        self.objectsPerPage = 10
     }
     
     /*
@@ -28,7 +31,9 @@ class TrendingViewController: PFQueryTableViewController {
         
         // Get users that we follow
         let storyQuery = Story.query()
-        storyQuery?.whereKey("createdAt", greaterThan: NSDate(timeIntervalSinceNow: -60*60*24*7))
+        storyQuery?.whereKey("videoAddedAt", greaterThan: NSDate(timeIntervalSinceNow: -60*60*24*7))
+        storyQuery?.whereKey("active", equalTo: true)
+        storyQuery?.whereKey("videoCount", greaterThanOrEqualTo: 1)
         storyQuery?.orderByDescending("views")
         storyQuery?.includeKey("user")
         storyQuery?.includeKey("video")
@@ -40,6 +45,19 @@ class TrendingViewController: PFQueryTableViewController {
         tableView.estimatedRowHeight = 55
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.separatorStyle = .None
+        tableView.refreshControlBackground(Constants.primaryColorSoft)
+    }
+    
+    override func objectsDidLoad(error: NSError?) {
+        // If no results found default to popular page
+        if objects?.count == 0  && fullMessageView == nil {
+            fullMessageView = FullMessageView(frame: tableView.bounds, text: "No stories yet!")
+            tableView.addSubview(fullMessageView!)
+        } else if objects?.count > 0 {
+            fullMessageView?.removeFromSuperview()
+            fullMessageView = nil
+        }
+        super.objectsDidLoad(error)
     }
     
     override func didReceiveMemoryWarning() {
@@ -47,33 +65,29 @@ class TrendingViewController: PFQueryTableViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath, object: PFObject?) -> TrendingTableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("TrendingCell") as! TrendingTableViewCell!
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath, object: PFObject?) -> ExpandedStoryTableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier("TrendingCell") as! ExpandedStoryTableViewCell!
         if let story = object as? Story {
             cell.configure(story)
         }
         return cell
     }
     
-    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 10
-    }
-    
-    override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let view =  UIView(frame: CGRectMake(0,0,tableView.frame.size.width,10))
-        view.backgroundColor = UIColor.whiteColor()
-        return view
-    }
+//    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+//        return 10
+//    }
+//    
+//    override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+//        let view =  UIView(frame: CGRectMake(0,0,tableView.frame.size.width,10))
+//        view.backgroundColor = UIColor.whiteColor()
+//        return view
+//    }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         if let story = self.objectAtIndexPath(indexPath) as? Story {
             let user = story.user
-            let storyboard = self.storyboard
-            if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {
-                self.navigationController?.pushViewController(destinationVC, animated: true)
-                destinationVC.configureWithUser(user)
-            }
+            delegate?.transitionToFeedWithStory(story, user: user)
         }
     }
     

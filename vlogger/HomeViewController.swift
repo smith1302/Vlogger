@@ -8,31 +8,50 @@
 
 import UIKit
 
-class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewControllerDelegate {
+protocol TransitionToFeedDelegate:class {
+    func transitionToFeed(user:User)
+    func transitionToFeedWithStory(story:Story, user: User)
+}
 
+class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewControllerDelegate, TransitionToFeedDelegate {
+
+    @IBOutlet weak var backgroundView: UIView!
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var selectorContainer: UIView!
-    @IBOutlet weak var trendingButton: UIButton!
-    @IBOutlet weak var subscriptionsButton: UIButton!
+    @IBOutlet weak var RightButton: UIButton!
+    @IBOutlet weak var LeftButton: UIButton!
     @IBOutlet weak var selectorCenterXConstraint: NSLayoutConstraint!
     var selectorViewController:SelectorViewController!
     var currentChildViewController:UIViewController?
     let kTitle:String = "Explore"
     
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
+    
     
     override func viewDidLoad() {
-        // Fixes childViewController having space for navbar
+        // Status bar color
+        view.backgroundColor = Constants.primaryColor
+        backgroundView.backgroundColor = Constants.primaryColorSoft
         self.automaticallyAdjustsScrollViewInsets = false;
         super.viewDidLoad()
         title = kTitle
         
         // Selector View
-        selectorViewController = SelectorViewController(trendingButton: trendingButton, subscriptionsButton: subscriptionsButton, selectorCenterXConstraint: selectorCenterXConstraint, container: selectorContainer)
+        selectorViewController = SelectorViewController(RightButton: RightButton, LeftButton: LeftButton, selectorCenterXConstraint: selectorCenterXConstraint, container: selectorContainer)
         addChildViewController(selectorViewController)
         selectorViewController.delegate = self
         
         // Search Bar
         searchBar.delegate = self
+        searchBar.searchBarStyle = .Default
+        searchBar.backgroundImage = Constants.primaryColor.toImage(searchBar.frame.size)
+        searchBar.backgroundColor = Constants.primaryColor
+        searchBar.barTintColor = Constants.primaryColor
+        searchBar.layer.borderWidth = 1
+        searchBar.layer.borderColor = Constants.primaryColor.CGColor
+
     }
 
     override func didReceiveMemoryWarning() {
@@ -42,22 +61,92 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
-        UIApplication.sharedApplication().statusBarHidden = false
-        self.navigationController?.navigationBarHidden = false
+        // Selector Left Set
+        selectorViewController.leftButtonClicked()
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        self.navigationController?.navigationBarHidden = true
+        UIApplication.sharedApplication().setStatusBarHidden(false, withAnimation: .Fade)
+        UIApplication.sharedApplication().setStatusBarStyle(.LightContent, animated: true)
     }
     
     /* Selector View Controller Delegate
     ------------------------------------------------------*/
     
-    func subscriptionClicked() {
+    func leftButtonClicked() {
+        if selectorViewController.currentState == HomeSelectorState.Search {
+            searchUsersButtonClicked()
+        } else {
+            trendingButtonClicked()
+        }
+    }
+    
+    func rightButtonClicked() {
+        if selectorViewController.currentState == HomeSelectorState.Search {
+            searchStoriesButtonClicked()
+        } else {
+            subscriptionsButtonClicked()
+        }
+    }
+    
+    /* Selector Buttons
+    ------------------------------------------------------*/
+    
+    func clearCurrentChildViewController() {
         currentChildViewController?.view.removeFromSuperview()
         currentChildViewController?.removeFromParentViewController()
         currentChildViewController = nil
     }
     
-    func trendingClicked() {
-        if let vc = self.storyboard?.instantiateViewControllerWithIdentifier("TrendingViewController") as? TrendingViewController {
+    var vcCache:[String:UIViewController] = [String:UIViewController]()
+    
+    func trendingButtonClicked() {
+        clearCurrentChildViewController()
+        let className = String(TrendingViewController)
+        let vc:UIViewController? = (vcCache[className] != nil) ? vcCache[className] : self.storyboard?.instantiateViewControllerWithIdentifier(className)
+        if let vc = vc as? TrendingViewController {
+            vc.delegate = self
             currentChildViewController = vc
+            vcCache[className] = vc
+            addContainerViewController(vc, topAlignmentView: selectorContainer)
+        }
+    }
+
+    func subscriptionsButtonClicked() {
+        clearCurrentChildViewController()
+        let className = String(StoryUpdateFeedViewController)
+        let vc:UIViewController? = (vcCache[className] != nil) ? vcCache[className] : self.storyboard?.instantiateViewControllerWithIdentifier(className)
+        if let vc = vc as? StoryUpdateFeedViewController {
+            vc.delegate = self
+            currentChildViewController = vc
+            vcCache[String(StoryUpdateFeedViewController)] = vc
+            addContainerViewController(vc, topAlignmentView: selectorContainer)
+            vc.configureWithFeedType(StoryUpdateFeedType.subscriptions)
+        }
+    }
+
+    func searchUsersButtonClicked() {
+        clearCurrentChildViewController()
+        let className = String(SearchUsersViewController)
+        let vc:UIViewController? = (vcCache[className] != nil) ? vcCache[className] : self.storyboard?.instantiateViewControllerWithIdentifier(className)
+        if let vc = vc as? SearchUsersViewController {
+            vc.delegate = self
+            currentChildViewController = vc
+            vcCache[className] = vc
+            addContainerViewController(vc, topAlignmentView: selectorContainer)
+        }
+    }
+
+    func searchStoriesButtonClicked() {
+        clearCurrentChildViewController()
+        let className = String(SearchStoriesViewController)
+        let vc:UIViewController? = (vcCache[className] != nil) ? vcCache[className] : self.storyboard?.instantiateViewControllerWithIdentifier(className)
+        if let vc = vc as? SearchStoriesViewController {
+            vc.delegate = self
+            currentChildViewController = vc
+            vcCache[className] = vc
             addContainerViewController(vc, topAlignmentView: selectorContainer)
         }
     }
@@ -66,13 +155,13 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
     ------------------------------------------------------*/
     
     func addContainerViewController(vc:UIViewController, topAlignmentView:UIView) {
-        addChildViewController(vc)
+        //addChildViewController(vc)
         vc.view.frame = self.view.bounds
         view.addSubview(vc.view)
         
         let subview = vc.view
         subview.translatesAutoresizingMaskIntoConstraints = false
-        view.addConstraint(NSLayoutConstraint(item: subview, attribute: .Top, relatedBy: .Equal, toItem: topAlignmentView, attribute: .Bottom, multiplier: 1.0, constant: 2))
+        view.addConstraint(NSLayoutConstraint(item: subview, attribute: .Top, relatedBy: .Equal, toItem: topAlignmentView, attribute: .Bottom, multiplier: 1.0, constant: 3))
         view.addConstraint(NSLayoutConstraint(item: subview, attribute: .Left, relatedBy: .Equal, toItem: view, attribute: .Left, multiplier: 1.0, constant: 0))
         view.addConstraint(NSLayoutConstraint(item: subview, attribute: .Right, relatedBy: .Equal, toItem: view, attribute: .Right, multiplier: 1.0, constant: 0))
         view.addConstraint(NSLayoutConstraint(item: subview, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1.0, constant: 0))
@@ -80,18 +169,12 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
     
     /* Search Bar Delegate
     ------------------------------------------------------*/
-    
-    var searchViewController:SearchViewController?
     func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
-        if searchViewController != nil { return }
+        if let _ = currentChildViewController as? SearchViewController { return }
 
-        if let vc = self.storyboard?.instantiateViewControllerWithIdentifier("SearchViewController") as? SearchViewController {
-            searchViewController = vc
-            addContainerViewController(vc, topAlignmentView: searchBar)
-            searchBar.setShowsCancelButton(true, animated: true)
-            title = "Search"
-        }
-    
+        searchBar.setShowsCancelButton(true, animated: true)
+        selectorViewController.currentState = HomeSelectorState.Search
+        title = "Search"
     }
 
     func searchBarTextDidEndEditing(searchBar: UISearchBar) {}
@@ -108,18 +191,18 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
     }
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
-        searchViewController?.doSearch(searchBar.text)
-        searchBar.resignFirstResponder()
-        enableCancelButton() 
+        if let vc = currentChildViewController as? SearchViewController {
+            vc.doSearch(searchBar.text)
+            searchBar.resignFirstResponder()
+            enableCancelButton()
+        }
     }
 
     func searchBarCancelButtonClicked(searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
         searchBar.setShowsCancelButton(false, animated: true)
-        searchViewController?.view.removeFromSuperview()
-        searchViewController?.removeFromParentViewController()
-        searchViewController = nil
         title = kTitle
+        selectorViewController.currentState = HomeSelectorState.Home
     }
     
     func enableCancelButton() {
@@ -131,5 +214,30 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
             }
         }
     }
+    
+    /* Transition to feed delegate
+    ------------------------------------------------------*/
+    
+    func transitionToFeed(user: User) {
+        let storyboard = self.storyboard
+        if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {
+            self.navigationController?.pushViewController(destinationVC, animated: true)
+            destinationVC.configureWithUser(user)
+        }
+    }
+    
+    func transitionToFeedWithStory(story: Story, user: User) {
+        let storyboard = self.storyboard
+        if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {
+            self.navigationController?.pushViewController(destinationVC, animated: true)
+            destinationVC.configureWithStory(story, user: user)
+        }
+    }
+    
+    /* Go back
+    ------------------------------------------------------*/
 
+    @IBAction func backButtonClicked(sender: AnyObject) {
+        self.navigationController?.popToRootViewControllerAnimated(true)
+    }
 }

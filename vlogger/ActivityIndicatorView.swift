@@ -17,7 +17,7 @@ class ActivityIndicatorView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = UIColor.clearColor()
-        stopAnimating()
+        alpha = 0
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -25,15 +25,19 @@ class ActivityIndicatorView: UIView {
     }
     
     func isAnimating() -> Bool {
-        return !self.hidden
+        return alpha > 0
     }
     
     func stopAnimating() {
-        self.hidden = true
+        UIView.animateWithDuration(0.3, animations: {
+            self.alpha = 0
+        })
     }
     
     func startAnimating() {
-        self.hidden = false
+        UIView.animateWithDuration(0.3, animations: {
+            self.alpha = 1
+        })
     }
     
     // Only override drawRect: if you perform custom drawing.

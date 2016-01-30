@@ -45,11 +45,10 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
         tableView.delegate = self
         tableView.estimatedRowHeight = 50
         tableView.rowHeight = UITableViewAutomaticDimension
-        tableView.separatorStyle = .None
+        //tableView.separatorStyle = .None
         tableView.allowsSelection = false
         // Send Button
         sendButton.addTarget(self, action: "sendButtonClicked", forControlEvents: .TouchUpInside)
-        sendButton.setTitleColor(Constants.darkPrimaryColor, forState: .Normal)
         sendButton.setTitleColor(UIColor(hex: 0xAAAAAA), forState: .Disabled)
         sendButton.enabled = false
         

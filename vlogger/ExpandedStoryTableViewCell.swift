@@ -1,5 +1,5 @@
 //
-//  TrendingTableViewCell.swift
+//  ExpandedStoryTableViewCell
 //  vlogger
 //
 //  Created by Eric Smith on 1/15/16.
@@ -9,8 +9,9 @@
 import UIKit
 import ParseUI
 
-class TrendingTableViewCell: PFTableViewCell {
+class ExpandedStoryTableViewCell: PFTableViewCell {
 
+    @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var feedImageView: PFImageView!
@@ -39,16 +40,16 @@ class TrendingTableViewCell: PFTableViewCell {
                         }
                     }
                 }
-                //self.timeLabel.text = ""
+                self.timeLabel.text = story.videoAddedAt.getReadableTime()
             } else {
-                //self.timeLabel.text = ""
+                self.timeLabel.text = ""
             }
         }
     }
     var user:User!
     
     func configure(story:Story) {
-        
+        backgroundColor = UIColor.whiteColor()
         feedImageView.image = nil
         
         self.story = story
@@ -62,7 +63,7 @@ class TrendingTableViewCell: PFTableViewCell {
             }
         })
         
-        //self.timeLabel.text = ""
+        self.timeLabel.text = ""
         titleLabel.text = story.title
         titleLabel.textAlignment = .Center
         nameLabel.text = user.username

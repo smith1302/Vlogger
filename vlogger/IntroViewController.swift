@@ -20,4 +20,9 @@ class IntroViewController: LoginViewController {
         })
     }
     
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        let toViewController = segue.destinationViewController as UIViewController
+        toViewController.transitioningDelegate = self.navigationController!.delegate as! NavigationControllerDelegate
+    }
+    
 }

@@ -11,9 +11,9 @@ import AVFoundation
 import AVKit
 import Parse
 
-class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, ChatFeedViewControllerDelegate, UITextFieldDelegate {
+class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, ChatFeedViewControllerDelegate, UITextFieldDelegate, UIViewControllerTransitioningDelegate {
 
-    @IBOutlet weak var titleLabel: UITextField!
+    @IBOutlet weak var titleLabel: UITextField?
     @IBOutlet weak var chatDragTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var chatDragView: UIView!
     @IBOutlet weak var chatDragIndicator: UIView!
@@ -22,35 +22,24 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     var activityIndicator:ActivityIndicatorView!
     var videoFeedController:VideoFeedViewController?
     var chatFeedController:ChatFeedViewController?
-    private var user:User!
-    private var story:Story? {
+    private var user:User! {
         didSet {
-            if let story = self.story {
-                isStoryOld = story.day < NSDate.getCurrentDay()
-            }
+            titleLabel?.userInteractionEnabled = self.user.isUs()
         }
     }
-    
-    var topDragLimit:CGFloat!
-    var bottomDragLimit:CGFloat!    // Lowest possible drag point
-    let snapThreshold:CGFloat = 0.25
+    private var story:Story?
     var isStoryOld:Bool = false
+    var feedLayoutInfo:FeedLayoutInfo!
     
     func configureWithUser(user:User) {
         self.user = user
-        user.getCurrentStory({
-            (story:Story?) in
-            if let story = story {
-                self.story = story
-                self.videoFeedController?.configureStory(story)
-            } else {
-                self.videoFeedController?.noVideosFound()
-            }
-        })
+        self.story = user.currentStory
+        self.story?.user = user
     }
     
-    func configureWithStory(story:Story) {
-        self.user = story.user
+    func configureWithStory(story:Story?, user:User) {
+        story?.user = user
+        self.user = user
         self.story = story
     }
     
@@ -63,29 +52,51 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         // Start it off hidden
         chatDragTopConstraint.constant = view.frame.size.height
         view.userInteractionEnabled = true
-        topDragLimit = 0
-        bottomDragLimit = view.frame.size.height
-        chatDragIndicator.alpha = (isStoryOld) ? 0 : 1
         
         // Notifications
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardNotification:", name: UIKeyboardWillShowNotification, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "keyboardNotification:", name: UIKeyboardWillHideNotification, object: nil)
         
-        // Keyboard
-        keyboardSetup()
+        // Feed Layout
+        feedLayoutInfo = FeedLayoutInfo(chatTopConstraint: chatDragTopConstraint, originalViewHeight: view.frame.size.height, chatDragViewHeight: chatDragView.frame.size.height, toolbarHeight: 50)
         
         // Title Label
-        titleLabel.delegate = self
+        titleLabel?.textColor = UIColor(white: 0.4, alpha: 1)
+        titleLabel?.delegate = self
+        titleLabel?.textAlignment = .Center
+        titleLabel?.userInteractionEnabled = self.user.isUs()
         
         // Activity Indicator View
         activityIndicator = ActivityIndicatorView(frame: view.bounds)
         view.addSubview(activityIndicator)
         Utilities.autolayoutSubviewToViewEdges(activityIndicator, view: view)
         
+        // Dragger
+        chatDragView.backgroundColor = UIColor(white: 1, alpha: 1)
+        chatDragView.layer.borderColor = UIColor(white: 0.85, alpha: 1).CGColor
+        chatDragView.layer.borderWidth = 1
+        
         // Move dragger to the bottom to show video full screen
         closeChat()
         
-
+        story?.fetchIfNeededInBackgroundWithBlock({
+            (object:PFObject?, error:NSError?) in
+            if let story = object as? Story {
+                self.videoFeedController?.configureStory(story)
+                self.isStoryOld = story.objectId != self.user.currentStory!.objectId
+                self.titleLabel?.text = story.title
+            } else {
+                self.noVideosFound()
+            }
+        })
+        if story == nil {
+            noVideosFound()
+        }
+        chatDragIndicator.alpha = (isStoryOld) ? 0 : 1
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -103,6 +114,12 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    func noVideosFound() {
+        self.videoFeedController?.noVideosFound()
+        self.feedLayoutInfo.bottomDragLimit = self.feedLayoutInfo.originalViewHeight
+        closeChat()
+    }
 
     @IBAction func chatDrag(sender: UIPanGestureRecognizer) {
         // No chat enabled for viewing past stories
@@ -113,9 +130,13 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         let translation = sender.translationInView(self.view)
         let newY = chatDragView.frame.origin.y + translation.y
         
-        // Don't hide textbox when keyboard is open
-        if newY >= bottomDragLimit || newY < 0 {
+        if newY < 0 {
             return
+        }
+        
+        // If the keyboard is showing for the chat message and we are dragging below the limits, hide the keyboard
+        if let titleLabel = titleLabel where !titleLabel.isFirstResponder() && feedLayoutInfo.keyboardShowing && newY >= feedLayoutInfo.bottomDragLimit + feedLayoutInfo.toolbarHeight*0.75 {
+            chatFeedController?.textField.resignFirstResponder()
         }
         
         chatDragTopConstraint.constant = newY
@@ -129,9 +150,9 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
 
     func chatDragRelease(sender: UIView) {
         let y = sender.center.y
-        if y < topDragLimit + view.frame.size.height * snapThreshold {
+        if y < feedLayoutInfo.topDragLimit + view.frame.size.height * FeedLayoutInfo.snapThreshold {
             animateChatDraggerToConstraintConstant(0)
-        } else if y >= bottomDragLimit - view.frame.size.height * snapThreshold {
+        } else if y >= feedLayoutInfo.bottomDragLimit - view.frame.size.height * FeedLayoutInfo.snapThreshold {
             closeChat()
         }
     }
@@ -144,14 +165,14 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     }
     
     func openChat() {
-        chatDragTopConstraint.constant = topDragLimit
+        chatDragTopConstraint.constant = feedLayoutInfo.topDragLimit
         UIView.animateWithDuration(0.3) {
             self.view.layoutIfNeeded()
         }
     }
     
     func closeChat() {
-        chatDragTopConstraint.constant = bottomDragLimit
+        chatDragTopConstraint.constant = feedLayoutInfo.bottomDragLimit
         UIView.animateWithDuration(0.3) {
             self.view.layoutIfNeeded()
         }
@@ -159,8 +180,8 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     
     override func viewDidLayoutSubviews() {
         if isStoryOld { return }
-        let distance = (bottomDragLimit - bottomDragLimit*2/3)
-        let positionOffset = chatDragTopConstraint.constant - bottomDragLimit*2/3
+        let distance = (feedLayoutInfo.bottomDragLimit - feedLayoutInfo.bottomDragLimit*2/3)
+        let positionOffset = chatDragTopConstraint.constant - feedLayoutInfo.bottomDragLimit*2/3
         let percent = positionOffset/distance
         chatDragIndicator.alpha = max(0,percent)
     }
@@ -176,9 +197,8 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     /* ChatFeedViewControllerDelegate
     ------------------------------------------------------*/
     
-    var toolbarHeight:CGFloat = 50
     func toolBarHeightUpdated(height: CGFloat) {
-        self.toolbarHeight = height
+        feedLayoutInfo.toolbarHeight = height
     }
     
     func willSegueToDifferentUserFeed() {
@@ -192,15 +212,6 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     /* Keyboard Notifications
     -------------------------------------------*/
     
-    var keyboardShowing:Bool = false
-    var chatTopConstraintBeforeKeyboard:CGFloat!
-    var originalViewHeight:CGFloat!
-    
-    func keyboardSetup() {
-        chatTopConstraintBeforeKeyboard = self.chatDragTopConstraint.constant
-        originalViewHeight = view.frame.size.height
-    }
-    
     func keyboardNotification(notification: NSNotification) {
         if let userInfo = notification.userInfo {
             let endFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue()
@@ -209,32 +220,23 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
             let animationCurveRaw = animationCurveRawNSN?.unsignedLongValue ?? UIViewAnimationOptions.CurveEaseInOut.rawValue
             let animationCurve:UIViewAnimationOptions = UIViewAnimationOptions(rawValue: animationCurveRaw)
             
-            if keyboardShowing == false && notification.name == UIKeyboardWillShowNotification {
-                keyboardShowing = true
-                keyboardSetup()
-            } else if keyboardShowing == true && notification.name == UIKeyboardWillHideNotification {
-                bottomDragLimit = originalViewHeight-chatDragView.frame.size.height
-                keyboardShowing = false
+            if notification.name == UIKeyboardWillShowNotification {
+                feedLayoutInfo.keyboardWillShow()
+            } else if notification.name == UIKeyboardWillHideNotification {
+                feedLayoutInfo.keyboardWillHide()
             }
             
-            var newTopConstant:CGFloat = bottomDragLimit
-            var frameHeightConstant:CGFloat = view.frame.size.height
-            if let endFrameHeight = endFrame?.size.height where notification.name == UIKeyboardWillShowNotification {
-                newTopConstant = chatTopConstraintBeforeKeyboard - endFrameHeight
-                frameHeightConstant = originalViewHeight-endFrameHeight
-                bottomDragLimit = originalViewHeight-chatDragView.frame.size.height-toolbarHeight-endFrameHeight
+            if let titleLabel = titleLabel where titleLabel.isFirstResponder() {
+                feedLayoutInfo.setUpKeyboardLayoutForTitleLabel(notification, endFrame: endFrame)
             } else {
-                newTopConstant = chatTopConstraintBeforeKeyboard
-                frameHeightConstant = originalViewHeight
+                feedLayoutInfo.setUpKeyboardLayoutForChatMessage(notification, endFrame: endFrame)
             }
-            newTopConstant = CGFloat(max(0, Double(newTopConstant)))
-            chatDragTopConstraint.constant = newTopConstant
             
             UIView.animateWithDuration(duration,
                 delay: NSTimeInterval(0),
                 options: animationCurve,
                 animations: {
-                    self.view.frame.size.height = frameHeightConstant
+                    self.view.frame.size.height = self.feedLayoutInfo.frameHeight
                     self.view.layoutIfNeeded()
                 },
                 completion: nil)
@@ -244,9 +246,26 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     /* Title Text Field
     ------------------------------------------------------*/
     
+    func textFieldDidBeginEditing(textField: UITextField) {
+        animateChatDraggerToConstraintConstant(feedLayoutInfo.bottomDragLimit-chatDragView.frame.size.height)
+        chatDragIndicator.hidden = true
+    }
+    
     func textFieldShouldReturn(textField: UITextField) -> Bool {
-        titleLabel.resignFirstResponder()
+        textField.resignFirstResponder()
         return false
+    }
+    
+    func textFieldShouldEndEditing(textField: UITextField) -> Bool {
+        if !isStoryOld {
+            chatDragIndicator.hidden = false
+        }
+        if let story = story, newText = textField.text where newText != story.title && !newText.isEmpty {
+            story.title = newText
+            story.tags = story.getTagsFromString(newText)
+            story.saveEventually()
+        }
+        return true
     }
     
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
@@ -257,6 +276,13 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         return newString.characters.count <= 40
     }
     
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        // If we are editing the titleLabel, hide keyboard if we touch anything but the chatDragView
+        if let touchedView = touches.first?.view, titleLabel = titleLabel where titleLabel.isFirstResponder() && touchedView != chatDragView {
+            titleLabel.resignFirstResponder()
+        }
+    }
+    
     
     /* Helpers
     ------------------------------------------------------*/
@@ -265,9 +291,6 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         if let vc = segue.destinationViewController as? VideoFeedViewController {
             videoFeedController = vc
             videoFeedController?.configureWithUser(user)
-            if let story = story {
-                videoFeedController?.configureStory(story)
-            }
         }
         
         if let vc = segue.destinationViewController as? ChatFeedViewController {
@@ -277,4 +300,73 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         }
     }
     
+}
+
+// Deals with all the keyboard layout changes
+class FeedLayoutInfo {
+    
+    var keyboardShowing:Bool
+    var originalViewHeight:CGFloat
+    var topDragLimit:CGFloat
+    var bottomDragLimit:CGFloat    // Lowest possible drag point
+    var chatDragViewHeight:CGFloat
+    var toolbarHeight:CGFloat
+    static let snapThreshold:CGFloat = 0.23
+    var chatTopBeforeKeyboard:CGFloat
+    
+    // Use these to get final changes after setting up
+    var chatDragTopConstraint:NSLayoutConstraint
+    var frameHeight:CGFloat
+    
+    init(chatTopConstraint:NSLayoutConstraint, originalViewHeight:CGFloat, chatDragViewHeight:CGFloat, toolbarHeight:CGFloat) {
+        self.keyboardShowing = false
+        self.originalViewHeight = originalViewHeight
+        self.topDragLimit = 0
+        self.bottomDragLimit = originalViewHeight-chatDragViewHeight
+        self.chatDragViewHeight = chatDragViewHeight
+        self.toolbarHeight = toolbarHeight
+        self.chatDragTopConstraint = chatTopConstraint
+        self.chatTopBeforeKeyboard = chatDragTopConstraint.constant
+        self.frameHeight = originalViewHeight
+    }
+    
+    func setUpKeyboardLayoutForTitleLabel(notification:NSNotification, endFrame:CGRect?) {
+        if let endFrameHeight = endFrame?.size.height where notification.name == UIKeyboardWillShowNotification {
+            frameHeight = originalViewHeight-endFrameHeight
+            bottomDragLimit = frameHeight-chatDragViewHeight
+            chatDragTopConstraint.constant = bottomDragLimit
+        } else {
+            chatDragTopConstraint.constant = chatTopBeforeKeyboard
+            frameHeight = originalViewHeight
+        }
+        chatDragTopConstraint.constant = CGFloat(max(0, Double(chatDragTopConstraint.constant)))
+    }
+    
+    func setUpKeyboardLayoutForChatMessage(notification:NSNotification, endFrame:CGRect?) {
+        if let endFrameHeight = endFrame?.size.height where notification.name == UIKeyboardWillShowNotification {
+            chatDragTopConstraint.constant = chatTopBeforeKeyboard - endFrameHeight
+            frameHeight = originalViewHeight-endFrameHeight
+            bottomDragLimit = originalViewHeight-chatDragViewHeight-toolbarHeight-endFrameHeight
+        } else {
+            chatDragTopConstraint.constant = chatTopBeforeKeyboard
+            frameHeight = originalViewHeight
+        }
+        chatDragTopConstraint.constant = CGFloat(max(0, Double(chatDragTopConstraint.constant)))
+    }
+    
+    func keyboardWillShow() {
+        if keyboardShowing == true {
+            return
+        }
+        keyboardShowing = true
+        chatTopBeforeKeyboard = chatDragTopConstraint.constant
+    }
+    
+    func keyboardWillHide() {
+        if keyboardShowing == false {
+            return
+        }
+        bottomDragLimit = originalViewHeight-chatDragViewHeight
+        keyboardShowing = false
+    }
 }

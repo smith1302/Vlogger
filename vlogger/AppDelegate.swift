@@ -9,6 +9,7 @@
 import UIKit
 import Parse
 import Bolts
+import AVFoundation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -40,6 +41,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             self.window?.rootViewController = storyboard.instantiateViewControllerWithIdentifier("MainNavigationViewController");
         }
         
+        // Set appearance for NavigationBar
+        UINavigationBar.appearance().shadowImage = UIImage()
+        UINavigationBar.appearance().setBackgroundImage(UIImage(), forBarMetrics: UIBarMetrics.Default)
+        UINavigationBar.appearance().translucent = false
+        UINavigationBar.appearance().barTintColor = Constants.primaryColor
+        UINavigationBar.appearance().tintColor = Constants.textOnPrimaryColor
+        UINavigationBar.appearance().titleTextAttributes = [NSForegroundColorAttributeName: Constants.textOnPrimaryColor]
+        
+        // Set appearance for BarButtonItems
+        UIBarButtonItem.appearance().setTitleTextAttributes([NSFontAttributeName: UIFont.systemFontOfSize(16), NSForegroundColorAttributeName: UIColor.whiteColor()], forState: UIControlState.Normal)
         // ...
         return true
     }
@@ -60,6 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidBecomeActive(application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        Utilities.setAudioSessionCategory(AVAudioSessionCategorySoloAmbient)
     }
 
     func applicationWillTerminate(application: UIApplication) {

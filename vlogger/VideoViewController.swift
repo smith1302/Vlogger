@@ -20,7 +20,6 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         // Record button
         recordButton.delegate = self
         // Activity Indicator
@@ -34,9 +33,18 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     }
     
     override func viewWillAppear(animated: Bool) {
-        navigationController?.navigationBarHidden = true
-        UIApplication.sharedApplication().statusBarHidden = true
+        navigationController?.setNavigationBarHidden(true, animated: true)
+        UIApplication.sharedApplication().setStatusBarHidden(true, withAnimation: .Fade)
         super.viewWillAppear(animated)
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        // Swipe to transition setup
+        if let ncd = self.navigationController?.delegate as? NavigationControllerDelegate {
+            ncd.addSwipableController(self)
+            ncd.addDirectionSegue(swipeLeft: "toProfileViewController", swipeRight: "toHomeViewController")
+        }
     }
     
     /* Record Button Delegate
@@ -44,10 +52,10 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     func recordFinished() {
         activityIndicator.startAnimating()
         super.recordingStop()
-        
     }
     
     func recordStarted() {
+        Utilities.setAudioSessionCategory(AVAudioSessionCategoryPlayAndRecord)
         super.recordingStart()
     }
     
@@ -58,9 +66,26 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     }
     
     func continuePressed() {
-        uploadImage()
         removeVideoPlayerPreview()
-        MessageHandler.showMessage("Video will be uploaded shortly")
+        MessageHandler.showMessage("Video will be added shortly")
+    }
+    
+    func addVideoToNewStoryPressed() {
+        User.currentUser()!.uploadVideoToNewStory(currentVideo, failureCallback: {
+                self.cleanupCurrentVideo()
+            }, successCallback: {
+                self.cleanupCurrentVideo()
+        })
+        continuePressed()
+    }
+    
+    func addVideoToCurrentStoryPressed() {
+        User.currentUser()!.uploadVideoToCurrentStory(currentVideo, failureCallback: {
+                self.cleanupCurrentVideo()
+            }, successCallback: {
+                self.cleanupCurrentVideo()
+        })
+        continuePressed()
     }
     
     /* AVFoundation View Controller
@@ -85,24 +110,20 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     /* Other
     ------------------------------------------*/
     
-    func uploadImage() {
-        currentVideo?.uploadVideo({
-                self.cleanupCurrentVideo()
-            }, successCallback: {
-                self.cleanupCurrentVideo()
-        })
-    }
-    
     func addVideoSaveOverlay() {
-        let height:CGFloat = 70
-        videoSaveOverlayView = VideoSaveOverlayView(frame: CGRectMake(0,view.frame.size.height-height,view.frame.size.width,height))
+        videoSaveOverlayView = VideoSaveOverlayView(frame: CGRectMake(0,0,view.frame.size.width,view.frame.size.height))
         videoSaveOverlayView!.delegate = self
-        view.addSubview(videoSaveOverlayView!)
+        addChildViewController(videoSaveOverlayView!)
+        view.addSubview(videoSaveOverlayView!.view)
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if let destinationVC = segue.destinationViewController as? FeedViewController {
-            destinationVC.configureWithUser(User.currentUser()!)
+        if let destinationVC = segue.destinationViewController as? ProfileViewController {
+            destinationVC.configure(User.currentUser()!)
         }
     }
+    
+    @IBAction func unwindToVideoViewController(segue: UIStoryboardSegue) {
+    }
+    
 }

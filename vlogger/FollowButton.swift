@@ -26,6 +26,9 @@ class FollowButton: UIButton {
     func configure(user:User) {
         setFollow()
         enabled = false
+        if user.isUs() {
+            return
+        }
         User.currentUser()!.isFollowingUser(user, callback: {
             (isFollowing:Bool) in
             self.enabled = true

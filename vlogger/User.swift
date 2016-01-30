@@ -3,15 +3,33 @@ import Parse
 class User : PFUser {
     
     @NSManaged var usernameLowercase:String
-    //@NSManaged var videos: PFRelation
+    @NSManaged var currentStory: Story?
     @NSManaged var likes: PFRelation
     @NSManaged var picture: PFFile
+    @NSManaged var subscriberCount: Int
     @NSManaged var plays: Int
     var temporaryVideos:[Video] = [Video]() // Stores them until they are uploaded
     // Caches
     var followingUserStatus:[String:Bool] = [String:Bool]()
     var likedVideoStatus:[String:Bool] = [String:Bool]()
     var flaggedVideoStatus:[String:Bool] = [String:Bool]()
+    
+    override init() {
+        super.init()
+    }
+    
+    init(username:String, password:String, usernameLowercase:String) {
+        super.init()
+        self.username = username
+        self.password = password
+        self.usernameLowercase = usernameLowercase
+        self.currentStory = Story(day: NSDate.getCurrentDay(), user: self)
+        self.currentStory?.saveEventually()
+    }
+    
+    override init(className newClassName: String) {
+        super.init(className: newClassName)
+    }
     
     override class func initialize() {
         struct Static {
@@ -48,6 +66,7 @@ class User : PFUser {
     // Add video when first made so the user can see it
     func addTemporaryVideo(video:Video) {
         temporaryVideos.append(video)
+        print("Temp added")
     }
     
     // When video is uploaded add to our relations list
@@ -93,34 +112,6 @@ class User : PFUser {
         })
     }
     
-    func getCurrentStoryVideos(callback:([Video]->Void)) {
-        getCurrentStory({
-            (story:Story?) in
-            if story != nil {
-                story!.getVideos({
-                    (videos:[Video]) in
-                    callback(videos)
-                })
-            } else {
-                callback([])
-            }
-        })
-    }
-    
-    func getCurrentStory(callback:(Story?->Void)) {
-        let query = Story.query()
-        query?.whereKey("user", equalTo: self)
-        query?.whereKey("day", equalTo: NSDate.getCurrentDay())
-        query?.getFirstObjectInBackgroundWithBlock({
-            (object:PFObject?, error:NSError?) in
-            if let story = object as? Story {
-                callback(story)
-            } else {
-                callback(nil)
-            }
-        })
-    }
-    
     func getTotalViews(callback:(Int->Void)) {
         PFCloud.callFunctionInBackground("totalViews", withParameters: ["userID":self.objectId!], block: {
             (object:AnyObject?, error:NSError?) in
@@ -132,19 +123,19 @@ class User : PFUser {
         })
     }
     
-    func getTotalSubscribers(callback:(Int->Void)) {
-        let query = Follow.query()
-        query!.whereKey("toUser", equalTo: self)
-        query!.countObjectsInBackgroundWithBlock({
-            (count:Int32?, error:NSError?) in
-            if count == nil {
-                callback(0)
-                return
-            }
-            callback(Int(count!))
-            return
-        })
-    }
+//    func getTotalSubscribers(callback:(Int->Void)) {
+//        let query = Follow.query()
+//        query!.whereKey("toUser", equalTo: self)
+//        query!.countObjectsInBackgroundWithBlock({
+//            (count:Int32?, error:NSError?) in
+//            if count == nil {
+//                callback(0)
+//                return
+//            }
+//            callback(Int(count!))
+//            return
+//        })
+//    }
     
     /*  Follow user
     -----------------------------------------------------*/
@@ -175,17 +166,15 @@ class User : PFUser {
         object?.whereKey("fromUser", equalTo: User.currentUser()!)
         object?.getFirstObjectInBackgroundWithBlock({
             (object:PFObject?, error:NSError?) in
-            object?.deleteEventually()
+            if let follow = object as? Follow {
+                follow.deleteEventually()
+            }
         })
     }
     
     func setFollowingUserStatus(toUser user:User, isFollowing:Bool) {
         if let id = user.objectId {
-            if isFollowing {
-                followingUserStatus[id] = isFollowing
-            } else if followingUserStatus[id] != nil {
-                followingUserStatus.removeValueForKey(id)
-            }
+            followingUserStatus[id] = isFollowing
         }
     }
     
@@ -229,8 +218,10 @@ class User : PFUser {
         query!.countObjectsInBackgroundWithBlock({
             (count:Int32, error:NSError?) in
             if error != nil {
+                self.setLikedVideoStatus(video, hasLiked: false)
                 callback(false)
             } else {
+                self.setLikedVideoStatus(video, hasLiked: count > 0)
                 callback(count > 0)
             }
         })
@@ -255,9 +246,109 @@ class User : PFUser {
     /*  Story
     -----------------------------------------------------*/
     
-    func getCurrentStory() {
+    func uploadVideoToStory(story:Story, video:Video?, failureCallback:(Void->Void), successCallback:(Void->Void)) {
+        if video == nil {
+            failureCallback()
+            return
+        }
+        
+        video!.story = story
+        video!.uploadVideo({
+            failureCallback()
+            }, successCallback: {
+                story.addVideo(video!, callback: {
+                    (success:Bool) in
+                    story.saveEventually({
+                        (success:Bool, error:NSError?) in
+                        if success {
+                            successCallback()
+                        } else {
+                            failureCallback()
+                        }
+                    })
+                })
+        })
+    }
+    
+    func uploadVideoToCurrentStory(video:Video?, failureCallback:(Void->Void), successCallback:(Void->Void)) {
+        if let story = currentStory {
+            story.fetchIfNeededInBackgroundWithBlock({
+                (object:PFObject?, error:NSError?) in
+                if let story = story as? Story {
+                    self.currentStory = story
+                    self.uploadVideoToStory(story, video: video, failureCallback: failureCallback, successCallback: successCallback)
+                } else {
+                    failureCallback()
+                }
+            })
+        } else {
+            self.uploadVideoToNewStory(video, failureCallback: failureCallback, successCallback: successCallback)
+        }
+    }
+    
+    func uploadVideoToNewStory(video:Video?, failureCallback:(Void->Void), successCallback:(Void->Void)) {
+        // Make a new story
+        let story = Story(day: NSDate.getCurrentDay(), user:self)
+        uploadVideoToStory(story, video: video, failureCallback: failureCallback, successCallback: {
+            self.currentStory = story
+            self.saveEventually({
+                (success:Bool, error:NSError?) in
+                print(error)
+                if success {
+                    successCallback()
+                } else {
+                    failureCallback()
+                }
+            })
+        })
+    }
+    
+    func getCurrentStoryVideos(callback:([Video]->Void)) {
+        getCurrentStory({
+            (story:Story?) in
+            if story != nil {
+                story!.getVideos({
+                    (videos:[Video]) in
+                    callback(videos)
+                })
+            } else {
+                callback([])
+            }
+        })
+    }
+    
+    func getCurrentStory(callback:(Story?->Void)) {
+        let currentDate = NSDate.getCurrentDay()
         let query = Story.query()
         query?.whereKey("user", equalTo: self)
-        query?.whereKey("day", equalTo: NSDate.getCurrentDay())
+        query?.whereKey("day", equalTo: currentDate)
+        query?.getFirstObjectInBackgroundWithBlock({
+            (object:PFObject?, error:NSError?) in
+            if let story = object as? Story {
+                story.user = self
+                callback(story)
+            } else {
+                callback(nil)
+            }
+        })
+    }
+    
+    func getStoryCount(callback:(Int->Void)) {
+        let query = Story.query()
+        query?.whereKey("user", equalTo: self)
+        query?.whereKey("videoCount", greaterThanOrEqualTo: 1)
+        query?.countObjectsInBackgroundWithBlock({
+            (count:Int32, error:NSError?) in
+            if error == nil {
+                callback(Int(count))
+            }
+        })
+    }
+    
+    /*  Helpers
+    -----------------------------------------------------*/
+    
+    func isUs() -> Bool {
+        return self.objectId == User.currentUser()!.objectId
     }
 }

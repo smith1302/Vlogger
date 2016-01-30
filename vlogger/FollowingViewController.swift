@@ -11,6 +11,8 @@ import ParseUI
 
 class FollowingViewController: UserListViewController, UserTableViewCellDelegate {
     
+    var fullMessageView:FullMessageView?
+    
     override func queryForTable() -> PFQuery {
         if user == nil {
             return PFQuery()
@@ -23,9 +25,22 @@ class FollowingViewController: UserListViewController, UserTableViewCellDelegate
         return query!
     }
     
+    override func objectsDidLoad(error: NSError?) {
+        // If no results found default to popular page
+        if objects?.count == 0  && fullMessageView == nil {
+            fullMessageView = FullMessageView(frame: tableView.bounds, text: "No followers yet!")
+            tableView.addSubview(fullMessageView!)
+        } else if objects?.count > 0 {
+            fullMessageView?.removeFromSuperview()
+            fullMessageView = nil
+        }
+        super.objectsDidLoad(error)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Following"
+        tableView.refreshControlBackground(Constants.primaryColorSoft)
         // Do any additional setup after loading the view.
     }
     

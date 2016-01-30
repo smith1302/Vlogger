@@ -54,11 +54,6 @@ class ProfileCardViewController: UIViewController {
         followersButton.setTitle("0", forState: .Normal)
         
         followersButton.alpha = 0.6
-        user.getTotalSubscribers({
-            (count:Int) in
-            self.followersButton.alpha = 1
-            self.followersButton.setTitle("\(count)", forState: .Normal)
-        })
         
         viewsLabel.alpha = 0.6
         user.getTotalViews({
@@ -73,7 +68,7 @@ class ProfileCardViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         top.backgroundColor = Constants.primaryColor
-        lineSeperator.backgroundColor = Constants.darkPrimaryColor
+        lineSeperator.backgroundColor = Constants.primaryColorDark
         
         profileView.userInteractionEnabled = true
         profileView.transform = CGAffineTransformMakeScale(0.01, 0.01)
@@ -101,7 +96,7 @@ class ProfileCardViewController: UIViewController {
         // Round imageview
         imageView.layer.cornerRadius = imageView.frame.size.height/2
         imageView.layer.borderWidth = 7
-        imageView.layer.borderColor = Constants.darkPrimaryColor.CGColor
+        imageView.layer.borderColor = Constants.primaryColorDark.CGColor
         imageView.layer.masksToBounds = true
         
         // Round edges of view

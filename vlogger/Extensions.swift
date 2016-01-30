@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import ParseUI
 import UIKit
 
 extension NSDate {
@@ -32,7 +33,8 @@ extension NSDate {
         return NSCalendar.currentCalendar().components(.Second, fromDate: self, toDate: date, options: []).second
     }
     
-    func getReadableTimeDifference(date:NSDate) -> String {
+    func getReadableTime() -> String {
+        let date = NSDate()
         if yearsFrom(date)   > 0 { return "\(yearsFrom(date))y"   }
         if monthsFrom(date)  > 0 { return "\(monthsFrom(date))M"  }
         if weeksFrom(date)   > 0 { return "\(weeksFrom(date))w"   }
@@ -42,7 +44,7 @@ extension NSDate {
         return "0m"
     }
     
-    func getReadableTime() -> String {
+    func getReadableTimeForChat() -> String {
         let formatter = NSDateFormatter()
         var returnString = ""
         let days = daysFrom(NSDate())
@@ -62,6 +64,13 @@ extension NSDate {
         let minute = hour*60
         let second = minute*60
         let date = NSDate(timeIntervalSince1970:  NSTimeInterval(second))
+        formatter.dateFormat = "MMM d, yyyy"
+        return formatter.stringFromDate(date)
+    }
+    
+    class func getReadableTimeFull() -> String {
+        let formatter = NSDateFormatter()
+        let date = NSDate()
         formatter.dateFormat = "MMM d, yyyy"
         return formatter.stringFromDate(date)
     }
@@ -107,6 +116,16 @@ extension UIColor {
         assert(blue >= 0 && blue <= 255, "Invalid blue component")
         
         self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: alpha)
+    }
+    
+    func toImage(size:CGSize) -> UIImage {
+        let rect: CGRect = CGRectMake(0, 0, size.width, size.height)
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        setFill()
+        UIRectFill(rect)
+        let image: UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image
     }
 }
 
@@ -154,6 +173,14 @@ extension UITableView {
             let indexPath = NSIndexPath(forRow: numberOfRows-1, inSection: 0)
             self.scrollToRowAtIndexPath(indexPath, atScrollPosition: UITableViewScrollPosition.Bottom, animated: animated)
         }
+    }
+    
+    func refreshControlBackground(color:UIColor) {
+        var frame = self.bounds
+        frame.origin.y = -frame.size.height
+        let refreshControlBackgroundView = UIView(frame: frame)
+        refreshControlBackgroundView.backgroundColor = color
+        self.insertSubview(refreshControlBackgroundView, atIndex: 0)
     }
 }
 

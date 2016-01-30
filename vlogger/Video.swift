@@ -9,6 +9,7 @@ class Video : PFObject, PFSubclassing  {
     @NSManaged var views: Int
     @NSManaged var likes: Int
     @NSManaged var day: Int
+    @NSManaged var story: Story
     
     var tag:Int = 0
     var alreadyViewed:Bool = false
@@ -16,6 +17,15 @@ class Video : PFObject, PFSubclassing  {
     var uploadInProgressFlag:Bool = false
     var uploadFailedFlag:Bool = false
     var fileURL:NSURL?
+    var thumbnail:UIImage? {
+        get {
+            return Video.thumbnailCache[objectId!]
+        }
+        set {
+            Video.thumbnailCache[objectId!] = newValue
+        }
+    }
+    static var thumbnailCache:[String:UIImage] = [String:UIImage]()
     static var videoIDToAssetCache:[String:AVAsset] = [String:AVAsset]()
     
     init(fileURL:NSURL?) {
@@ -296,6 +306,7 @@ class Video : PFObject, PFSubclassing  {
                 image = UIImage(CGImage: imageRef)
             } catch {}
         }
+        thumbnail = image
         return image
     }
 }

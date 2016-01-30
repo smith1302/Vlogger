@@ -9,9 +9,9 @@
 import UIKit
 import ParseUI
 
-class SearchUsersViewController: PFQueryTableViewController {
+class SearchUsersViewController: SearchViewController {
     
-    var searchTerm:String = ""
+    var popularViewController:StoryUpdateFeedViewController?
     var outstandingQueries:[NSIndexPath:Bool] = [NSIndexPath:Bool]()
     var user:User?
     
@@ -23,11 +23,6 @@ class SearchUsersViewController: PFQueryTableViewController {
         self.pullToRefreshEnabled = true
         self.paginationEnabled = false
         self.objectsPerPage = 20
-    }
-    
-    func configure(user:User) {
-        self.user = user
-        self.loadObjects()
     }
     
     override func queryForTable() -> PFQuery {
@@ -42,8 +37,32 @@ class SearchUsersViewController: PFQueryTableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Search"
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 50
+        tableView.separatorStyle = .None
+        tableView.refreshControlBackground(Constants.primaryColorSoft)
         // Do any additional setup after loading the view.
+    }
+    
+    override func objectsDidLoad(error: NSError?) {
+        // If no results found default to popular page
+        if objects?.count == 0  && popularViewController == nil {
+            if let vc = self.storyboard?.instantiateViewControllerWithIdentifier("StoryUpdateFeedViewController") as? StoryUpdateFeedViewController {
+                vc.delegate = delegate
+                popularViewController = vc
+                addChildViewController(vc)
+                vc.view.frame = self.tableView.bounds
+                tableView.addSubview(vc.view)
+                //Utilities.autolayoutSubviewToViewEdges(vc.view, view: self.view)
+                vc.configureWithFeedType(StoryUpdateFeedType.popular, headerTitle: "No results found")
+                return
+            }
+        } else if objects?.count > 0 {
+            popularViewController?.removeFromParentViewController()
+            popularViewController?.view.removeFromSuperview()
+            popularViewController = nil
+        }
+        super.objectsDidLoad(error)
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -79,9 +98,10 @@ class SearchUsersViewController: PFQueryTableViewController {
             }
             return cell
         } else {
+            // Should probably delete this default cell since we have the popular page show
             let cell = tableView.dequeueReusableCellWithIdentifier("PlainCell") as! PFTableViewCell!
             cell.textLabel?.textColor = UIColor(white: 0.8, alpha: 1)
-            cell.textLabel?.text = "No results found"
+            cell.textLabel?.text = ""
             return cell
         }
     }
@@ -91,11 +111,7 @@ class SearchUsersViewController: PFQueryTableViewController {
         if objects?.count == 0 {
         } else
         if let user = self.objectAtIndexPath(indexPath) as? User {
-            let storyboard = self.storyboard
-            if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {
-                self.navigationController?.pushViewController(destinationVC, animated: true)
-                destinationVC.configureWithUser(user)
-            }
+            delegate?.transitionToFeed(user)
         }
     }
     
@@ -104,15 +120,6 @@ class SearchUsersViewController: PFQueryTableViewController {
             return 55
         }
         return super.tableView(tableView, heightForRowAtIndexPath: indexPath)
-    }
-    
-    func doSearch(searchTerm:String?) {
-        if let text = searchTerm {
-            self.searchTerm = text
-        } else {
-            self.searchTerm = ""
-        }
-        loadObjects()
     }
     
 }

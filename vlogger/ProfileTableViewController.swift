@@ -9,9 +9,12 @@
 import UIKit
 import ParseUI
 
-class ProfileTableViewController: PFQueryTableViewController {
+class ProfileTableViewController: CustomPFQueryTableViewController, ProfileTableViewCellDelegate {
     
     let user:User
+    var fullMessageView:FullMessageView?
+    var initialLoadCompleted = false
+    var customObjects:[PFObject]?
     
     init(user:User, tableView:UITableView) {
         self.user = user
@@ -41,15 +44,105 @@ class ProfileTableViewController: PFQueryTableViewController {
         // Get users that we follow
         let storyQuery = Story.query()
         storyQuery?.whereKey("user", equalTo: user)
-        storyQuery?.orderByDescending("day")
+        storyQuery?.whereKey("active", equalTo: false)
+        storyQuery?.orderByDescending("createdAt")
         storyQuery?.includeKey("video")
         return storyQuery!
+    }
+    
+    override func objectsDidLoad(error: NSError?) {
+        // If no results found default to popular page
+        if objects?.count == 0  && fullMessageView == nil {
+            fullMessageView = FullMessageView(frame: tableView.bounds, text: "No stories yet!")
+            tableView.addSubview(fullMessageView!)
+        } else if objects?.count > 0 {
+            fullMessageView?.removeFromSuperview()
+            fullMessageView = nil
+        }
+        initialLoadCompleted = true
+        customObjects = objects
+        super.objectsDidLoad(error)
+    }
+    
+    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if section == 0 {
+            return 1
+        } else {
+            return (customObjects?.count)!
+        }
+    }
+    
+    override func objectAtIndexPath(indexPath: NSIndexPath?) -> PFObject? {
+        if let indexPath = indexPath where indexPath.section == 0 {
+            return user.currentStory
+        }
+        var newIndexPath = indexPath
+        if let indexPath = indexPath {
+            newIndexPath = NSIndexPath(forRow: indexPath.row, inSection: 0)
+        }
+        return customObjects![indexPath!.row]
+    }
+    
+    override func removeObjectAtIndexPath(indexPath: NSIndexPath?, animated: Bool) {
+        if let indexPath = indexPath where indexPath.section == 0 {
+            return
+        }
+        
+        tableView.beginUpdates()
+        super.removeObjectAtIndexPath(indexPath)
+        tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.Automatic)
+        tableView.endUpdates()
+        
+    }
+    
+    
+    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 35
+    }
+    
+    override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let view = UIView()
+        view.backgroundColor = UIColor(white: 1, alpha: 1)
+        let label = UILabel()
+        label.backgroundColor = UIColor.clearColor()
+        label.textColor = UIColor(white: 0.35, alpha: 1)
+        label.font = UIFont.systemFontOfSize(14, weight: 0.2)
+        if section == 0 {
+            label.text = "Current Story"
+        } else {
+            label.text = "Previous Stories"
+        }
+        label.textAlignment = .Left
+        view.addSubview(label)
+        
+        let line = UIView()
+        line.backgroundColor = UIColor(white: 0.9, alpha: 1)
+        line.center.y = view.center.y
+        view.addSubview(line)
+        
+        label.translatesAutoresizingMaskIntoConstraints = false
+        line.translatesAutoresizingMaskIntoConstraints = false
+        view.addConstraint(NSLayoutConstraint(item: label, attribute: .Top, relatedBy: .Equal, toItem: view, attribute: .Top, multiplier: 1.0, constant: 0))
+        view.addConstraint(NSLayoutConstraint(item: label, attribute: .Left, relatedBy: .Equal, toItem: view, attribute: .Left, multiplier: 1.0, constant: 15))
+        view.addConstraint(NSLayoutConstraint(item: label, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1.0, constant: 0))
+        
+        view.addConstraint(NSLayoutConstraint(item: line, attribute: .Right, relatedBy: .Equal, toItem: view, attribute: .Right, multiplier: 1.0, constant: -15))
+        view.addConstraint(NSLayoutConstraint(item: line, attribute: .Left, relatedBy: .Equal, toItem: label, attribute: .Right, multiplier: 1.0, constant: 15))
+        view.addConstraint(NSLayoutConstraint(item: line, attribute: .CenterY, relatedBy: .Equal, toItem: view, attribute: .CenterY, multiplier: 1.0, constant: 0))
+        view.addConstraint(NSLayoutConstraint(item: line, attribute: .Height, relatedBy: .Equal, toItem: nil, attribute: .NotAnAttribute, multiplier: 1.0, constant: 1))
+        
+        return view
+    }
+    
+    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        return 2
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath, object: PFObject?) -> PFTableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("ProfileCell") as! ProfileTableViewCell!
         if let story = object as? Story {
-            cell.configure(story)
+            cell.delegate = self
+            cell.configure(story, indexPath: indexPath)
         }
         return cell
     }
@@ -61,22 +154,36 @@ class ProfileTableViewController: PFQueryTableViewController {
             if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {
                 self.navigationController?.pushViewController(destinationVC, animated: true)
                 // We already have user downloaded in this case so lets just pass it off
-                story.user = self.user
-                destinationVC.configureWithStory(story)
+                destinationVC.configureWithStory(story, user:self.user)
             }
         }
     }
     
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return true
+        if user.isUs() && indexPath.section != 0 {
+            return true
+        } else {
+            return false
+        }
     }
     
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if (editingStyle == UITableViewCellEditingStyle.Delete) {
+        if (editingStyle == UITableViewCellEditingStyle.Delete) && user.isUs() {
             if let story = self.objectAtIndexPath(indexPath) as? Story {
                 removeObjectAtIndexPath(indexPath, animated: true)
                 story.deleteEventually()
             }
+        }
+        super.tableView(tableView, commitEditingStyle: editingStyle, forRowAtIndexPath: indexPath)
+    }
+    
+    func moreButtonClicked(indexPath: NSIndexPath) {
+        if !user.isUs() {
+            return
+        }
+        if let story = self.objectAtIndexPath(indexPath) as? Story {
+            removeObjectAtIndexPath(indexPath, animated: true)
+            //story.deleteEventually()
         }
     }
 

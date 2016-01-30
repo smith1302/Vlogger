@@ -112,7 +112,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         loginTextBtn.setTitle("Login", forState: .Normal)
         loginTextBtn.titleLabel?.font = UIFont.boldSystemFontOfSize(textSize)
         loginTextBtn.addTarget(self, action: "switchToLogin", forControlEvents: UIControlEvents.TouchUpInside)
-        loginTextBtn.backgroundColor = Constants.darkPrimaryColor
+        loginTextBtn.backgroundColor = Constants.primaryColorDark
         self.view.addSubview(loginTextBtn)
         
         registerTextBtn = UIButton(frame: CGRectMake(self.view.frame.size.width/2, self.view.frame.size.height/2 - boxH, self.view.frame.size.width/2, boxH))
@@ -121,7 +121,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         registerTextBtn.setTitle("Sign Up", forState: .Normal)
         registerTextBtn.titleLabel?.font = UIFont.boldSystemFontOfSize(textSize)
         registerTextBtn.addTarget(self, action: "switchToRegister", forControlEvents: UIControlEvents.TouchUpInside)
-        registerTextBtn.backgroundColor = Constants.darkPrimaryColor
+        registerTextBtn.backgroundColor = Constants.primaryColorDark
         self.view.addSubview(registerTextBtn)
         
         let buttonH:CGFloat = 60
@@ -385,10 +385,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
         activityIndicator.startAnimating()
         
-        let newUser = User()
-        newUser.username = usernameBox.text!.stripWhitespace()
-        newUser.password = passwordBox.text!.stripWhitespace()
-        newUser.usernameLowercase = usernameBox.text!.stripWhitespace().lowercaseString
+        let newUser = User(username: usernameBox.text!.stripWhitespace(), password: passwordBox.text!.stripWhitespace(), usernameLowercase: usernameBox.text!.stripWhitespace().lowercaseString)
         
         // Sign up the user asynchronously
         newUser.signUpInBackgroundWithBlock({ (succeed, error) -> Void in

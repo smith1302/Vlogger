@@ -80,11 +80,12 @@ class RecordButton: UIButton {
         transform = CGAffineTransformMakeScale(1.1, 1.1)
     }
     
+    override func touchesCancelled(touches: Set<UITouch>?, withEvent event: UIEvent?) {
+        print("Record button cancelled")
+    }
+    
     override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        isRecording = false
-        circleLayer.removeAnimationForKey("animateCircle")
-        resetAppearance()
-        delegate?.recordFinished()
+        recordingStopped()
     }
     
     func resetAppearance() {
@@ -93,12 +94,22 @@ class RecordButton: UIButton {
         transform = CGAffineTransformMakeScale(1, 1)
     }
     
+    func recordingStopped() {
+        print("Recording stopped")
+        if isRecording == false {
+            return
+        }
+        isRecording = false
+        circleLayer.removeAnimationForKey("animateCircle")
+        resetAppearance()
+        delegate?.recordFinished()
+    }
+    
     func animateCircle(duration: NSTimeInterval) {
         // Completion block
         CATransaction.begin()
         CATransaction.setCompletionBlock({
-            self.delegate?.recordFinished()
-            self.resetAppearance()
+            self.recordingStopped()
         })
         
         // We want to animate the strokeEnd property of the circleLayer

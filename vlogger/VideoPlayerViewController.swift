@@ -144,21 +144,30 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
         var items = [AVPlayerItem]()
         var i = 0
         var addedVideoIds = [String:Bool]() // To keep track incase there are dupes
-        for video in videos {
-            // Make sure we havent already added this video
-            if let objectId = video.objectId, _ = addedVideoIds[objectId] {
-                continue
-            }
-            if let item = video.getAVPlayerItem() {
-                if let objectId = video.objectId {
-                    addedVideoIds[objectId] = true
+        
+        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
+            for video in videos {
+                // Make sure we havent already added this video
+                if let objectId = video.objectId, _ = addedVideoIds[objectId] {
+                    continue
                 }
-                items.append(item)
-                video.tag = i++
+                if let item = video.getAVPlayerItem() {
+                    if let objectId = video.objectId {
+                        addedVideoIds[objectId] = true
+                    }
+                    items.append(item)
+                    video.tag = i++
+                }
+            }
+            dispatch_async(dispatch_get_main_queue()){
+                [weak self] in
+                if let weakSelf = self {
+                    let loopingPlayer = LoopingPlayer(items: items)
+                    weakSelf.player = loopingPlayer
+                    weakSelf.progressBarController.setLoopingPlayer(loopingPlayer)
+                }
             }
         }
-        self.player = LoopingPlayer(items: items)
-        progressBarController.setLoopingPlayer(self.player as! LoopingPlayer)
         
     }
     
@@ -188,6 +197,7 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     
     func playerError() {
         ErrorHandler.showAlert("Player error")
+        activityIndicator.stopAnimating()
     }
     
     func playerDidAdvanceToNextItem() {

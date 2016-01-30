@@ -11,6 +11,7 @@ import AVFoundation
 import AVKit
 import CoreMedia
 import CoreImage
+import MediaPlayer
 
 protocol CameraSessionControllerDelegate {
     func cameraSessionDidOutputSampleBuffer(sampleBuffer: CMSampleBuffer!)
@@ -27,6 +28,7 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     var stillImageOutput: AVCaptureStillImageOutput!
     var captureMetadataOutput: AVCaptureMetadataOutput!
     var videoDevice: AVCaptureDevice!
+    var audioDevice: AVCaptureDevice!
     var runtimeErrorHandlingObserver: AnyObject?
     var previewLayer:AVCaptureVideoPreviewLayer!
     var videoPlayerController:VideoPlayerViewController?
@@ -121,9 +123,9 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         var success: Bool = false
         videoDevice = AVFoundationViewController.deviceWithMediaType(AVMediaTypeVideo, position: position)
         do {
-            let input = try AVCaptureDeviceInput(device: videoDevice)
-            if session.canAddInput(input) {
-                session.addInput(input)
+            videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice)
+            if session.canAddInput(videoDeviceInput) {
+                session.addInput(videoDeviceInput)
                 success = true
             } else {
                 print("Could not add video input")
@@ -147,11 +149,11 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     }
     
     func addAudioInput() {
-        let audioDevice = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeAudio)
+        audioDevice = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeAudio)
         do {
-            let input = try AVCaptureDeviceInput(device: audioDevice)
-            if session.canAddInput(input) {
-                session.addInput(input)
+            audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
+            if session.canAddInput(audioDeviceInput) {
+                session.addInput(audioDeviceInput)
             } else {
                 print("Could not add audio input")
             }
@@ -212,13 +214,15 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     ------------------------------------------*/
     
     func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError?) {
-        print("Capture output callback")
         let videoFile = outputFileURL as NSURL!
+        let pathString = videoFile.relativePath
+        let videoURL = NSURL.fileURLWithPath(pathString!)
         if error != nil {
             AVFoundationViewController.cleanupTempFile(videoFile.path)
             return
         }
-        currentVideo = Video(fileURL: videoFile)
+
+        currentVideo = Video(fileURL: videoURL)
         currentVideo?.printFileSize()
         
         videoPlayerController = VideoPlayerViewController(videos: [currentVideo!])
@@ -226,7 +230,6 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         videoPlayerController?.hidesProgressBar(true)
         self.addChildViewController(videoPlayerController!)
         self.view.addSubview(videoPlayerController!.view)
-        print("Video Player made")
     }
     
     /* Actions
@@ -246,7 +249,6 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     }
     
     func recordingStop() {
-        print("Recording stopped")
         videoDeviceOutput?.stopRecording()
     }
     
@@ -282,7 +284,7 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
             do {
                 try NSFileManager.defaultManager().removeItemAtPath(path!)
             } catch {
-                //print("[cleanupTempFile]:\(error)")
+                print("[cleanupTempFile]:\(error)")
             }
         }
     }
@@ -291,7 +293,7 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
         do {
             try url.setResourceValue(true, forKey: NSURLIsExcludedFromBackupKey)
         } catch {
-            //print("[Exclude From Backup]:\(error)")
+            print("[Exclude From Backup]:\(error)")
         }
     }
     

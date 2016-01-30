@@ -9,30 +9,45 @@
 import UIKit
 
 protocol SelectorViewControllerDelegate: class {
-    func subscriptionClicked()
-    func trendingClicked()
+    func leftButtonClicked()
+    func rightButtonClicked()
+}
+
+enum HomeSelectorState {
+    case Search
+    case Home
 }
 
 class SelectorViewController: UIViewController {
     
-    weak var selectedButton: UIButton!
-    weak var trendingButton: UIButton!
-    weak var subscriptionsButton: UIButton!
+    weak var selectedButton: UIButton? = UIButton()
+    weak var RightButton: UIButton!
+    weak var LeftButton: UIButton!
     weak var container: UIView!
     weak var selectorCenterXConstraint: NSLayoutConstraint!
     var selectedColor:UIColor = UIColor(hex: 0x3697FF)
-    var nonSelectedColor:UIColor = UIColor.grayColor()
+    var nonSelectedColor:UIColor = UIColor(white: 0.3, alpha: 1)
     weak var delegate:SelectorViewControllerDelegate?
+    var currentState:HomeSelectorState! = HomeSelectorState.Home {
+        didSet {
+            self.refreshLabels(self.currentState)
+            if oldValue != self.currentState {
+                selectedButton = UIButton()
+                leftButtonClicked()
+            }
+        }
+    }
+    var stateLabels:[HomeSelectorState:[String:String]] = [HomeSelectorState.Search:["Left":"Users", "Right":"Stories"], HomeSelectorState.Home:["Left":"Trending", "Right":"Subscriptions"]]
     
-    init(trendingButton:UIButton, subscriptionsButton:UIButton, selectorCenterXConstraint: NSLayoutConstraint, container:UIView) {
-        self.trendingButton = trendingButton
-        self.subscriptionsButton = subscriptionsButton
+    init(RightButton:UIButton, LeftButton:UIButton, selectorCenterXConstraint: NSLayoutConstraint, container:UIView) {
+        self.RightButton = RightButton
+        self.LeftButton = LeftButton
         self.selectorCenterXConstraint = selectorCenterXConstraint
         self.container = container
         super.init(nibName: nil, bundle: nil)
-        self.trendingButton.addTarget(self, action: "trendingButtonClicked", forControlEvents: .TouchUpInside)
-        self.subscriptionsButton.addTarget(self, action: "subscriptionButtonClicked", forControlEvents: .TouchUpInside)
-        selectedButton = subscriptionsButton
+        self.RightButton.addTarget(self, action: "rightButtonClicked", forControlEvents: .TouchUpInside)
+        self.LeftButton.addTarget(self, action: "leftButtonClicked", forControlEvents: .TouchUpInside)
+        self.refreshLabels(currentState)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -50,24 +65,31 @@ class SelectorViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    func trendingButtonClicked() {
-        if selectedButton == trendingButton { return }
-        selectorCenterXConstraint.constant = trendingButton.frame.origin.x
-        trendingButton.setTitleColor(selectedColor, forState: .Normal)
-        subscriptionsButton.setTitleColor(nonSelectedColor, forState: .Normal)
-        animateSelector()
-        selectedButton = trendingButton
-        delegate?.trendingClicked()
+    func refreshLabels(state:HomeSelectorState) {
+        if let labels = stateLabels[state] {
+            LeftButton.setTitle(labels["Left"], forState: .Normal)
+            RightButton.setTitle(labels["Right"], forState: .Normal)
+        }
     }
     
-    func subscriptionButtonClicked() {
-        if selectedButton == subscriptionsButton { return }
-        selectorCenterXConstraint.constant = subscriptionsButton.frame.origin.x
-        trendingButton.setTitleColor(nonSelectedColor, forState: .Normal)
-        subscriptionsButton.setTitleColor(selectedColor, forState: .Normal)
+    func rightButtonClicked() {
+        if selectedButton == RightButton { return }
+        changeSelectedButton(RightButton, notSelected: LeftButton)
+        delegate?.rightButtonClicked()
+    }
+    
+    func leftButtonClicked() {
+        if selectedButton == LeftButton { return }
+        changeSelectedButton(LeftButton, notSelected: RightButton)
+        delegate?.leftButtonClicked()
+    }
+    
+    func changeSelectedButton(selected:UIButton, notSelected:UIButton) {
+        selectorCenterXConstraint.constant = selected.frame.origin.x
+        notSelected.setTitleColor(nonSelectedColor, forState: .Normal)
+        selected.setTitleColor(Constants.usernameTextPrimaryColor, forState: .Normal)
         animateSelector()
-        selectedButton = subscriptionsButton
-        delegate?.subscriptionClicked()
+        selectedButton = selected
     }
     
     func animateSelector() {

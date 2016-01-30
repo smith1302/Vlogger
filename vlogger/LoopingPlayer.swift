@@ -20,7 +20,6 @@ class LoopingPlayer: AVQueuePlayer {
     
     override init() {
         super.init()
-        self.commonInit()
     }
     
     override init(URL url: NSURL) {
@@ -38,6 +37,10 @@ class LoopingPlayer: AVQueuePlayer {
         self.commonInit()
     }
     
+    func getEm() -> Int {
+        return items().count
+    }
+    
     let kPlayerStatusNew = "status"
     let kCurrentItemStatusNew = "currentItem.status"
     let kCurrentItemLoadedTimeRangesNew = "currentItem.loadedTimeRanges"
@@ -46,7 +49,6 @@ class LoopingPlayer: AVQueuePlayer {
     let kCurrentItemErrorNew = "currentItem.error"
     
     func commonInit() {
-        captureAudioSession()
         for (index,item) in items().enumerate() {
             originalQueueIndexForItem[item] = index
             originalQueue.append(item)
@@ -59,7 +61,7 @@ class LoopingPlayer: AVQueuePlayer {
         addObserver(self, forKeyPath: kCurrentItemErrorNew, options: .New, context: nil)
         self.actionAtItemEnd = .None
         NSNotificationCenter.defaultCenter().addObserver(self, selector:"playerDidPlayToEndTimeNotification:", name:AVPlayerItemDidPlayToEndTimeNotification, object:nil)
-    
+
         self.timeObserver = self.addPeriodicTimeObserverForInterval(CMTimeMake(1, 100), queue: dispatch_get_main_queue(), usingBlock: {
             (time: CMTime) -> Void in
             let seconds:Float64 = CMTimeGetSeconds(time)
@@ -69,23 +71,31 @@ class LoopingPlayer: AVQueuePlayer {
         })
     }
     
-    deinit {
-        cleanUp()
-    }
-    
-    // Some issue with AVPLayerLayer not removing a reference to the player, so cleanup manually
-    func cleanUp() {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+    func clearTimeObserver() {
         if timeObserver != nil {
             removeTimeObserver(timeObserver!)
             timeObserver = nil
         }
+    }
+    
+    // Some issue with AVPLayerLayer not removing a reference to the player, so cleanup manually
+    func cleanUp() {
+        clearTimeObserver()
+        NSNotificationCenter.defaultCenter().removeObserver(self)
         removeObserver(self, forKeyPath: kPlayerStatusNew, context: nil)
         removeObserver(self, forKeyPath: kCurrentItemStatusNew, context: nil)
         removeObserver(self, forKeyPath: kCurrentItemLoadedTimeRangesNew, context: nil)
         removeObserver(self, forKeyPath: kCurrentItemPlaybackBufferEmptyNew, context: nil)
         removeObserver(self, forKeyPath: kCurrentItemPlaybackBufferGoodNew, context: nil)
         removeObserver(self, forKeyPath: kCurrentItemErrorNew, context: nil)
+        
+        for item in items() {
+            item.cancelPendingSeeks()
+            item.asset.cancelLoading()
+            removeItem(item)
+        }
+        originalQueueIndexForItem.removeAll()
+        originalQueue.removeAll()
     }
     
     override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
@@ -127,15 +137,7 @@ class LoopingPlayer: AVQueuePlayer {
     
     override func play() {
         super.play()
-        captureAudioSession()
-    }
-    
-    func captureAudioSession() {
-        do {
-            let audioSession = AVAudioSession.sharedInstance()
-            try audioSession.setCategory(AVAudioSessionCategoryAmbient)
-            try audioSession.setActive(true)
-        } catch {}
+        Utilities.setAudioSessionCategory(AVAudioSessionCategorySoloAmbient)
     }
     
     func playerDidPlayToEndTimeNotification(notification: NSNotification) {

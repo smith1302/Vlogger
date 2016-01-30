@@ -13,7 +13,7 @@ protocol LikeButtonDelegate:class {
     func didUnlikeVideo()
 }
 
-class LikeButton: UIButton {
+class LikeButton: UIButtonOutline {
     
     enum LikeState {
         case Liked
@@ -24,24 +24,18 @@ class LikeButton: UIButton {
     
     var likeState:LikeState! = LikeState.Unliked {
         willSet {
-            enabled = false
             if newValue == LikeState.Liked {
                 setImage(UIImage(named: "Like-Full.png"), forState: .Normal)
             } else {
                 setImage(UIImage(named: "Like-Empty.png"), forState: .Normal)
             }
         }
-        didSet {
-            enabled = true
-        }
     }
     
     override internal var enabled: Bool {
         willSet {
             if newValue == true {
-                alpha = 0.85
-            } else {
-                alpha = 0.6
+                alpha = 0.8
             }
         }
     }

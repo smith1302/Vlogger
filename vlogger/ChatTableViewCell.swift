@@ -25,9 +25,9 @@ class ChatTableViewCell: UITableViewCell {
     func configure(message:Message) {
         self.message = message
         usernameLabel.setTitle("\(message.userName):", forState: .Normal)
-        usernameLabel.setTitleColor(Constants.darkPrimaryColor, forState: .Normal)
+        usernameLabel.setTitleColor(Constants.usernameTextPrimaryColor, forState: .Normal)
         textView.text = message.text
-        timeLabel.text = message.timestamp.getReadableTime()
+        timeLabel.text = message.timestamp.getReadableTimeForChat()
 
         textView.textContainerInset = UIEdgeInsetsZero;
     }

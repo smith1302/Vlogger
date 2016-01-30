@@ -15,7 +15,7 @@ protocol OptionalButtonDelegate:class {
     func flagVideo()
 }
 
-class OptionalButton: UIButton {
+class OptionalButton: UIButtonOutline {
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)

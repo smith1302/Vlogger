@@ -29,7 +29,6 @@ class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
     
     deinit {
         self.player = nil
-        print("released")
     }
 
     override func viewDidLoad() {
@@ -72,11 +71,15 @@ class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
     func setLoopingPlayer(player:LoopingPlayer) {
         self.player = player
         player.delegate = self
-        self.totalDuration = getTotalDurationForPlayer(player)
-        self.itemDurations = getDurationsForItems(player)
-        progressBar.setSegmentsWithDurationPercents(self.itemDurations, totalDuration: self.totalDuration)
-        if player.status == .ReadyToPlay { // Incase there is no delay
-            playerReady()
+        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
+            self.totalDuration = self.getTotalDurationForPlayer(player)
+            self.itemDurations = self.getDurationsForItems(player)
+            dispatch_async(dispatch_get_main_queue()){
+                self.progressBar.setSegmentsWithDurationPercents(self.itemDurations, totalDuration: self.totalDuration)
+                if player.status == .ReadyToPlay { // Incase there is no delay
+                    self.playerReady()
+                }
+            }
         }
     }
     

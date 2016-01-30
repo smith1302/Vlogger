@@ -18,7 +18,7 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     @IBOutlet weak var viewCountLabel: UILableOutline!
     @IBOutlet weak var xButton: UIButton!
     @IBOutlet weak var likeCountLabel: UILableOutline!
-    @IBOutlet weak var updateLabel: UILableOutline! // "No recent updates"
+    @IBOutlet weak var noStoriesFoundView: UIView!
     @IBOutlet weak var optionalButton: OptionalButton!
     
     // Other
@@ -41,7 +41,7 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         
         likeButton.delegate = self
         likeCountLabel.textAlignment = .Right
-        updateLabel.hidden = true
+        noStoriesFoundView.alpha = 0
         
         // Configure name button title
         nameButton.setTitle(user.username!, forState: .Normal)
@@ -55,6 +55,18 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         // Optional Button
         optionalButton.delegate = self
         optionalButton.configure(user)
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        customOverlayView.alpha = 0
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        UIView.animateWithDuration(0.3, animations: {
+            self.customOverlayView.alpha = 1
+        })
     }
     
     override func didReceiveMemoryWarning() {
@@ -98,10 +110,9 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     }
     
     func noVideosFound() {
-        self.updateLabel.textAlignment = .Center
-        UIView.animateWithDuration(0.4, animations: {
-            self.updateLabel.hidden = false
-        })
+        videoPlayerViewController?.activityIndicator.stopAnimating()
+        noStoriesFoundView.alpha = 1
+        Utilities.springAnimation(noStoriesFoundView, completion: {})
     }
     
     /* Like Button Delegate
@@ -109,11 +120,11 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     
     func didLikeVideo() {
         self.showHeart()
-        likeCountLabel.text = "\(currentVideo!.likes)"
+        likeCountLabel.text = "\(currentVideo!.likes.pretty())"
     }
     
     func didUnlikeVideo() {
-        likeCountLabel.text = "\(currentVideo!.likes)"
+        likeCountLabel.text = "\(currentVideo!.likes.pretty())"
     }
     
     /* Like Button Delegate
@@ -124,7 +135,7 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     }
     
     func didConfirmDelete() {
-        currentVideo?.deleteEventually() // Also removes temporary video cache
+        story?.removeVideo(currentVideo)
         videoPlayerViewController.removeCurrentVideo()
         videoPlayerViewController.play()
     }
@@ -201,9 +212,9 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     // Typically called on video changed
     func updateViews() {
         currentVideo?.setViewed()
-        viewCountLabel.text = "\(currentVideo?.views ?? 0)"
+        viewCountLabel.text = currentVideo != nil ? currentVideo!.views.pretty() : "\(0)"
         likeButton.configure(currentVideo)
-        likeCountLabel.text = "\(currentVideo?.likes ?? 0)"
+        likeCountLabel.text = currentVideo != nil ? currentVideo!.likes.pretty() : "\(0)"
         
         if currentVideo == nil {
             optionalButton.hide()

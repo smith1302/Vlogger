@@ -7,9 +7,13 @@
 //
 
 import UIKit
+import ParseUI
 
-class SearchViewController: UIViewController {
+class SearchViewController: CustomPFQueryTableViewController {
 
+    var searchTerm:String = ""
+    weak var delegate:TransitionToFeedDelegate?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -21,15 +25,13 @@ class SearchViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    func doSearch(searchTerm:String?) {
+        if let text = searchTerm {
+            self.searchTerm = text
+        } else {
+            self.searchTerm = ""
+        }
+        loadObjects()
     }
-    */
 
 }
