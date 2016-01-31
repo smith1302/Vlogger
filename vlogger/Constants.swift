@@ -2,7 +2,7 @@ import UIKit
 import CoreGraphics
 
 class Constants {
-    static let appName = "Selfiesteem"
+    static let appName = "Vlogger"
     static let storyboard = UIStoryboard(name: "Main", bundle: nil) //  Get storyboard singleton
     
     static let primaryColor = UIColor(hex: 0xFC5961)

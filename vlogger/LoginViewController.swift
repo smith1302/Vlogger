@@ -188,7 +188,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     override func viewDidAppear(animated: Bool) {
         let currentUser = User.currentUser()
         if currentUser != nil {
-            continueToMainApp()
+            continueAfterLogin()
         } else {
             UIView.animateWithDuration(1,
                 delay: 0.2,
@@ -397,7 +397,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 // Show the errorString somewhere and let the user try again.
             } else {
                 // Hooray! Let them use the app now.
-                self.continueToMainApp()
+                self.continueAfterRegister()
             }
         })
     }
@@ -414,7 +414,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             self.activityIndicator.stopAnimating()
             if user != nil {
                 // Do stuff after successful login.
-                self.continueToMainApp()
+                self.continueAfterLogin()
             } else if error?.code == 101 {
                 MessageHandler.easyAlert("Invalid", message: "Incorrect username and password")
             } else {
@@ -424,8 +424,24 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         
     }
     
+    func agreeToTerms() {
+        let alert = UIAlertController(title: Constants.appName, message: "Do you agree to the Terms of Use?", preferredStyle: UIAlertControllerStyle.Alert)
+        
+        alert.addAction(UIAlertAction(title: "Terms", style: .Cancel, handler: { (action: UIAlertAction!) in
+            self.continueToTerms()
+            alert.dismissViewControllerAnimated(true, completion: nil)
+        }))
+        
+        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: { (action: UIAlertAction!) in
+            self.continueToSetup()
+            alert.dismissViewControllerAnimated(true, completion: nil)
+        }))
+    
+        self.parentViewController?.presentViewController(alert, animated: true, completion: nil)
+    }
+    
     func continueAfterRegister() {
-        self.continueToMainApp()
+        agreeToTerms()
     }
     
     func continueAfterLogin() {
@@ -433,6 +449,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     }
     
     func continueToMainApp() {
+        fatalError("Must Override")
+    }
+    
+    func continueToSetup() {
+        fatalError("Must Override")
+    }
+    
+    func continueToTerms() {
         fatalError("Must Override")
     }
     

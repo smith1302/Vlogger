@@ -16,12 +16,15 @@ class ProfileTableViewCell: PFTableViewCell {
     @IBOutlet weak var viewsLabel: UILabel!
     let loadingIndicator:UIActivityIndicatorView = UIActivityIndicatorView()
     
+    var dispatchedVideoID:String? = ""
     var indexPath:NSIndexPath!
     var story:Story!
     var video:Video! {
         willSet {
             if let video = newValue {
                 dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
+                    self.dispatchedVideoID = video.objectId
+                    let workingVideoID = video.objectId
                     var image:UIImage?
                     if let thumbnail = video.thumbnail {
                         image = thumbnail
@@ -31,8 +34,10 @@ class ProfileTableViewCell: PFTableViewCell {
                     dispatch_async(dispatch_get_main_queue()){
                         [weak self] in
                         if let weakSelf = self {
-                            weakSelf.pfImageView.image = image
-                            weakSelf.loadingIndicator.stopAnimating()
+                            if weakSelf.dispatchedVideoID == workingVideoID {
+                                weakSelf.pfImageView.image = image
+                                weakSelf.loadingIndicator.stopAnimating()
+                            }
                         }
                     }
                 }
@@ -70,6 +75,7 @@ class ProfileTableViewCell: PFTableViewCell {
         })
         
         titleLabel.text = story.title
+        titleLabel.textColor = UIColor(white: 0.3, alpha: 1)
         
         pfImageView.image = nil
         pfImageView.contentMode = .ScaleAspectFill

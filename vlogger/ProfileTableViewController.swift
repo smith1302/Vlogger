@@ -9,7 +9,7 @@
 import UIKit
 import ParseUI
 
-class ProfileTableViewController: CustomPFQueryTableViewController {
+class ProfileTableViewController: CustomQueryTableViewController {
     
     let user:User
     var fullMessageView:FullMessageView?
@@ -17,8 +17,9 @@ class ProfileTableViewController: CustomPFQueryTableViewController {
     
     init(user:User, tableView:UITableView) {
         self.user = user
-        super.init(style: UITableViewStyle.Plain, className: "Story")
+        super.init(style: .Plain)
         self.tableView = tableView
+        // Tableview settings
         tableView.delegate = self
         tableView.dataSource = self
         tableView.estimatedRowHeight = 55
@@ -51,10 +52,10 @@ class ProfileTableViewController: CustomPFQueryTableViewController {
     
     override func objectsDidLoad(error: NSError?) {
         // If no results found default to popular page
-        if objects?.count == 0  && fullMessageView == nil {
+        if objects.count == 0  && fullMessageView == nil {
             fullMessageView = FullMessageView(frame: tableView.bounds, text: "No stories yet!")
             tableView.addSubview(fullMessageView!)
-        } else if objects?.count > 0 {
+        } else if objects.count > 0 {
             fullMessageView?.removeFromSuperview()
             fullMessageView = nil
         }
@@ -66,7 +67,7 @@ class ProfileTableViewController: CustomPFQueryTableViewController {
         if section == 0 {
             return 1
         } else {
-            return super.tableView(tableView, numberOfRowsInSection: section)
+            return objects.count
         }
     }
     
@@ -74,11 +75,12 @@ class ProfileTableViewController: CustomPFQueryTableViewController {
         if let indexPath = indexPath where indexPath.section == 0 {
             return user.currentStory
         }
-        var newIndexPath = indexPath
-        if let indexPath = indexPath {
-            newIndexPath = NSIndexPath(forRow: indexPath.row, inSection: 0)
+
+        var obj:PFObject? = nil;
+        if let indexPath = indexPath where indexPath.row < self.objects.count {
+            obj = self.objects[indexPath.row]
         }
-        return super.objectAtIndexPath(newIndexPath)
+        return obj;
     }
     
     override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -123,11 +125,13 @@ class ProfileTableViewController: CustomPFQueryTableViewController {
         return 2
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath, object: PFObject?) -> PFTableViewCell {
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> PFTableViewCell {
+        let object = self.objectAtIndexPath(indexPath)
         let cell = tableView.dequeueReusableCellWithIdentifier("ProfileCell") as! ProfileTableViewCell!
         if let story = object as? Story {
             cell.configure(story, indexPath: indexPath)
         }
+ 
         return cell
     }
     

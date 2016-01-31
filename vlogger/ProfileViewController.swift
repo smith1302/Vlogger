@@ -10,6 +10,9 @@ import UIKit
 import ParseUI
 
 class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    
+    @IBOutlet weak var settingsButton: UIButton!
     @IBOutlet weak var imageView: PFImageView!
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var viewsLabel: UILabel!
@@ -39,6 +42,11 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         
         headerBackground.backgroundColor = UIColor.whiteColor()
         usernameLabel.textColor = UIColor.whiteColor()
+        
+        // Settings
+        if !user!.isUs() {
+            settingsButton.hidden = true
+        }
         
         usernameLabel.text = user!.username!
         viewsLabel.text = "0"

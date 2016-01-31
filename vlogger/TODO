@@ -28,7 +28,21 @@ Settings
 
 
 Current:
-Make error thing look better
-Change to three line menu
-Fix profile story delete
+Tutorials
+Logo
+Name
 
+------------- After release ---------
+-Better follow/unfollow buttons
+**
+Swipe right on video feed to show a random video
+Add our custom interaction swiper to feed video...
+on prepareForSegue we can configure
+
+
+FeedNavigationViewController
+instantiate this with an initial story
+childViewController -> FeedViewController
+on swipe begin instantiate a new story off frame
+
+When instantiating this feed we pass in a query to pull from

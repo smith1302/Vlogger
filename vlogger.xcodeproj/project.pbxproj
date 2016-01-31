@@ -61,6 +61,11 @@
 		F7A6BA011C45F16200E6925D /* Flag.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6BA001C45F16200E6925D /* Flag.swift */; };
 		F7A6BA051C472A2600E6925D /* SelectorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A6BA041C472A2600E6925D /* SelectorViewController.swift */; };
 		F7AF6E601C5DAE8E004AD990 /* UITextFieldOutline.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7AF6E5F1C5DAE8E004AD990 /* UITextFieldOutline.swift */; };
+		F7AF6E621C5DE198004AD990 /* CustomQueryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7AF6E611C5DE198004AD990 /* CustomQueryTableViewController.swift */; };
+		F7AF6E651C5E94FF004AD990 /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7AF6E641C5E94FF004AD990 /* SettingsTableViewController.swift */; };
+		F7AF6E681C5E9999004AD990 /* TermsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7AF6E671C5E9999004AD990 /* TermsViewController.swift */; };
+		F7AF6E6A1C5E9B21004AD990 /* PushController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7AF6E691C5E9B21004AD990 /* PushController.swift */; };
+		F7AF6E6D1C5EA448004AD990 /* PermissionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7AF6E6C1C5EA448004AD990 /* PermissionsViewController.swift */; };
 		F7C550EA1C3FA19E007DA374 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C550E91C3FA19E007DA374 /* Utilities.swift */; };
 		F7C578CB1C56E75000EA5F3D /* FullMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C578CA1C56E75000EA5F3D /* FullMessageView.swift */; };
 		F7C578CE1C573BCC00EA5F3D /* SegueController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7C578CD1C573BCC00EA5F3D /* SegueController.swift */; };
@@ -69,7 +74,6 @@
 		F7DC21F81C418FFA00D7966D /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DC21F71C418FFA00D7966D /* VideoPlayerView.swift */; };
 		F7DC21FA1C41B02900D7966D /* LikeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DC21F91C41B02900D7966D /* LikeButton.swift */; };
 		F7DC21FE1C41CD1000D7966D /* FollowingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DC21FD1C41CD1000D7966D /* FollowingViewController.swift */; };
-		F7DC22011C41CD9B00D7966D /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DC22001C41CD9B00D7966D /* SettingsViewController.swift */; };
 		F7DC22031C41CDA800D7966D /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DC22021C41CDA800D7966D /* HomeViewController.swift */; };
 		F7DC220A1C42167C00D7966D /* FollowButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DC22091C42167C00D7966D /* FollowButton.swift */; };
 		F7DC220E1C4216AE00D7966D /* ProfileCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7DC220D1C4216AE00D7966D /* ProfileCardView.swift */; };
@@ -150,6 +154,11 @@
 		F7A6BA001C45F16200E6925D /* Flag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Flag.swift; sourceTree = "<group>"; };
 		F7A6BA041C472A2600E6925D /* SelectorViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectorViewController.swift; sourceTree = "<group>"; };
 		F7AF6E5F1C5DAE8E004AD990 /* UITextFieldOutline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITextFieldOutline.swift; sourceTree = "<group>"; };
+		F7AF6E611C5DE198004AD990 /* CustomQueryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomQueryTableViewController.swift; sourceTree = "<group>"; };
+		F7AF6E641C5E94FF004AD990 /* SettingsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
+		F7AF6E671C5E9999004AD990 /* TermsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsViewController.swift; sourceTree = "<group>"; };
+		F7AF6E691C5E9B21004AD990 /* PushController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushController.swift; sourceTree = "<group>"; };
+		F7AF6E6C1C5EA448004AD990 /* PermissionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PermissionsViewController.swift; sourceTree = "<group>"; };
 		F7C550E91C3FA19E007DA374 /* Utilities.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		F7C578CA1C56E75000EA5F3D /* FullMessageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FullMessageView.swift; sourceTree = "<group>"; };
 		F7C578CD1C573BCC00EA5F3D /* SegueController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SegueController.swift; sourceTree = "<group>"; };
@@ -158,7 +167,6 @@
 		F7DC21F71C418FFA00D7966D /* VideoPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		F7DC21F91C41B02900D7966D /* LikeButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LikeButton.swift; sourceTree = "<group>"; };
 		F7DC21FD1C41CD1000D7966D /* FollowingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FollowingViewController.swift; sourceTree = "<group>"; };
-		F7DC22001C41CD9B00D7966D /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		F7DC22021C41CDA800D7966D /* HomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		F7DC22091C42167C00D7966D /* FollowButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FollowButton.swift; sourceTree = "<group>"; };
 		F7DC220D1C4216AE00D7966D /* ProfileCardView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileCardView.swift; sourceTree = "<group>"; };
@@ -271,13 +279,15 @@
 		F714CBD61C3B2A1100D8AC2D /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				F7AF6E6B1C5EA434004AD990 /* Permissions */,
+				F7AF6E661C5E9988004AD990 /* TermsOfUse */,
+				F7AF6E631C5E94EC004AD990 /* Settings */,
 				F76E95BB1C59801D0007280B /* Custom */,
 				F7C578CC1C573BA300EA5F3D /* Effects */,
 				F76E84891C49E41E004C8C0E /* Profile */,
 				F76E847D1C48867A004C8C0E /* UserList */,
 				F7DC21FF1C41CD4900D7966D /* Home */,
 				F7DC21FC1C41CC7300D7966D /* Following */,
-				F7DC21FB1C41CC6900D7966D /* Settings */,
 				F7F2A9341C3DC3EA00AF81A4 /* VideoPlayer */,
 				F76941321C3C8E480001496D /* Feed */,
 				F769412D1C3C7A970001496D /* Intro */,
@@ -297,6 +307,7 @@
 				F7C550E91C3FA19E007DA374 /* Utilities.swift */,
 				F7A6B9F61C4454A600E6925D /* Message.swift */,
 				F7A6B9F81C44D0FA00E6925D /* Extensions.swift */,
+				F7AF6E691C5E9B21004AD990 /* PushController.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -431,6 +442,7 @@
 			isa = PBXGroup;
 			children = (
 				F76E95BC1C5980EC0007280B /* CustomPFQueryTableViewController.swift */,
+				F7AF6E611C5DE198004AD990 /* CustomQueryTableViewController.swift */,
 			);
 			name = Custom;
 			sourceTree = "<group>";
@@ -455,6 +467,30 @@
 			name = Chat;
 			sourceTree = "<group>";
 		};
+		F7AF6E631C5E94EC004AD990 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				F7AF6E641C5E94FF004AD990 /* SettingsTableViewController.swift */,
+			);
+			name = Settings;
+			sourceTree = "<group>";
+		};
+		F7AF6E661C5E9988004AD990 /* TermsOfUse */ = {
+			isa = PBXGroup;
+			children = (
+				F7AF6E671C5E9999004AD990 /* TermsViewController.swift */,
+			);
+			name = TermsOfUse;
+			sourceTree = "<group>";
+		};
+		F7AF6E6B1C5EA434004AD990 /* Permissions */ = {
+			isa = PBXGroup;
+			children = (
+				F7AF6E6C1C5EA448004AD990 /* PermissionsViewController.swift */,
+			);
+			name = Permissions;
+			sourceTree = "<group>";
+		};
 		F7C578CC1C573BA300EA5F3D /* Effects */ = {
 			isa = PBXGroup;
 			children = (
@@ -471,14 +507,6 @@
 				F7C578D21C574ACA00EA5F3D /* CustomInteractionController.swift */,
 			);
 			name = Segue;
-			sourceTree = "<group>";
-		};
-		F7DC21FB1C41CC6900D7966D /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				F7DC22001C41CD9B00D7966D /* SettingsViewController.swift */,
-			);
-			name = Settings;
 			sourceTree = "<group>";
 		};
 		F7DC21FC1C41CC7300D7966D /* Following */ = {
@@ -703,11 +731,12 @@
 				F7C578D31C574ACA00EA5F3D /* CustomInteractionController.swift in Sources */,
 				F76E847A1C478E05004C8C0E /* VideoUpdates.swift in Sources */,
 				F769412F1C3C7AA40001496D /* LoginViewController.swift in Sources */,
-				F7DC22011C41CD9B00D7966D /* SettingsViewController.swift in Sources */,
 				F7DC21F81C418FFA00D7966D /* VideoPlayerView.swift in Sources */,
+				F7AF6E621C5DE198004AD990 /* CustomQueryTableViewController.swift in Sources */,
 				F7F635BC1C3F7DA80096FE66 /* Cache.swift in Sources */,
 				F714CBE21C3B316000D8AC2D /* VideoViewController.swift in Sources */,
 				F76AD18F1C3F9B3D0059C2DF /* UploadFailedVideoView.swift in Sources */,
+				F7AF6E6D1C5EA448004AD990 /* PermissionsViewController.swift in Sources */,
 				F7A6B9F91C44D0FB00E6925D /* Extensions.swift in Sources */,
 				F714CBAD1C3B232A00D8AC2D /* AVFoundationViewController.swift in Sources */,
 				F7F635BA1C3F478D0096FE66 /* AVPlayerItemCustom.swift in Sources */,
@@ -719,12 +748,14 @@
 				F7F2A9331C3D992E00AF81A4 /* UIButtonOutline.swift in Sources */,
 				F7DC21FE1C41CD1000D7966D /* FollowingViewController.swift in Sources */,
 				F76E84861C48C199004C8C0E /* TrendingViewController.swift in Sources */,
+				F7AF6E6A1C5E9B21004AD990 /* PushController.swift in Sources */,
 				F7C578CB1C56E75000EA5F3D /* FullMessageView.swift in Sources */,
 				F76941341C3C8E6E0001496D /* FeedViewController.swift in Sources */,
 				F7AF6E601C5DAE8E004AD990 /* UITextFieldOutline.swift in Sources */,
 				F7F2A92E1C3CF18400AF81A4 /* VideoFeedViewController.swift in Sources */,
 				F7F2A9361C3DC40600AF81A4 /* VideoProgressBarViewController.swift in Sources */,
 				F714CBF61C3C3C1500D8AC2D /* Like.swift in Sources */,
+				F7AF6E651C5E94FF004AD990 /* SettingsTableViewController.swift in Sources */,
 				F7C578D11C573C6600EA5F3D /* NavigationControllerDelegate.swift in Sources */,
 				F714CBF21C3C3A1600D8AC2D /* User.swift in Sources */,
 				F76E95BD1C5980EC0007280B /* CustomPFQueryTableViewController.swift in Sources */,
@@ -742,6 +773,7 @@
 				F714CBDE1C3B2D1800D8AC2D /* Constants.swift in Sources */,
 				F7DC220E1C4216AE00D7966D /* ProfileCardView.swift in Sources */,
 				F7DC22031C41CDA800D7966D /* HomeViewController.swift in Sources */,
+				F7AF6E681C5E9999004AD990 /* TermsViewController.swift in Sources */,
 				F714CBE71C3B779400D8AC2D /* LoopingPlayer.swift in Sources */,
 				F7A6B9F51C44541D00E6925D /* ChatTableViewCell.swift in Sources */,
 				F7DC21FA1C41B02900D7966D /* LikeButton.swift in Sources */,

@@ -10,7 +10,8 @@ import UIKit
 
 protocol OptionalButtonDelegate:class {
     func didTapDelete()
-    func didConfirmDelete()
+    func didConfirmDeleteStory()
+    func didConfirmDeleteSnap()
     func didCancelDelete()
     func flagVideo()
 }
@@ -26,7 +27,8 @@ class OptionalButton: UIButtonOutline {
         case Delete
         case Flag
     }
-    var video:Video!
+    var user:User!
+    var story:Story!
     weak var delegate:OptionalButtonDelegate?
     
     var buttonState:State! = State.Flag {
@@ -43,7 +45,9 @@ class OptionalButton: UIButtonOutline {
         }
     }
 
-    func configure(user:User) {
+    func configure(user:User, story:Story) {
+        self.user = user
+        self.story = story
         hidden = false
         if user.objectId == User.currentUser()!.objectId {
             buttonState = State.Delete
@@ -69,14 +73,28 @@ class OptionalButton: UIButtonOutline {
     }
     
     func confirmationAlert() {
-        let alert = UIAlertController(title: "Delete", message: "Are you sure you want to delete this video?", preferredStyle: UIAlertControllerStyle.Alert)
-        alert.addAction(UIAlertAction(title: "No", style: .Default, handler: { (action: UIAlertAction!) in
+        let alert = UIAlertController(title: "Delete", message: "What would you like to delete?", preferredStyle: UIAlertControllerStyle.ActionSheet)
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action: UIAlertAction!) in
             self.delegate?.didCancelDelete()
             alert.dismissViewControllerAnimated(true, completion: nil)
         }))
-        alert.addAction(UIAlertAction(title: "Yes", style: .Default, handler: { (action: UIAlertAction!) in
-            self.delegate?.didConfirmDelete()
+        
+        // Dont want to delete snap for users active video
+        var isActiveStory:Bool = true
+        if let ID = user.currentStory?.objectId where ID != story.objectId! {
+            isActiveStory = false
+        }
+        alert.addAction(UIAlertAction(title: "Delete Snap", style: (isActiveStory) ? .Destructive : .Default, handler: { (action: UIAlertAction!) in
+            self.delegate?.didConfirmDeleteSnap()
         }))
+        
+        if !isActiveStory {
+            alert.addAction(UIAlertAction(title: "Delete Story", style: .Destructive, handler: { (action: UIAlertAction!) in
+                self.delegate?.didConfirmDeleteStory()
+                alert.dismissViewControllerAnimated(true, completion: nil)
+            }))
+        }
         
         self.parentViewController?.presentViewController(alert, animated: true, completion: nil)
     }

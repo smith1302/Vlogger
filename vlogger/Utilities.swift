@@ -10,6 +10,12 @@ import Foundation
 import UIKit
 import AVFoundation
 
+enum VersionLaunchType {
+    case freshInstall
+    case updatedVersion
+    case sameVersion
+}
+
 class Utilities {
     class func autolayoutSubviewToViewEdges(subview:UIView, view:UIView, edgeInsets:UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)) {
         subview.translatesAutoresizingMaskIntoConstraints = false
@@ -41,6 +47,32 @@ class Utilities {
                 finished in
                 completion?()
         })
+    }
+    
+    class func getUsersAppVersion() -> VersionLaunchType {
+        let defaults = NSUserDefaults.standardUserDefaults()
+        let currentAppVersion = Utilities.getCurrentAppVersion()
+        let previousVersion = defaults.stringForKey("appVersion")
+        if previousVersion == nil {
+            Utilities.updateUsersAppVersion()
+            return VersionLaunchType.freshInstall
+        } else if previousVersion == currentAppVersion {
+            return VersionLaunchType.sameVersion
+        } else {
+            Utilities.updateUsersAppVersion()
+            return VersionLaunchType.updatedVersion
+        }
+    }
+    
+    class func updateUsersAppVersion() {
+        let currentAppVersion = Utilities.getCurrentAppVersion()
+        let defaults = NSUserDefaults.standardUserDefaults()
+        defaults.setObject(currentAppVersion, forKey: "appVersion")
+        defaults.synchronize()
+    }
+    
+    class func getCurrentAppVersion() -> String {
+        return NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as! String
     }
     
 }

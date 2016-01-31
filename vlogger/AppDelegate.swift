@@ -51,9 +51,84 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Set appearance for BarButtonItems
         UIBarButtonItem.appearance().setTitleTextAttributes([NSFontAttributeName: UIFont.systemFontOfSize(16), NSForegroundColorAttributeName: UIColor.whiteColor()], forState: UIControlState.Normal)
-        // ...
+        // Check version change
+        Utilities.updateUsersAppVersion()
+        
+        
+        if application.applicationState != UIApplicationState.Background {
+            // Track an app open here if we launch with a push, unless
+            // "content_available" was used to trigger a background push (introduced in iOS 7).
+            // In that case, we skip tracking here to avoid double counting the app-open.
+            
+            let preBackgroundPush = !application.respondsToSelector("backgroundRefreshStatus")
+            let oldPushHandlerOnly = !self.respondsToSelector("application:didReceiveRemoteNotification:fetchCompletionHandler:")
+            var noPushPayload = false;
+            if let options = launchOptions {
+                noPushPayload = options[UIApplicationLaunchOptionsRemoteNotificationKey] != nil;
+            }
+            if (preBackgroundPush || oldPushHandlerOnly || noPushPayload) {
+                PFAnalytics.trackAppOpenedWithLaunchOptions(launchOptions)
+            }
+        }
+        
+        if #available(iOS 8.0, *) {
+            let types: UIUserNotificationType = [.Alert, .Badge, .Sound]
+            let settings = UIUserNotificationSettings(forTypes: types, categories: nil)
+            application.registerUserNotificationSettings(settings)
+            application.registerForRemoteNotifications()
+        } else {
+            let types: UIRemoteNotificationType = [.Alert, .Badge, .Sound]
+            application.registerForRemoteNotificationTypes(types)
+        }
+        
+        
         return true
     }
+    
+    //--------------------------------------
+    // MARK: Push Notifications
+    //--------------------------------------
+    
+    func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+        let installation = PFInstallation.currentInstallation()
+        installation.setDeviceTokenFromData(deviceToken)
+        installation.saveInBackground()
+        
+        PFPush.subscribeToChannelInBackground("") { (succeeded: Bool, error: NSError?) in
+            if succeeded {
+                //print("ParseStarterProject successfully subscribed to push notifications on the broadcast channel.\n");
+            } else {
+                //print("ParseStarterProject failed to subscribe to push notifications on the broadcast channel with error = %@.\n", error)
+            }
+        }
+    }
+    
+    func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
+        if error.code == 3010 {
+            print("Push notifications are not supported in the iOS Simulator.\n")
+        } else {
+            print("application:didFailToRegisterForRemoteNotificationsWithError: %@\n", error)
+        }
+    }
+    
+    func application(application: UIApplication, didReceiveRemoteNotification userInfo: [NSObject : AnyObject]) {
+        PFPush.handlePush(userInfo)
+        if application.applicationState == UIApplicationState.Inactive {
+            PFAnalytics.trackAppOpenedWithRemoteNotificationPayload(userInfo)
+        }
+    }
+    
+    func applicationDidBecomeActive(application: UIApplication) {
+        Utilities.setAudioSessionCategory(AVAudioSessionCategorySoloAmbient)
+        
+        let currentInstallation = PFInstallation.currentInstallation()
+        if currentInstallation.badge != 0 {
+            currentInstallation.badge = 0
+            currentInstallation.saveEventually()
+        }
+    }
+    
+    // ----------------------
 
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -67,11 +142,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillEnterForeground(application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-    }
-
-    func applicationDidBecomeActive(application: UIApplication) {
-        // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-        Utilities.setAudioSessionCategory(AVAudioSessionCategorySoloAmbient)
     }
 
     func applicationWillTerminate(application: UIApplication) {

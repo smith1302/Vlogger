@@ -26,7 +26,7 @@ class SelectorViewController: UIViewController {
     weak var container: UIView!
     weak var selectorCenterXConstraint: NSLayoutConstraint!
     var selectedColor:UIColor = UIColor.whiteColor() //UIColor(hex: 0x3697FF)
-    var nonSelectedColor:UIColor = UIColor(white: 0, alpha: 0.3)
+    var nonSelectedColor:UIColor = UIColor(white: 1, alpha: 0.55)
     weak var delegate:SelectorViewControllerDelegate?
     var currentState:HomeSelectorState! = HomeSelectorState.Home {
         didSet {

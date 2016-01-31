@@ -39,7 +39,7 @@ class FollowingViewController: UserListViewController, UserTableViewCellDelegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Following"
+        title = "Subscribers"
         tableView.refreshControlBackground(Constants.primaryColorSoft)
         // Do any additional setup after loading the view.
     }
@@ -49,7 +49,7 @@ class FollowingViewController: UserListViewController, UserTableViewCellDelegate
         if let follow = object as? Follow {
             let user = follow.fromUser
             cell.configure(user)
-            if outstandingQueries[indexPath] == nil {
+            if outstandingQueries[indexPath] == nil && !user.isUs() {
                 outstandingQueries[indexPath] = true
                 User.currentUser()!.isFollowingUser(user, callback: {
                     (isFollowing:Bool) in

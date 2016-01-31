@@ -20,13 +20,17 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     @IBOutlet weak var likeCountLabel: UILableOutline!
     @IBOutlet weak var noStoriesFoundView: UIView!
     @IBOutlet weak var optionalButton: OptionalButton!
-    @IBOutlet weak var titleTextField: UITextFieldOutline!
+    @IBOutlet weak var titleTextField: UITextFieldOutline?
     
     // Other
     var uploadFailedOverlay:UploadFailedVideoView?
     var videoPlayerViewController:VideoPlayerViewController!
     var currentVideo:Video?
-    var user:User!
+    var user:User! {
+        didSet {
+            titleTextField?.userInteractionEnabled = self.user.isUs()
+        }
+    }
     var story:Story?
     
     required init?(coder aDecoder: NSCoder) {
@@ -55,10 +59,12 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         
         // Optional Button
         optionalButton.delegate = self
-        optionalButton.configure(user)
         
         // Textfield
-        titleTextField.delegate = self
+        titleTextField?.delegate = self
+        titleTextField?.userInteractionEnabled = self.user.isUs()
+        titleTextField?.textAlignment = .Left
+        titleTextField?.text = ""
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -85,7 +91,8 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     func configureStory(story:Story) {
         self.story = story
         self.videoPlayerViewController.configureWithStory(story)
-        titleTextField.text = story.title
+        titleTextField?.text = story.title
+        optionalButton.configure(user, story: story)
     }
     
     /* VideoPlayerViewController Delegate
@@ -132,15 +139,21 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         likeCountLabel.text = "\(currentVideo!.likes.pretty())"
     }
     
-    /* Like Button Delegate
+    /* Delete Button Delegate
     ------------------------------------------------------------------*/
     
     func didCancelDelete() {
         videoPlayerViewController.play()
     }
     
-    func didConfirmDelete() {
+    func didConfirmDeleteSnap() {
         story?.removeVideo(currentVideo)
+        videoPlayerViewController.removeCurrentVideo()
+        videoPlayerViewController.play()
+    }
+    
+    func didConfirmDeleteStory() {
+        story?.deleteEventually()
         videoPlayerViewController.removeCurrentVideo()
         videoPlayerViewController.play()
     }
@@ -153,7 +166,7 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         currentVideo?.flag()
     }
     
-    /* IBActions
+    /* Actions
     ------------------------------------------------------------------*/
     @IBAction func xButtonClicked(sender: AnyObject) {
         self.navigationController?.popViewControllerAnimated(true)
@@ -161,8 +174,8 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         super.touchesBegan(touches, withEvent: event)
-        if titleTextField.isFirstResponder() {
-            titleTextField.resignFirstResponder()
+        if let ttf = titleTextField where ttf.isFirstResponder() {
+            titleTextField?.resignFirstResponder()
         } else if uploadFailedOverlay == nil {
             videoPlayerViewController.didTap()
         } else {
@@ -247,7 +260,7 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         viewCountLabel.text = currentVideo != nil ? currentVideo!.views.pretty() : "\(0)"
         likeButton.configure(currentVideo)
         likeCountLabel.text = currentVideo != nil ? currentVideo!.likes.pretty() : "\(0)"
-        if currentVideo == nil {
+        if currentVideo == nil && !user.isUs() {
             optionalButton.hide()
         }
     }

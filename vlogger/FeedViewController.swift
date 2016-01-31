@@ -11,7 +11,7 @@ import AVFoundation
 import AVKit
 import Parse
 
-class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, ChatFeedViewControllerDelegate, UITextFieldDelegate, UIViewControllerTransitioningDelegate {
+class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, ChatFeedViewControllerDelegate, UIViewControllerTransitioningDelegate {
 
     @IBOutlet weak var titleLabel: UITextField?
     @IBOutlet weak var chatDragTopConstraint: NSLayoutConstraint!
@@ -22,11 +22,7 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     var activityIndicator:ActivityIndicatorView!
     var videoFeedController:VideoFeedViewController?
     var chatFeedController:ChatFeedViewController?
-    private var user:User! {
-        didSet {
-            titleLabel?.userInteractionEnabled = self.user.isUs()
-        }
-    }
+    private var user:User!
     private var story:Story?
     var isStoryOld:Bool = false
     var feedLayoutInfo:FeedLayoutInfo!
@@ -62,9 +58,8 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         
         // Title Label
         titleLabel?.textColor = UIColor(white: 0.4, alpha: 1)
-        titleLabel?.delegate = self
-        titleLabel?.textAlignment = .Center
-        titleLabel?.userInteractionEnabled = self.user.isUs()
+        titleLabel?.userInteractionEnabled = false
+        titleLabel?.text = "Chat"
         
         // Activity Indicator View
         activityIndicator = ActivityIndicatorView(frame: view.bounds)
@@ -84,7 +79,6 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
             if let story = object as? Story {
                 self.videoFeedController?.configureStory(story)
                 self.isStoryOld = story.objectId != self.user.currentStory!.objectId
-                self.titleLabel?.text = story.title
             } else {
                 self.noVideosFound()
             }
@@ -246,42 +240,42 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     /* Title Text Field
     ------------------------------------------------------*/
     
-    func textFieldDidBeginEditing(textField: UITextField) {
-        animateChatDraggerToConstraintConstant(feedLayoutInfo.bottomDragLimit-chatDragView.frame.size.height)
-        chatDragIndicator.hidden = true
-    }
-    
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return false
-    }
-    
-    func textFieldShouldEndEditing(textField: UITextField) -> Bool {
-        if !isStoryOld {
-            chatDragIndicator.hidden = false
-        }
-        if let story = story, newText = textField.text where newText != story.title && !newText.isEmpty {
-            story.title = newText
-            story.tags = story.getTagsFromString(newText)
-            story.saveEventually()
-        }
-        return true
-    }
-    
-    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
-        let oldString = textField.text ?? ""
-        let startIndex = oldString.startIndex.advancedBy(range.location)
-        let endIndex = startIndex.advancedBy(range.length)
-        let newString = oldString.stringByReplacingCharactersInRange(startIndex ..< endIndex, withString: string)
-        return newString.characters.count <= 40
-    }
-    
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        // If we are editing the titleLabel, hide keyboard if we touch anything but the chatDragView
-        if let touchedView = touches.first?.view, titleLabel = titleLabel where titleLabel.isFirstResponder() && touchedView != chatDragView {
-            titleLabel.resignFirstResponder()
-        }
-    }
+//    func textFieldDidBeginEditing(textField: UITextField) {
+//        animateChatDraggerToConstraintConstant(feedLayoutInfo.bottomDragLimit-chatDragView.frame.size.height)
+//        chatDragIndicator.hidden = true
+//    }
+//    
+//    func textFieldShouldReturn(textField: UITextField) -> Bool {
+//        textField.resignFirstResponder()
+//        return false
+//    }
+//    
+//    func textFieldShouldEndEditing(textField: UITextField) -> Bool {
+//        if !isStoryOld {
+//            chatDragIndicator.hidden = false
+//        }
+//        if let story = story, newText = textField.text where newText != story.title && !newText.isEmpty {
+//            story.title = newText
+//            story.tags = story.getTagsFromString(newText)
+//            story.saveEventually()
+//        }
+//        return true
+//    }
+//    
+//    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+//        let oldString = textField.text ?? ""
+//        let startIndex = oldString.startIndex.advancedBy(range.location)
+//        let endIndex = startIndex.advancedBy(range.length)
+//        let newString = oldString.stringByReplacingCharactersInRange(startIndex ..< endIndex, withString: string)
+//        return newString.characters.count <= 40
+//    }
+//    
+//    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+//        // If we are editing the titleLabel, hide keyboard if we touch anything but the chatDragView
+//        if let touchedView = touches.first?.view, titleLabel = titleLabel where titleLabel.isFirstResponder() && touchedView != chatDragView {
+//            titleLabel.resignFirstResponder()
+//        }
+//    }
     
     
     /* Helpers

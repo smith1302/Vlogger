@@ -29,6 +29,10 @@ class UserTableViewCell: PFTableViewCell {
         pfImageView.backgroundColor = UIColor.lightGrayColor()
         pfImageView.layer.borderWidth = 5
         pfImageView.layer.borderColor = UIColor(white: 0.9, alpha: 1).CGColor
+        
+        if user.isUs() {
+            setFollow(false, enabled: false)
+        }
     }
     
     func setFollow(isFollowing:Bool, enabled:Bool) {

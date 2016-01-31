@@ -8,6 +8,7 @@ class User : PFUser {
     @NSManaged var picture: PFFile
     @NSManaged var subscriberCount: Int
     @NSManaged var plays: Int
+    @NSManaged var notifications: Bool
     var temporaryVideos:[Video] = [Video]() // Stores them until they are uploaded
     // Caches
     var followingUserStatus:[String:Bool] = [String:Bool]()
@@ -20,6 +21,7 @@ class User : PFUser {
     
     init(username:String, password:String, usernameLowercase:String) {
         super.init()
+        self.notifications = true
         self.username = username
         self.password = password
         self.usernameLowercase = usernameLowercase
@@ -152,6 +154,8 @@ class User : PFUser {
             if error != nil {
                 ErrorHandler.showAlert("Already following this user")
                 User.currentUser()!.setFollowingUserStatus(toUser: self, isFollowing: false)
+            } else {
+                PushController.sendPushToSubscriberReceiver(self)
             }
         })
     }
