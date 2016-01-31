@@ -70,8 +70,8 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
         MessageHandler.showMessage("Video will be added shortly")
     }
     
-    func addVideoToNewStoryPressed() {
-        User.currentUser()!.uploadVideoToNewStory(currentVideo, failureCallback: {
+    func addVideoToNewStoryPressed(title:String) {
+        User.currentUser()!.uploadVideoToNewStory(currentVideo, title: title, failureCallback: {
                 self.cleanupCurrentVideo()
             }, successCallback: {
                 self.cleanupCurrentVideo()

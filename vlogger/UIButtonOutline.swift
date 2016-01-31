@@ -10,22 +10,27 @@ import UIKit
 
 class UIButtonOutline: UIButton {
     
+    init(frame: CGRect, blurColor:UIColor) {
+        super.init(frame: frame)
+        setImage(imageView?.image, forState: .Normal, withColor: blurColor)
+        addShadow(withColor: blurColor)
+    }
+    
     init(image:UIImage, frame:CGRect) {
         super.init(frame: frame)
         imageView?.contentMode = .ScaleAspectFit
         setImage(image, forState: .Normal)
-        customInit()
+        addShadow()
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         setImage(imageView?.image, forState: .Normal)
-        customInit()
+        addShadow()
     }
     
-    func customInit() {
+    func addShadow(withColor blurColor:UIColor) {
         let blurSize:CGFloat = 3
-        let blurColor = UIColor(white: 0.2, alpha: 0.8)
         // Configure post image controls
         if let _ = titleLabel?.text {
             setTitleShadowColor(blurColor, forState: .Normal)
@@ -35,10 +40,16 @@ class UIButtonOutline: UIButton {
         }
     }
     
+    func addShadow() {
+        addShadow(withColor: UIColor(white: 0.2, alpha: 0.8))
+    }
+    
     override func setImage(image: UIImage?, forState state: UIControlState) {
-        
+        self.setImage(image, forState: state, withColor: UIColor(white: 0.2, alpha: 0.8))
+    }
+    
+    func setImage(image: UIImage?, forState state: UIControlState, withColor blurColor:UIColor) {
         let blurSize:CGFloat = 3
-        let blurColor = UIColor(white: 0.2, alpha: 0.8)
         var newImage = image
         
         if let source = image {

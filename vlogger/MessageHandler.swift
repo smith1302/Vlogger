@@ -29,7 +29,7 @@ class MessageHandler {
             errorWindow?.backgroundColor = UIColor.clearColor()
             
             let errorView = UIView(frame: CGRectMake(0, 0, keyWindow.frame.size.width, height))
-            errorView.backgroundColor = UIColor(red: 1, green: 0, blue: 0, alpha: 0.7)
+            errorView.backgroundColor = Constants.primaryColor
             
             errorWindowLabel = UILabel(frame: CGRectMake(0, 0, keyWindow.frame.size.width, height))
             errorWindowLabel.text = text

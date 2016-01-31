@@ -9,18 +9,12 @@
 import UIKit
 import ParseUI
 
-protocol ProfileTableViewCellDelegate:class {
-    func moreButtonClicked(indexPath:NSIndexPath)
-}
-
 class ProfileTableViewCell: PFTableViewCell {
 
-    @IBOutlet weak var moreButton: UIButton!
     @IBOutlet weak var pfImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var viewsLabel: UILabel!
     let loadingIndicator:UIActivityIndicatorView = UIActivityIndicatorView()
-    weak var delegate:ProfileTableViewCellDelegate?
     
     var indexPath:NSIndexPath!
     var story:Story!
@@ -49,8 +43,6 @@ class ProfileTableViewCell: PFTableViewCell {
     
     func configure(story:Story, indexPath:NSIndexPath) {
         
-        moreButton.hidden = true
-        
         if !story.dataAvailable {
             story.fetchIfNeededInBackgroundWithBlock({
                 (object:PFObject?, error:NSError?) in
@@ -63,10 +55,6 @@ class ProfileTableViewCell: PFTableViewCell {
         self.story = story
         self.user = story.user
         self.indexPath = indexPath
-        
-        if user.isUs() && indexPath.section > 0 {
-            moreButton.hidden = false
-        }
         
         loadingIndicator.removeFromSuperview()
         loadingIndicator.startAnimating()
@@ -92,17 +80,9 @@ class ProfileTableViewCell: PFTableViewCell {
         pfImageView.addSubview(loadingIndicator)
         
         viewsLabel.text = "\(story.views.pretty()) views"
-        
-        // more button
-        moreButton.setImage(UIImage(named: "DotMenu.png")!.imageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate), forState: .Normal)
-        moreButton.tintColor = UIColor(white: 0.7, alpha: 1)
     }
     
     override func drawRect(rect: CGRect) {
         loadingIndicator.frame = pfImageView.bounds
-    }
-    
-    @IBAction func moreButtonClicked(sender: AnyObject) {
-        delegate?.moreButtonClicked(self.indexPath)
     }
 }

@@ -1,20 +1,20 @@
 //
-//  UILableOutline.swift
+//  UITextFieldOutline.swift
 //  vlogger
 //
-//  Created by Eric Smith on 1/11/16.
+//  Created by Eric Smith on 1/30/16.
 //  Copyright © 2016 smith1302. All rights reserved.
 //
 
 import UIKit
 
-class UILableOutline: UILabel {
-    
+class UITextFieldOutline: UITextField {
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         addOutline()
     }
-
+    
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         addOutline()
@@ -26,7 +26,7 @@ class UILableOutline: UILabel {
         
         if let text = text {
             let attributedText = NSMutableAttributedString(string: text, attributes: [
-                NSFontAttributeName : font,
+                NSFontAttributeName : font!,
                 NSForegroundColorAttributeName: UIColor.whiteColor(),
                 NSStrokeColorAttributeName: UIColor(white: 0.1, alpha: 1),
                 NSStrokeWidthAttributeName: -1
@@ -40,4 +40,5 @@ class UILableOutline: UILabel {
             layer.shadowOpacity = 0.8
         }
     }
+
 }

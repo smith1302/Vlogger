@@ -21,6 +21,8 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
     @IBOutlet weak var RightButton: UIButton!
     @IBOutlet weak var LeftButton: UIButton!
     @IBOutlet weak var selectorCenterXConstraint: NSLayoutConstraint!
+    @IBOutlet weak var selector: UIView!
+    
     var selectorViewController:SelectorViewController!
     var currentChildViewController:UIViewController?
     let kTitle:String = "Explore"
@@ -38,8 +40,9 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
         super.viewDidLoad()
         title = kTitle
         
+        
         // Selector View
-        selectorViewController = SelectorViewController(RightButton: RightButton, LeftButton: LeftButton, selectorCenterXConstraint: selectorCenterXConstraint, container: selectorContainer)
+        selectorViewController = SelectorViewController(RightButton: RightButton, LeftButton: LeftButton, selectorCenterXConstraint: selectorCenterXConstraint, container: selectorContainer, selector: selector)
         addChildViewController(selectorViewController)
         selectorViewController.delegate = self
         
@@ -61,6 +64,7 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
+        hideSearchBar(false)
         // Selector Left Set
         selectorViewController.leftButtonClicked()
     }
@@ -169,6 +173,14 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
     
     /* Search Bar Delegate
     ------------------------------------------------------*/
+    
+    
+    @IBAction func searchButtonClicked(sender: AnyObject) {
+        searchBar.becomeFirstResponder()
+        showSearchBar(true)
+    }
+
+    
     func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
         if let _ = currentChildViewController as? SearchViewController { return }
 
@@ -203,6 +215,7 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
         searchBar.setShowsCancelButton(false, animated: true)
         title = kTitle
         selectorViewController.currentState = HomeSelectorState.Home
+        hideSearchBar(true)
     }
     
     func enableCancelButton() {
@@ -213,6 +226,21 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
                 }
             }
         }
+    }
+    
+    func hideSearchBar(animated:Bool) {
+        let time = animated ? 0.2 : 0
+        UIView.animateWithDuration(time, animations: {
+            self.searchBar.transform = CGAffineTransformMakeTranslation(-self.searchBar.frame.size.width, 0)
+        })
+    }
+    
+    func showSearchBar(animated:Bool) {
+        view.bringSubviewToFront(searchBar)
+        let time = animated ? 0.2 : 0
+        UIView.animateWithDuration(time, animations: {
+            self.searchBar.transform = CGAffineTransformMakeTranslation(0, 0)
+        })
     }
     
     /* Transition to feed delegate

@@ -9,12 +9,11 @@
 import UIKit
 import ParseUI
 
-class ProfileTableViewController: CustomPFQueryTableViewController, ProfileTableViewCellDelegate {
+class ProfileTableViewController: CustomPFQueryTableViewController {
     
     let user:User
     var fullMessageView:FullMessageView?
     var initialLoadCompleted = false
-    var customObjects:[PFObject]?
     
     init(user:User, tableView:UITableView) {
         self.user = user
@@ -60,7 +59,6 @@ class ProfileTableViewController: CustomPFQueryTableViewController, ProfileTable
             fullMessageView = nil
         }
         initialLoadCompleted = true
-        customObjects = objects
         super.objectsDidLoad(error)
     }
     
@@ -68,7 +66,7 @@ class ProfileTableViewController: CustomPFQueryTableViewController, ProfileTable
         if section == 0 {
             return 1
         } else {
-            return (customObjects?.count)!
+            return super.tableView(tableView, numberOfRowsInSection: section)
         }
     }
     
@@ -80,21 +78,8 @@ class ProfileTableViewController: CustomPFQueryTableViewController, ProfileTable
         if let indexPath = indexPath {
             newIndexPath = NSIndexPath(forRow: indexPath.row, inSection: 0)
         }
-        return customObjects![indexPath!.row]
+        return super.objectAtIndexPath(newIndexPath)
     }
-    
-    override func removeObjectAtIndexPath(indexPath: NSIndexPath?, animated: Bool) {
-        if let indexPath = indexPath where indexPath.section == 0 {
-            return
-        }
-        
-        tableView.beginUpdates()
-        super.removeObjectAtIndexPath(indexPath)
-        tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.Automatic)
-        tableView.endUpdates()
-        
-    }
-    
     
     override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 35
@@ -141,7 +126,6 @@ class ProfileTableViewController: CustomPFQueryTableViewController, ProfileTable
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath, object: PFObject?) -> PFTableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("ProfileCell") as! ProfileTableViewCell!
         if let story = object as? Story {
-            cell.delegate = self
             cell.configure(story, indexPath: indexPath)
         }
         return cell
@@ -156,34 +140,6 @@ class ProfileTableViewController: CustomPFQueryTableViewController, ProfileTable
                 // We already have user downloaded in this case so lets just pass it off
                 destinationVC.configureWithStory(story, user:self.user)
             }
-        }
-    }
-    
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        if user.isUs() && indexPath.section != 0 {
-            return true
-        } else {
-            return false
-        }
-    }
-    
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if (editingStyle == UITableViewCellEditingStyle.Delete) && user.isUs() {
-            if let story = self.objectAtIndexPath(indexPath) as? Story {
-                removeObjectAtIndexPath(indexPath, animated: true)
-                story.deleteEventually()
-            }
-        }
-        super.tableView(tableView, commitEditingStyle: editingStyle, forRowAtIndexPath: indexPath)
-    }
-    
-    func moreButtonClicked(indexPath: NSIndexPath) {
-        if !user.isUs() {
-            return
-        }
-        if let story = self.objectAtIndexPath(indexPath) as? Story {
-            removeObjectAtIndexPath(indexPath, animated: true)
-            //story.deleteEventually()
         }
     }
 

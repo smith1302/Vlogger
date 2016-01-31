@@ -274,7 +274,7 @@ class User : PFUser {
         if let story = currentStory {
             story.fetchIfNeededInBackgroundWithBlock({
                 (object:PFObject?, error:NSError?) in
-                if let story = story as? Story {
+                if let story = object as? Story {
                     self.currentStory = story
                     self.uploadVideoToStory(story, video: video, failureCallback: failureCallback, successCallback: successCallback)
                 } else {
@@ -282,13 +282,18 @@ class User : PFUser {
                 }
             })
         } else {
-            self.uploadVideoToNewStory(video, failureCallback: failureCallback, successCallback: successCallback)
+            self.uploadVideoToNewStory(video, title: nil, failureCallback: failureCallback, successCallback: successCallback)
         }
     }
     
-    func uploadVideoToNewStory(video:Video?, failureCallback:(Void->Void), successCallback:(Void->Void)) {
+    func uploadVideoToNewStory(video:Video?, title:String?, failureCallback:(Void->Void), successCallback:(Void->Void)) {
         // Make a new story
         let story = Story(day: NSDate.getCurrentDay(), user:self)
+        if let title = title {
+            let tags = story.getTagsFromString(title)
+            story.tags = tags
+            story.title = title
+        }
         uploadVideoToStory(story, video: video, failureCallback: failureCallback, successCallback: {
             self.currentStory = story
             self.saveEventually({

@@ -10,52 +10,46 @@ import UIKit
 
 protocol VideoSaveOverlayDelegate {
     func cancelPressed()
-    func addVideoToNewStoryPressed()
+    func addVideoToNewStoryPressed(title:String)
     func addVideoToCurrentStoryPressed()
 }
 
-class VideoSaveOverlayView: UIViewController {
+class VideoSaveOverlayView: UIViewController, AddVideoToStoryViewDelegate, UITextFieldDelegate {
     
     let xButton:UIButtonOutline
-    let nextButton:UIButtonOutline
-    let gradient:UIImageView
-    let padding:CGFloat = 12
+    let nextButton:UIButton
     var delegate:VideoSaveOverlayDelegate?
+    var addVideoToStoryView:AddVideoToStoryView?
 
     init(frame: CGRect) {
         
-        let xSize:CGFloat = 45+padding*2
+        let xPadding:CGFloat = 12
+        let xSize:CGFloat = 28+xPadding*2
         let xImage = UIImage(named: "X.png")
-        xButton = UIButtonOutline(image: xImage!, frame: CGRectMake(0, frame.size.height-xSize, xSize, xSize))
+        xButton = UIButtonOutline(image: xImage!, frame: CGRectMake(0, 0, xSize, xSize))
         xButton.imageView?.contentMode = .ScaleAspectFit
-        xButton.imageEdgeInsets = UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
+        xButton.imageEdgeInsets = UIEdgeInsets(top: xPadding, left: xPadding, bottom: xPadding, right: xPadding)
         xButton.alpha = 0.8
         
-        let nextSize:CGFloat = 45+padding*2
-        let nextImage = UIImage(named: "Next.png")
-        nextButton = UIButtonOutline(image: nextImage!, frame: CGRectMake(frame.size.width-nextSize, frame.size.height-nextSize, nextSize, nextSize))
+        let nextPadding:CGFloat = 25
+        let nextSize:CGFloat = 35+nextPadding*2
+        let nextImage = UIImage(named: "Check.png")
+        nextButton = UIButton(frame: CGRectMake(frame.size.width/2-nextSize/2, frame.size.height-nextSize-nextPadding, nextSize, nextSize))
+        nextButton.setImage(nextImage, forState: .Normal)
         nextButton.imageView?.contentMode = .ScaleAspectFit
-        nextButton.imageEdgeInsets = UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
-        nextButton.alpha = 0.8
-        
-        let gradientHeight:CGFloat = nextSize
-        gradient = UIImageView(image: UIImage(named: "gradient.png"))
-        gradient.frame = CGRectMake(0, frame.size.height-gradientHeight, frame.size.width, gradientHeight)
-        gradient.backgroundColor = UIColor(white: 0.1, alpha: 0.2)
+        nextButton.imageEdgeInsets = UIEdgeInsets(top: nextPadding, left: nextPadding, bottom: nextPadding, right: nextPadding)
+        nextButton.backgroundColor = Constants.primaryColor
+        nextButton.layer.cornerRadius = nextButton.frame.height/2
         
         super.init(nibName: nil, bundle: nil)
         
         xButton.addTarget(self, action: "cancelPressed", forControlEvents: .TouchUpInside)
         nextButton.addTarget(self, action: "continuePressed", forControlEvents: .TouchUpInside)
         
-        view.addSubview(gradient)
         view.addSubview(xButton)
         view.addSubview(nextButton)
         
-        view.transform = CGAffineTransformMakeTranslation(0, gradientHeight)
-        UIView.animateWithDuration(0.3, delay: 0, options: .CurveEaseOut, animations: {
-                self.view.transform = CGAffineTransformMakeTranslation(0, 0)
-        }, completion: nil)
+        Utilities.springAnimation(nextButton, completion: nil)
         
     }
     
@@ -69,30 +63,48 @@ class VideoSaveOverlayView: UIViewController {
             submitToCurrentStory()
             return
         }
-        let alertController = UIAlertController()
-        let current = UIAlertAction(title: "Current Story", style: .Default, handler: {
-            (action:UIAlertAction) in
-            self.submitToCurrentStory()
-        })
-        alertController.addAction(current)
-        let new = UIAlertAction(title: "Start a New Story", style: .Default, handler: {
-            (action:UIAlertAction) in
-            self.newStoryConfirmation()
-        })
-        alertController.addAction(new)
-        let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
-        alertController.addAction(cancel)
         
-        self.parentViewController?.presentViewController(alertController, animated: true, completion: nil)
+        addVideoToStoryView = AddVideoToStoryView(frame: view.bounds)
+        addVideoToStoryView?.delegate = self
+        view.addSubview(addVideoToStoryView!)
+        addVideoToStoryView!.transform = CGAffineTransformMakeTranslation(0, addVideoToStoryView!.frame.size.height)
+        
+        let time:NSTimeInterval = 0.4
+        
+        UIView.animateWithDuration(time, animations: {
+           self.addVideoToStoryView!.transform = CGAffineTransformMakeTranslation(0, 0)
+        })
+        
+        UIView.animateWithDuration(time*0.3, animations: {
+                self.nextButton.transform = CGAffineTransformMakeScale(0.01, 0.01)
+            }, completion: {
+                finished in
+                self.nextButton.removeFromSuperview()
+        })
     }
     
+    var newStoryNameField:UITextField?
+    var OKAction:UIAlertAction?
     func newStoryConfirmation() {
-        let alertController = UIAlertController(title: "Are you sure?", message: "Your current story will be saved.", preferredStyle: .Alert)
-        let OK = UIAlertAction(title: "Yes", style: .Default, handler: {
+        let alertController = UIAlertController(title: "Story Name", message: "You can always change this later.", preferredStyle: .Alert)
+        OKAction = UIAlertAction(title: "Post", style: .Default, handler: {
             (action:UIAlertAction) in
-            self.submitToNewStory()
+            if let text = self.newStoryNameField?.text where text.characters.count > 0 && !text.isEmpty {
+                self.submitToNewStory()
+            }
         })
-        alertController.addAction(OK)
+        OKAction!.enabled = false
+        alertController.addAction(OKAction!)
+        
+        alertController.addTextFieldWithConfigurationHandler({
+            (textField:UITextField) in
+            textField.placeholder = "Story name"
+            textField.delegate = self
+            textField.returnKeyType = UIReturnKeyType.Done
+            textField.addTarget(self, action: "textFieldChanged", forControlEvents: UIControlEvents.EditingChanged)
+            self.newStoryNameField = textField
+        })
+        
         let cancel = UIAlertAction(title: "No", style: .Cancel, handler: nil)
         alertController.addAction(cancel)
 
@@ -105,13 +117,18 @@ class VideoSaveOverlayView: UIViewController {
     }
     
     func submitToNewStory() {
-        remove()
-        delegate?.addVideoToNewStoryPressed()
+        if let text = self.newStoryNameField?.text {
+            remove()
+            delegate?.addVideoToNewStoryPressed(text)
+        }
     }
     
     func remove() {
         UIView.animateWithDuration(0.1, delay: 0, options: .CurveEaseIn, animations: {
-            self.view.transform = CGAffineTransformMakeTranslation(0, self.gradient.frame.size.height)
+            if let view = self.addVideoToStoryView {
+                view.transform = CGAffineTransformMakeTranslation(0, view.frame.size.height)
+                view.alpha = 0
+            }
             }, completion: {
                 (finished) in
                 self.view.removeFromSuperview()
@@ -121,6 +138,41 @@ class VideoSaveOverlayView: UIViewController {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    /* Title Text Field
+    ------------------------------------------------------*/
+    
+    func textFieldChanged() {
+        if let text = self.newStoryNameField?.text where text.characters.count == 0 || text.isEmpty {
+            OKAction?.enabled = false
+        } else {
+            OKAction?.enabled = true
+        }
+    }
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return false
+    }
+    
+    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+        let oldString = textField.text ?? ""
+        let startIndex = oldString.startIndex.advancedBy(range.location)
+        let endIndex = startIndex.advancedBy(range.length)
+        let newString = oldString.stringByReplacingCharactersInRange(startIndex ..< endIndex, withString: string)
+        return newString.characters.count <= 40
+    }
+    
+    /* Add story view delegate
+    ---------------------------------------------------------------*/
+    
+    func newStoryClicked() {
+        newStoryConfirmation()
+    }
+    
+    func addStoryClicked() {
+        submitToCurrentStory()
     }
 
 }

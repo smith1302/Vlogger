@@ -47,7 +47,7 @@ class SegueController: NSObject, UIViewControllerAnimatedTransitioning {
     
     func fadeIn(transitionContext: UIViewControllerContextTransitioning) {
         if let containerView = transitionContext.containerView() {
-            let fromVC = transitionContext.viewControllerForKey(UITransitionContextFromViewControllerKey)
+            _ = transitionContext.viewControllerForKey(UITransitionContextFromViewControllerKey)
             let toVC = transitionContext.viewControllerForKey(UITransitionContextToViewControllerKey)
             
             containerView.addSubview(toVC!.view)

@@ -9,7 +9,7 @@
 import UIKit
 import AVFoundation
 
-class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelegate, LikeButtonDelegate, OptionalButtonDelegate {
+class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelegate, LikeButtonDelegate, OptionalButtonDelegate, UITextFieldDelegate {
     
     // Outlets
     @IBOutlet weak var customOverlayView: UIView!
@@ -20,6 +20,7 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     @IBOutlet weak var likeCountLabel: UILableOutline!
     @IBOutlet weak var noStoriesFoundView: UIView!
     @IBOutlet weak var optionalButton: OptionalButton!
+    @IBOutlet weak var titleTextField: UITextFieldOutline!
     
     // Other
     var uploadFailedOverlay:UploadFailedVideoView?
@@ -55,6 +56,9 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         // Optional Button
         optionalButton.delegate = self
         optionalButton.configure(user)
+        
+        // Textfield
+        titleTextField.delegate = self
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -81,6 +85,7 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     func configureStory(story:Story) {
         self.story = story
         self.videoPlayerViewController.configureWithStory(story)
+        titleTextField.text = story.title
     }
     
     /* VideoPlayerViewController Delegate
@@ -156,7 +161,9 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
         super.touchesBegan(touches, withEvent: event)
-        if uploadFailedOverlay == nil {
+        if titleTextField.isFirstResponder() {
+            titleTextField.resignFirstResponder()
+        } else if uploadFailedOverlay == nil {
             videoPlayerViewController.didTap()
         } else {
             retryUpload()
@@ -193,6 +200,31 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         })
     }
     
+    /* Title Text Field
+    ------------------------------------------------------*/
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return false
+    }
+    
+    func textFieldShouldEndEditing(textField: UITextField) -> Bool {
+        if let story = story, newText = textField.text where newText != story.title && !newText.isEmpty {
+            story.title = newText
+            story.tags = story.getTagsFromString(newText)
+            story.saveEventually()
+        }
+        return true
+    }
+    
+    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+        let oldString = textField.text ?? ""
+        let startIndex = oldString.startIndex.advancedBy(range.location)
+        let endIndex = startIndex.advancedBy(range.length)
+        let newString = oldString.stringByReplacingCharactersInRange(startIndex ..< endIndex, withString: string)
+        return newString.characters.count <= 40
+    }
+    
     
     /* Helpers
     ------------------------------------------------------------------*/
@@ -215,7 +247,6 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         viewCountLabel.text = currentVideo != nil ? currentVideo!.views.pretty() : "\(0)"
         likeButton.configure(currentVideo)
         likeCountLabel.text = currentVideo != nil ? currentVideo!.likes.pretty() : "\(0)"
-        
         if currentVideo == nil {
             optionalButton.hide()
         }

@@ -47,7 +47,7 @@ class RecordButton: UIButton {
         
         circleLayer = CAShapeLayer()
         circleLayer.fillColor = UIColor.clearColor().CGColor
-        circleLayer.strokeColor = UIColor.redColor().CGColor
+        circleLayer.strokeColor = Constants.primaryColor.CGColor
         circleLayer.lineWidth = lineWidth;
         circleLayer.strokeEnd = 0
         circleLayer.path = circlePath.CGPath

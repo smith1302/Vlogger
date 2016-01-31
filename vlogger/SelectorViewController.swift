@@ -25,8 +25,8 @@ class SelectorViewController: UIViewController {
     weak var LeftButton: UIButton!
     weak var container: UIView!
     weak var selectorCenterXConstraint: NSLayoutConstraint!
-    var selectedColor:UIColor = UIColor(hex: 0x3697FF)
-    var nonSelectedColor:UIColor = UIColor(white: 0.3, alpha: 1)
+    var selectedColor:UIColor = UIColor.whiteColor() //UIColor(hex: 0x3697FF)
+    var nonSelectedColor:UIColor = UIColor(white: 0, alpha: 0.3)
     weak var delegate:SelectorViewControllerDelegate?
     var currentState:HomeSelectorState! = HomeSelectorState.Home {
         didSet {
@@ -39,11 +39,14 @@ class SelectorViewController: UIViewController {
     }
     var stateLabels:[HomeSelectorState:[String:String]] = [HomeSelectorState.Search:["Left":"Users", "Right":"Stories"], HomeSelectorState.Home:["Left":"Trending", "Right":"Subscriptions"]]
     
-    init(RightButton:UIButton, LeftButton:UIButton, selectorCenterXConstraint: NSLayoutConstraint, container:UIView) {
+    init(RightButton:UIButton, LeftButton:UIButton, selectorCenterXConstraint: NSLayoutConstraint, container:UIView, selector:UIView) {
         self.RightButton = RightButton
         self.LeftButton = LeftButton
         self.selectorCenterXConstraint = selectorCenterXConstraint
         self.container = container
+        // Colors
+        container.backgroundColor = Constants.primaryColor
+        selector.backgroundColor = UIColor(white: 0.98, alpha: 1)
         super.init(nibName: nil, bundle: nil)
         self.RightButton.addTarget(self, action: "rightButtonClicked", forControlEvents: .TouchUpInside)
         self.LeftButton.addTarget(self, action: "leftButtonClicked", forControlEvents: .TouchUpInside)
@@ -56,7 +59,6 @@ class SelectorViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         // Do any additional setup after loading the view.
     }
 
@@ -87,7 +89,7 @@ class SelectorViewController: UIViewController {
     func changeSelectedButton(selected:UIButton, notSelected:UIButton) {
         selectorCenterXConstraint.constant = selected.frame.origin.x
         notSelected.setTitleColor(nonSelectedColor, forState: .Normal)
-        selected.setTitleColor(Constants.usernameTextPrimaryColor, forState: .Normal)
+        selected.setTitleColor(selectedColor, forState: .Normal)
         animateSelector()
         selectedButton = selected
     }

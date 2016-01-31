@@ -313,6 +313,7 @@ class FeedLayoutInfo {
     var toolbarHeight:CGFloat
     static let snapThreshold:CGFloat = 0.23
     var chatTopBeforeKeyboard:CGFloat
+    var bottomDragBuffer:CGFloat
     
     // Use these to get final changes after setting up
     var chatDragTopConstraint:NSLayoutConstraint
@@ -322,7 +323,8 @@ class FeedLayoutInfo {
         self.keyboardShowing = false
         self.originalViewHeight = originalViewHeight
         self.topDragLimit = 0
-        self.bottomDragLimit = originalViewHeight-chatDragViewHeight
+        self.bottomDragBuffer = 0//chatDragViewHeight
+        self.bottomDragLimit = originalViewHeight-bottomDragBuffer
         self.chatDragViewHeight = chatDragViewHeight
         self.toolbarHeight = toolbarHeight
         self.chatDragTopConstraint = chatTopConstraint
@@ -333,7 +335,7 @@ class FeedLayoutInfo {
     func setUpKeyboardLayoutForTitleLabel(notification:NSNotification, endFrame:CGRect?) {
         if let endFrameHeight = endFrame?.size.height where notification.name == UIKeyboardWillShowNotification {
             frameHeight = originalViewHeight-endFrameHeight
-            bottomDragLimit = frameHeight-chatDragViewHeight
+            bottomDragLimit = frameHeight-bottomDragBuffer
             chatDragTopConstraint.constant = bottomDragLimit
         } else {
             chatDragTopConstraint.constant = chatTopBeforeKeyboard
@@ -366,7 +368,7 @@ class FeedLayoutInfo {
         if keyboardShowing == false {
             return
         }
-        bottomDragLimit = originalViewHeight-chatDragViewHeight
+        bottomDragLimit = originalViewHeight-bottomDragBuffer
         keyboardShowing = false
     }
 }
