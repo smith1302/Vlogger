@@ -20,11 +20,16 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         // Record button
         recordButton.delegate = self
+        
         // Activity Indicator
         activityIndicator = ActivityIndicatorView(frame: view.frame)
         view.addSubview(activityIndicator)
+        
+        // Gesture
+        addDoubleTapGesture()
     }
 
     override func didReceiveMemoryWarning() {
@@ -109,6 +114,12 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     
     /* Other
     ------------------------------------------*/
+    
+    func addDoubleTapGesture() {
+        let tap = UITapGestureRecognizer(target: self, action: "flipCameraPosition")
+        tap.numberOfTapsRequired = 2
+        view.addGestureRecognizer(tap)
+    }
     
     func addVideoSaveOverlay() {
         videoSaveOverlayView = VideoSaveOverlayView(frame: CGRectMake(0,0,view.frame.size.width,view.frame.size.height))

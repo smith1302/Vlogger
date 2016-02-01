@@ -299,8 +299,9 @@ class AVFoundationViewController: UIViewController, AVCaptureFileOutputRecording
     
     func flipCameraPosition() {
         // First, remove any inputs if needed
-        let currentCameraInput: AVCaptureInput = session.inputs[0] as! AVCaptureInput
-        session.removeInput(currentCameraInput)
+        for input in session.inputs {
+            session.removeInput(input as! AVCaptureInput)
+        }
         
         let currentPosition:AVCaptureDevicePosition = videoDevice.position
         let newPosition = currentPosition == .Back ? AVCaptureDevicePosition.Front : AVCaptureDevicePosition.Back
