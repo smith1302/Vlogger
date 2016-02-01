@@ -137,4 +137,15 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
     @IBAction func unwindToVideoViewController(segue: UIStoryboardSegue) {
     }
     
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        if let touch = touches.first {
+            let force = touch.force
+            let maxForce = touch.maximumPossibleForce
+            let forcePercent = force/maxForce
+            if forcePercent > 0.5 {
+                flipCameraPosition()
+            }
+        }
+    }
+    
 }

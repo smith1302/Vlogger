@@ -279,6 +279,7 @@ class User : PFUser {
             story.fetchIfNeededInBackgroundWithBlock({
                 (object:PFObject?, error:NSError?) in
                 if let story = object as? Story {
+                    story.cache()
                     self.currentStory = story
                     self.uploadVideoToStory(story, video: video, failureCallback: failureCallback, successCallback: successCallback)
                 } else {
@@ -309,36 +310,6 @@ class User : PFUser {
                     failureCallback()
                 }
             })
-        })
-    }
-    
-    func getCurrentStoryVideos(callback:([Video]->Void)) {
-        getCurrentStory({
-            (story:Story?) in
-            if story != nil {
-                story!.getVideos({
-                    (videos:[Video]) in
-                    callback(videos)
-                })
-            } else {
-                callback([])
-            }
-        })
-    }
-    
-    func getCurrentStory(callback:(Story?->Void)) {
-        let currentDate = NSDate.getCurrentDay()
-        let query = Story.query()
-        query?.whereKey("user", equalTo: self)
-        query?.whereKey("day", equalTo: currentDate)
-        query?.getFirstObjectInBackgroundWithBlock({
-            (object:PFObject?, error:NSError?) in
-            if let story = object as? Story {
-                story.user = self
-                callback(story)
-            } else {
-                callback(nil)
-            }
         })
     }
     

@@ -13,6 +13,9 @@ class Story : PFObject, PFSubclassing  {
     @NSManaged var active: Bool
     @NSManaged var videoCount: Int
     @NSManaged var tags: [String]
+    @NSManaged var featured: Bool
+    
+    static var storyCache:[String:Story] = [String:Story]()
     
     override init() {
         super.init()
@@ -27,6 +30,7 @@ class Story : PFObject, PFSubclassing  {
         self.likes = 0
         self.videoCount = 0
         self.active = true
+        self.featured = false
         self.tags = getTagsFromString(NSDate.getReadableTimeFull())
         self.videoAddedAt = NSDate()
     }
@@ -48,6 +52,31 @@ class Story : PFObject, PFSubclassing  {
         return "Story"
     }
     
+    /* Cache
+    -------------------------------------------*/
+    
+    func getCached() -> Story {
+        var toReturn = self
+        if let ID = objectId {
+            // Get cached version
+            if let story = Story.storyCache[ID] {
+                toReturn = story
+            }
+            // Update the cache with the current story
+            cache()
+        }
+        return toReturn
+    }
+    
+    func cache() {
+        if let ID = objectId {
+            // Don't cache it unless we have data available for the user too.
+            if self.user.dataAvailable {
+                Story.storyCache[ID] = self
+            }
+        }
+    }
+    
     func getTagsFromString(string:String) -> [String] {
         var tags = string.componentsSeparatedByString(" ")
         for (index,tag) in tags.enumerate() {
@@ -67,14 +96,16 @@ class Story : PFObject, PFSubclassing  {
                     // Don't delete current story... ever!!
                     if let ID = self.objectId, currentStoryID = User.currentUser()!.currentStory?.objectId where ID == currentStoryID {
                         // Theoretically it should be 0 but incase things got out of sync...
-                        self.views -= 0
-                        self.likes -= 0
+                        self.views = 0
+                        self.likes = 0
                     } else {
                         self.deleteEventually()
                     }
                 } else {
                     self.views -= video!.views
                     self.likes -= video!.likes
+                    self.views = max(0,self.views)
+                    self.likes = max(0,self.likes)
                 }
                 self.saveEventually()
             }

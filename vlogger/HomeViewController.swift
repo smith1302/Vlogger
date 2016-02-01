@@ -26,6 +26,7 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
     var selectorViewController:SelectorViewController!
     var currentChildViewController:UIViewController?
     let kTitle:String = "Explore"
+    let childViewControllerSlideDuration:NSTimeInterval = 0.3
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -98,68 +99,77 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
     /* Selector Buttons
     ------------------------------------------------------*/
     
-    func clearCurrentChildViewController() {
-        currentChildViewController?.view.removeFromSuperview()
-        currentChildViewController?.removeFromParentViewController()
+    func clearCurrentChildViewController(direction:SlideDirection) {
+        if currentChildViewController == nil {
+            return
+        }
+        let vc = currentChildViewController!
         currentChildViewController = nil
+        UIView.animateWithDuration(childViewControllerSlideDuration, animations: {
+                let width = vc.view.frame.width
+                let endX = direction == .Left ? -width : width
+                vc.view.transform = CGAffineTransformMakeTranslation(endX, 0)
+            }, completion: {
+                finished in
+                vc.view.removeFromSuperview()
+                vc.removeFromParentViewController()
+        })
     }
     
     var vcCache:[String:UIViewController] = [String:UIViewController]()
     
     func trendingButtonClicked() {
-        clearCurrentChildViewController()
         let className = String(TrendingViewController)
         let vc:UIViewController? = (vcCache[className] != nil) ? vcCache[className] : self.storyboard?.instantiateViewControllerWithIdentifier(className)
         if let vc = vc as? TrendingViewController {
             vc.delegate = self
-            currentChildViewController = vc
             vcCache[className] = vc
-            addContainerViewController(vc, topAlignmentView: selectorContainer)
+            addContainerViewController(vc, topAlignmentView: selectorContainer, direction: .Left)
         }
     }
 
     func subscriptionsButtonClicked() {
-        clearCurrentChildViewController()
         let className = String(StoryUpdateFeedViewController)
         let vc:UIViewController? = (vcCache[className] != nil) ? vcCache[className] : self.storyboard?.instantiateViewControllerWithIdentifier(className)
         if let vc = vc as? StoryUpdateFeedViewController {
             vc.delegate = self
-            currentChildViewController = vc
             vcCache[String(StoryUpdateFeedViewController)] = vc
-            addContainerViewController(vc, topAlignmentView: selectorContainer)
+            addContainerViewController(vc, topAlignmentView: selectorContainer, direction: .Right)
             vc.configureWithFeedType(StoryUpdateFeedType.subscriptions)
         }
     }
 
     func searchUsersButtonClicked() {
-        clearCurrentChildViewController()
         let className = String(SearchUsersViewController)
         let vc:UIViewController? = (vcCache[className] != nil) ? vcCache[className] : self.storyboard?.instantiateViewControllerWithIdentifier(className)
         if let vc = vc as? SearchUsersViewController {
             vc.delegate = self
-            currentChildViewController = vc
             vcCache[className] = vc
-            addContainerViewController(vc, topAlignmentView: selectorContainer)
+            addContainerViewController(vc, topAlignmentView: selectorContainer, direction: .Left)
         }
     }
 
     func searchStoriesButtonClicked() {
-        clearCurrentChildViewController()
         let className = String(SearchStoriesViewController)
         let vc:UIViewController? = (vcCache[className] != nil) ? vcCache[className] : self.storyboard?.instantiateViewControllerWithIdentifier(className)
         if let vc = vc as? SearchStoriesViewController {
             vc.delegate = self
-            currentChildViewController = vc
             vcCache[className] = vc
-            addContainerViewController(vc, topAlignmentView: selectorContainer)
+            addContainerViewController(vc, topAlignmentView: selectorContainer, direction: .Right)
         }
     }
     
     /* Helpers
     ------------------------------------------------------*/
     
-    func addContainerViewController(vc:UIViewController, topAlignmentView:UIView) {
-        //addChildViewController(vc)
+    enum SlideDirection:Int {
+        case Right
+        case Left
+    }
+    
+    func addContainerViewController(vc:UIViewController, topAlignmentView:UIView, direction:SlideDirection) {
+        clearCurrentChildViewController(direction)
+        currentChildViewController = vc
         vc.view.frame = self.view.bounds
         view.addSubview(vc.view)
         
@@ -169,6 +179,15 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
         view.addConstraint(NSLayoutConstraint(item: subview, attribute: .Left, relatedBy: .Equal, toItem: view, attribute: .Left, multiplier: 1.0, constant: 0))
         view.addConstraint(NSLayoutConstraint(item: subview, attribute: .Right, relatedBy: .Equal, toItem: view, attribute: .Right, multiplier: 1.0, constant: 0))
         view.addConstraint(NSLayoutConstraint(item: subview, attribute: .Bottom, relatedBy: .Equal, toItem: view, attribute: .Bottom, multiplier: 1.0, constant: 0))
+        
+        let width = self.currentChildViewController!.view.frame.width
+        let startX = direction == .Left ? width : -width
+        self.currentChildViewController!.view.transform = CGAffineTransformMakeTranslation(startX, 0)
+        UIView.animateWithDuration(childViewControllerSlideDuration, animations: {
+            self.currentChildViewController!.view.transform = CGAffineTransformMakeTranslation(0, 0)
+            }, completion: {
+                finished in
+        })
     }
     
     /* Search Bar Delegate

@@ -20,7 +20,7 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
     
     weak var delegate:ChatFeedViewControllerDelegate?
     var firebaseRef:Firebase!
-    var user:User!
+    var story:Story!
     var messages:[Message] = [Message]()
     let kMaxCharacters:Int = 150
     // We want to pull messages from firebase we sent before this time, but after we ignore because we have it locally
@@ -73,9 +73,9 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
         firebaseRef.removeAllObservers()
     }
     
-    func configure(user:User) {
-        self.user = user
-        firebaseRef = Firebase(url: "https://vlogger.firebaseio.com/channel/\(user.objectId!)/messages")
+    func configure(story:Story) {
+        self.story = story
+        firebaseRef = Firebase(url: "https://vlogger.firebaseio.com/channel/\(story.objectId!)/messages")
         listenForNewMessages()
     }
     
@@ -129,7 +129,6 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
     -------------------------------------------*/
     
     func clickedOnUser(userID: String) {
-        if userID == user.objectId { return }
         // Get user object and go to feed
         let query = User.query()
         query?.whereKey("objectId", equalTo: userID)

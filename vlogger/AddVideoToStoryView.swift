@@ -65,7 +65,7 @@ class AddVideoToStoryView: UIView {
         User.currentUser()?.currentStory?.fetchIfNeededInBackgroundWithBlock({
             (object:PFObject?, error:NSError?) in
             if let story = object as? Story {
-                self.titleLabel.text = story.title
+                self.titleLabel.text = story.getCached().title
                 self.titleLabel.textColor = UIColor(white: 1, alpha: 1)
             }
         })

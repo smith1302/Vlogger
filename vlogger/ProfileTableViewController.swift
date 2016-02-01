@@ -63,14 +63,6 @@ class ProfileTableViewController: CustomQueryTableViewController {
         super.objectsDidLoad(error)
     }
     
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
-            return 1
-        } else {
-            return objects.count
-        }
-    }
-    
     override func objectAtIndexPath(indexPath: NSIndexPath?) -> PFObject? {
         if let indexPath = indexPath where indexPath.section == 0 {
             return user.currentStory
@@ -125,11 +117,22 @@ class ProfileTableViewController: CustomQueryTableViewController {
         return 2
     }
     
+    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if section == 0 {
+            return 1
+        } else if objects.count > 0 {
+            return objects.count
+        } else {
+            return 6
+        }
+    }
+    
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> PFTableViewCell {
         let object = self.objectAtIndexPath(indexPath)
         let cell = tableView.dequeueReusableCellWithIdentifier("ProfileCell") as! ProfileTableViewCell!
         if let story = object as? Story {
-            cell.configure(story, indexPath: indexPath)
+            story.user = user
+            cell.configure(story.getCached(), indexPath: indexPath)
         }
  
         return cell

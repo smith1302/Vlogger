@@ -60,15 +60,6 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
         })
     }
     
-    init(user:User) {
-        super.init(nibName: nil, bundle: nil)
-        commonInit()
-        user.getCurrentStoryVideos({
-            (videos:[Video]) in
-            self.setVideos(videos)
-        })
-    }
-    
     func commonInit() {
         videoGravity = AVLayerVideoGravityResizeAspectFill
         showsPlaybackControls = false

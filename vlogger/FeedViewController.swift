@@ -77,7 +77,8 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         story?.fetchIfNeededInBackgroundWithBlock({
             (object:PFObject?, error:NSError?) in
             if let story = object as? Story {
-                self.videoFeedController?.configureStory(story)
+                self.videoFeedController?.configureStory(story.getCached())
+                self.chatFeedController?.configure(story.getCached())
                 self.isStoryOld = story.objectId != self.user.currentStory!.objectId
             } else {
                 self.noVideosFound()
@@ -290,7 +291,6 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         if let vc = segue.destinationViewController as? ChatFeedViewController {
             chatFeedController = vc
             vc.delegate = self
-            chatFeedController?.configure(user)
         }
     }
     

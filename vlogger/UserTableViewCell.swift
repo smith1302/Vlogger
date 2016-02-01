@@ -20,6 +20,8 @@ class UserTableViewCell: PFTableViewCell {
         setFollow(false, enabled: false)
         self.user = user
         nameLabel.text = user.username
+        nameLabel.textColor = Constants.usernameTextPrimaryColor
+        nameLabel.backgroundColor = UIColor.clearColor()
         
         pfImageView.file = user.picture
         pfImageView.image = UIImage(named: "Avatar.png")

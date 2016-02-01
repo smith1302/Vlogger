@@ -18,7 +18,7 @@ class ExpandedStoryTableViewCell: PFTableViewCell {
     @IBOutlet weak var userImageView: PFImageView!
     let loadingIndicator:UIActivityIndicatorView = UIActivityIndicatorView()
     
-    var story:Story!
+    var story:Story = Story()
     var video:Video! {
         willSet {
             if let video = newValue {
@@ -49,6 +49,11 @@ class ExpandedStoryTableViewCell: PFTableViewCell {
     var user:User!
     
     func configure(story:Story) {
+        
+        if let currentID = self.story.objectId, newID = story.objectId where newID == currentID {
+            return
+        }
+        
         backgroundColor = UIColor.whiteColor()
         feedImageView.image = nil
         

@@ -27,8 +27,9 @@ class TrendingViewController: CustomQueryTableViewController {
         let storyQuery = Story.query()
         storyQuery?.whereKey("videoAddedAt", greaterThan: NSDate(timeIntervalSinceNow: -60*60*24*7))
         //storyQuery?.whereKey("active", equalTo: true)
+        storyQuery?.orderByDescending("featured")
         storyQuery?.whereKey("videoCount", greaterThanOrEqualTo: 1)
-        storyQuery?.orderByDescending("views")
+        storyQuery?.addDescendingOrder("views")
         storyQuery?.includeKey("user")
         storyQuery?.includeKey("video")
         return storyQuery!
@@ -40,10 +41,6 @@ class TrendingViewController: CustomQueryTableViewController {
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.separatorStyle = .None
         tableView.refreshControlBackground(Constants.primaryColorSoft)
-    }
-    
-    override func objectsWillLoad() {
-        print("Will load")
     }
     
     override func objectsDidLoad(error: NSError?) {
@@ -67,7 +64,7 @@ class TrendingViewController: CustomQueryTableViewController {
         let object = self.objectAtIndexPath(indexPath)
         let cell = tableView.dequeueReusableCellWithIdentifier("TrendingCell") as! ExpandedStoryTableViewCell!
         if let story = object as? Story {
-            cell.configure(story)
+            cell.configure(story.getCached())
         }
         return cell
     }

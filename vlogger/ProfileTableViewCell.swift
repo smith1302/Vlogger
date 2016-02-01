@@ -18,7 +18,7 @@ class ProfileTableViewCell: PFTableViewCell {
     
     var dispatchedVideoID:String? = ""
     var indexPath:NSIndexPath!
-    var story:Story!
+    var story:Story = Story()
     var video:Video! {
         willSet {
             if let video = newValue {
@@ -48,6 +48,10 @@ class ProfileTableViewCell: PFTableViewCell {
     
     func configure(story:Story, indexPath:NSIndexPath) {
         
+        if let currentID = self.story.objectId, newID = story.objectId where newID == currentID {
+            return
+        }
+        
         if !story.dataAvailable {
             story.fetchIfNeededInBackgroundWithBlock({
                 (object:PFObject?, error:NSError?) in
@@ -76,6 +80,7 @@ class ProfileTableViewCell: PFTableViewCell {
         
         titleLabel.text = story.title
         titleLabel.textColor = UIColor(white: 0.3, alpha: 1)
+        titleLabel.backgroundColor = UIColor.clearColor()
         
         pfImageView.image = nil
         pfImageView.contentMode = .ScaleAspectFill
@@ -86,6 +91,7 @@ class ProfileTableViewCell: PFTableViewCell {
         pfImageView.addSubview(loadingIndicator)
         
         viewsLabel.text = "\(story.views.pretty()) views"
+        viewsLabel.backgroundColor = UIColor.clearColor()
     }
     
     override func drawRect(rect: CGRect) {

@@ -120,7 +120,11 @@ class CustomQueryTableViewController: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return objects.count
+        if objects.count > 0 {
+            return objects.count
+        } else {
+            return 6
+        }
     }
 
 }

@@ -67,7 +67,7 @@ class SearchStoriesViewController: SearchViewController {
         if object?.objectId != nil {
             let cell = tableView.dequeueReusableCellWithIdentifier("TrendingCell") as! ExpandedStoryTableViewCell!
             if let story = object as? Story {
-                cell.configure(story)
+                cell.configure(story.getCached())
             }
             return cell
         } else {
