@@ -11,14 +11,13 @@ import AVFoundation
 import AVKit
 import Parse
 
-class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, ChatFeedViewControllerDelegate, UIViewControllerTransitioningDelegate {
+class FeedViewController: UIViewController, ChatFeedViewControllerDelegate, UIViewControllerTransitioningDelegate {
 
     @IBOutlet weak var titleLabel: UITextField?
     @IBOutlet weak var chatDragTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var chatDragView: UIView!
     @IBOutlet weak var chatDragIndicator: UIView!
     
-    var profileCardViewController:ProfileCardViewController?
     var activityIndicator:ActivityIndicatorView!
     var videoFeedController:VideoFeedViewController?
     var chatFeedController:ChatFeedViewController?
@@ -87,7 +86,6 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
         if story == nil {
             noVideosFound()
         }
-        chatDragIndicator.alpha = (isStoryOld) ? 0 : 1
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -117,10 +115,6 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     }
 
     @IBAction func chatDrag(sender: UIPanGestureRecognizer) {
-        // No chat enabled for viewing past stories
-        if isStoryOld {
-            return
-        }
         
         let translation = sender.translationInView(self.view)
         let newY = chatDragView.frame.origin.y + translation.y
@@ -174,19 +168,10 @@ class FeedViewController: UIViewController, ProfileCardViewControllerDelegate, C
     }
     
     override func viewDidLayoutSubviews() {
-        if isStoryOld { return }
         let distance = (feedLayoutInfo.bottomDragLimit - feedLayoutInfo.bottomDragLimit*2/3)
         let positionOffset = chatDragTopConstraint.constant - feedLayoutInfo.bottomDragLimit*2/3
         let percent = positionOffset/distance
         chatDragIndicator.alpha = max(0,percent)
-    }
-    
-    
-    /* ProfileCardViewControllerDelegate
-    ------------------------------------------------------*/
-    
-    func profileCardClosed() {
-        profileCardViewController = nil
     }
     
     /* ChatFeedViewControllerDelegate

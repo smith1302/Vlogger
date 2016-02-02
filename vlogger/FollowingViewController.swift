@@ -9,28 +9,37 @@
 import UIKit
 import ParseUI
 
-class FollowingViewController: UserListViewController, UserTableViewCellDelegate {
+class FollowingViewController: CustomQueryTableViewController, UserTableViewCellDelegate {
     
     var fullMessageView:FullMessageView?
+    var outstandingQueries:[NSIndexPath:Bool] = [NSIndexPath:Bool]()
+    var user:User?
+    var query:PFQuery?
+    var titleString:String?
+    var headerString:String?
+    var noObjectsMessage:String = "None found!"
+    weak var delegate:TransitionToFeedDelegate?
+    
+    func configure(query:PFQuery?, titleString:String, headerString:String?, noObjectsMessage:String) {
+        self.query = query
+        self.titleString = titleString
+        self.headerString = headerString
+        self.noObjectsMessage = noObjectsMessage
+    }
     
     override func queryForTable() -> PFQuery {
-        if user == nil {
+        if query == nil {
             return PFQuery()
         }
-        
-        // Get users following targetUser
-        let query = Follow.query()
-        query!.whereKey("toUser", equalTo: user!)
-        query!.includeKey("fromUser")
         return query!
     }
     
     override func objectsDidLoad(error: NSError?) {
         // If no results found default to popular page
-        if objects?.count == 0  && fullMessageView == nil {
-            fullMessageView = FullMessageView(frame: tableView.bounds, text: "No followers yet!")
+        if objects.count == 0  && fullMessageView == nil {
+            fullMessageView = FullMessageView(frame: tableView.bounds, text: noObjectsMessage)
             tableView.addSubview(fullMessageView!)
-        } else if objects?.count > 0 {
+        } else if objects.count > 0 {
             fullMessageView?.removeFromSuperview()
             fullMessageView = nil
         }
@@ -39,16 +48,60 @@ class FollowingViewController: UserListViewController, UserTableViewCellDelegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Subscribers"
+        title = titleString
         tableView.refreshControlBackground(Constants.primaryColorSoft)
+        tableView.estimatedRowHeight = 55
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.separatorInset = UIEdgeInsetsMake(68, 0, 0, 0)
+        tableView.tableFooterView = UIView(frame: CGRect.zero)
         // Do any additional setup after loading the view.
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath, object: PFObject?) -> UserTableViewCell {
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBarHidden = false
+        UIApplication.sharedApplication().statusBarHidden = false
+    }
+    
+    override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if let title = headerString {
+            let view = UIView()
+            view.backgroundColor = UIColor(white: 1, alpha: 1)
+            
+            let header = UILabel()
+            header.text = title
+            header.textAlignment = .Left
+            header.textColor = UIColor(white: 0.5, alpha: 1)
+            header.frame = view.bounds
+            header.font = UIFont.systemFontOfSize(16)
+            view.addSubview(header)
+            Utilities.autolayoutSubviewToViewEdges(header, view: view, edgeInsets: UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0))
+            return view
+        }
+        
+        return nil
+    }
+    
+    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if headerString == nil {
+            return 0
+        }
+        return 40
+    }
+    
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UserTableViewCell {
+        let object = objectAtIndexPath(indexPath)
         let cell = tableView.dequeueReusableCellWithIdentifier("FollowingCell") as! UserTableViewCell!
+        var user:User?
         if let follow = object as? Follow {
-            let user = follow.fromUser
+            user = follow.fromUser
+        } else if let assertedUser = object as? User {
+            user = assertedUser
+        }
+        
+        if let user = user {
             cell.configure(user)
+            cell.delegate = self
             if outstandingQueries[indexPath] == nil && !user.isUs() {
                 outstandingQueries[indexPath] = true
                 User.currentUser()!.isFollowingUser(user, callback: {
@@ -63,18 +116,30 @@ class FollowingViewController: UserListViewController, UserTableViewCellDelegate
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        if let follow = self.objectAtIndexPath(indexPath) as? Follow {
-            let user = follow.fromUser
+        let object = self.objectAtIndexPath(indexPath)
+        var user:User?
+        if let follow = object as? Follow {
+            user = follow.fromUser
+        }  else if let assertedUser = object as? User {
+            user = assertedUser
+        }
+        
+        if let user = user {
             let storyboard = self.storyboard
             if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {
                 self.navigationController?.pushViewController(destinationVC, animated: true)
                 destinationVC.configureWithUser(user)
             }
+            delegate?.transitionToFeed(user)
         }
     }
     
-    func cellActivated() {
-        user?.followUser()
+    func cellFollowed(user: User) {
+        user.followUser()
+    }
+    
+    func cellUnfollowed(user: User) {
+        user.unfollowUser()
     }
 
 }

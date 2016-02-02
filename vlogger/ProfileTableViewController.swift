@@ -33,6 +33,11 @@ class ProfileTableViewController: CustomQueryTableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        if let fullMessageView = fullMessageView {
+            Utilities.autolayoutSubviewToViewEdges(fullMessageView, view: view)
+            view.bringSubviewToFront(fullMessageView)
+            tableView.scrollEnabled = false
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -46,18 +51,19 @@ class ProfileTableViewController: CustomQueryTableViewController {
         storyQuery?.whereKey("user", equalTo: user)
         storyQuery?.whereKey("active", equalTo: false)
         storyQuery?.orderByDescending("createdAt")
-        storyQuery?.includeKey("video")
         return storyQuery!
     }
     
     override func objectsDidLoad(error: NSError?) {
         // If no results found default to popular page
         if objects.count == 0  && fullMessageView == nil {
-            fullMessageView = FullMessageView(frame: tableView.bounds, text: "No stories yet!")
-            tableView.addSubview(fullMessageView!)
+            fullMessageView = FullMessageView(frame: view.bounds, text: "No stories yet!")
+            view.addSubview(fullMessageView!)
+            tableView.scrollEnabled = false
         } else if objects.count > 0 {
             fullMessageView?.removeFromSuperview()
             fullMessageView = nil
+            tableView.scrollEnabled = true
         }
         initialLoadCompleted = true
         super.objectsDidLoad(error)

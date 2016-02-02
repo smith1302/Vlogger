@@ -11,7 +11,7 @@ import ParseUI
 
 class ProfileTableViewCell: PFTableViewCell {
 
-    @IBOutlet weak var pfImageView: UIImageView!
+    @IBOutlet weak var pfImageView: PFImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var viewsLabel: UILabel!
     let loadingIndicator:UIActivityIndicatorView = UIActivityIndicatorView()
@@ -21,27 +21,27 @@ class ProfileTableViewCell: PFTableViewCell {
     var story:Story = Story()
     var video:Video! {
         willSet {
-            if let video = newValue {
-                dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
-                    self.dispatchedVideoID = video.objectId
-                    let workingVideoID = video.objectId
-                    var image:UIImage?
-                    if let thumbnail = video.thumbnail {
-                        image = thumbnail
-                    } else {
-                        image = video.getThumbnailImage()
-                    }
-                    dispatch_async(dispatch_get_main_queue()){
-                        [weak self] in
-                        if let weakSelf = self {
-                            if weakSelf.dispatchedVideoID == workingVideoID {
-                                weakSelf.pfImageView.image = image
-                                weakSelf.loadingIndicator.stopAnimating()
-                            }
-                        }
-                    }
-                }
-            }
+//            if let video = newValue {
+//                dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
+//                    self.dispatchedVideoID = video.objectId
+//                    let workingVideoID = video.objectId
+//                    var image:UIImage?
+//                    if let thumbnail = video.thumbnail {
+//                        image = thumbnail
+//                    } else {
+//                        image = video.getThumbnailImage()
+//                    }
+//                    dispatch_async(dispatch_get_main_queue()){
+//                        [weak self] in
+//                        if let weakSelf = self {
+//                            if weakSelf.dispatchedVideoID == workingVideoID {
+//                                weakSelf.pfImageView.image = image
+//                                weakSelf.loadingIndicator.stopAnimating()
+//                            }
+//                        }
+//                    }
+//                }
+//            }
         }
     }
     var user:User!
@@ -89,8 +89,15 @@ class ProfileTableViewCell: PFTableViewCell {
         pfImageView.layer.borderColor = UIColor(white: 0.74, alpha: 1).CGColor
         pfImageView.layer.borderWidth = 1
         pfImageView.addSubview(loadingIndicator)
+        pfImageView.file = story.thumbnail
+        pfImageView.loadInBackground({
+            (image:UIImage?, error:NSError?) in
+            if let image = image {
+                self.loadingIndicator.stopAnimating()
+            }
+        })
         
-        viewsLabel.text = "\(story.views.pretty()) views"
+        viewsLabel.text = "\(story.views.pretty()) \("view".pluralize("s", basedOn: CGFloat(story.views)))"
         viewsLabel.backgroundColor = UIColor.clearColor()
     }
     

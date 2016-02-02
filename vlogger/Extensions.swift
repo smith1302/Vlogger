@@ -149,6 +149,13 @@ extension String {
         }
         return randomString as String
     }
+    func pluralize(postfix:String, basedOn:CGFloat) -> String {
+        var word = self
+        if basedOn != 1 {
+            word += postfix
+        }
+        return word
+    }
 }
 
 extension NSData

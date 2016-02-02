@@ -14,14 +14,18 @@ class FullMessageView: UIView {
     
     init(frame: CGRect, text:String) {
         super.init(frame: frame)
-        backgroundColor = UIColor.whiteColor()
-        label.textColor = UIColor(white: 0.6, alpha: 1)
+        backgroundColor = UIColor.clearColor()
+        label.textColor = UIColor(white: 0.7, alpha: 1)
         label.font = UIFont.boldSystemFontOfSize(21)
         label.text = text
         label.numberOfLines = 2
         label.textAlignment = .Center
         addSubview(label)
-        Utilities.autolayoutSubviewToViewEdges(label, view: self, edgeInsets: UIEdgeInsets(top: 0, left: 40, bottom: -60, right: -40))
+        Utilities.autolayoutSubviewToViewEdges(label, view: self, edgeInsets: UIEdgeInsets(top: 0, left: 40, bottom: 0, right: -40))
+        
+        UIView.animateWithDuration(0.5, animations: {
+            self.backgroundColor = UIColor.whiteColor()
+        })
     }
 
     required init?(coder aDecoder: NSCoder) {

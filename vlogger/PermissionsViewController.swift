@@ -63,6 +63,8 @@ class PermissionsViewController: UIViewController {
         UIView.animateWithDuration(0.4, animations: {
                 self.label.transform = CGAffineTransformMakeScale(0.001,0.001)
                 self.imageView.transform = CGAffineTransformMakeScale(0.001,0.001)
+                self.label.alpha = 0
+                self.imageView.alpha = 0
             }, completion: {
                 finished in
                 
@@ -73,6 +75,8 @@ class PermissionsViewController: UIViewController {
                     self.label.text = self.cameraText
                     self.imageView.image = UIImage(named: self.cameraImageString)
                 }
+                self.label.alpha = 1
+                self.imageView.alpha = 1
                 Utilities.springAnimation(self.label, completion: nil)
                 Utilities.springAnimation(self.imageView, completion: nil)
         })

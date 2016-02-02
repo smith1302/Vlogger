@@ -31,7 +31,6 @@ class TrendingViewController: CustomQueryTableViewController {
         storyQuery?.whereKey("videoCount", greaterThanOrEqualTo: 1)
         storyQuery?.addDescendingOrder("views")
         storyQuery?.includeKey("user")
-        storyQuery?.includeKey("video")
         return storyQuery!
     }
     

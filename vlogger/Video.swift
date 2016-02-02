@@ -17,15 +17,6 @@ class Video : PFObject, PFSubclassing  {
     var uploadInProgressFlag:Bool = false
     var uploadFailedFlag:Bool = false
     var fileURL:NSURL?
-    var thumbnail:UIImage? {
-        get {
-            return Video.thumbnailCache[objectId!]
-        }
-        set {
-            Video.thumbnailCache[objectId!] = newValue
-        }
-    }
-    static var thumbnailCache:[String:UIImage] = [String:UIImage]()
     static var videoIDToAssetCache:[String:AVAsset] = [String:AVAsset]()
     
     init(fileURL:NSURL?) {
@@ -162,6 +153,7 @@ class Video : PFObject, PFSubclassing  {
             }
             // 2) Attach data to PFFile
             self.file = PFFile(data: videoData!, contentType: "video/mp4")
+            // Attach a thumbnail
             User.currentUser()!.addTemporaryVideo(self)
             // Create a background thread to continue the operation if the user backgrounds the app
             self.fileUploadBackgroundTaskID = UIApplication.sharedApplication().beginBackgroundTaskWithExpirationHandler({
@@ -294,8 +286,8 @@ class Video : PFObject, PFSubclassing  {
     /*  Thumbnail
     -----------------------------------------------------*/
     
-    func getThumbnailImage() -> UIImage? {
-        var image:UIImage?
+    func generateThumbnail() -> PFFile? {
+        var file:PFFile?
         if let fileURL = self.getFileURL() {
             let asset = AVURLAsset(URL: fileURL)
             let generate = AVAssetImageGenerator(asset: asset)
@@ -303,10 +295,12 @@ class Video : PFObject, PFSubclassing  {
             let time = CMTimeMake(1, 2)
             do {
                 let imageRef = try generate.copyCGImageAtTime(time, actualTime: nil)
-                image = UIImage(CGImage: imageRef)
+                let image = UIImage(CGImage: imageRef)
+                if let imageData = UIImageJPEGRepresentation(image, 0.5) {
+                    file = PFFile(data: imageData)
+                }
             } catch {}
         }
-        thumbnail = image
-        return image
+        return file
     }
 }

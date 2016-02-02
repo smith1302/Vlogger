@@ -21,6 +21,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     var loginButton: UIButton?
     var registerButton: UIButton?
     var currentButton: UIButton!
+    var termsText:UILabel!
     var arrow:UIButton!
     var currentForm = 1 // 1 = login, 2 = signup
     var requestInProgress = false
@@ -161,6 +162,21 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         headLine.numberOfLines = 2
         //self.view.addSubview(headLine)
         
+        // Terms
+        termsText = UILabel()
+        termsText.textColor = UIColor(white: 0.75, alpha: 1)
+        termsText.textAlignment = .Center
+        termsText.numberOfLines = 2
+        let myMutableString = NSMutableAttributedString(string: "By signing up you agree to our terms of use.", attributes: [NSFontAttributeName:UIFont.systemFontOfSize(13)])
+        myMutableString.addAttribute(NSForegroundColorAttributeName, value: Constants.usernameTextPrimaryColor, range: NSRange(location:31,length:12))
+        termsText.attributedText = myMutableString
+        termsText.sizeToFit()
+        let termsHeight:CGFloat = 30
+        termsText.frame = CGRectMake(35, view.frame.size.height - termsHeight - 35, view.frame.size.width-70, termsHeight+35)
+        self.view.addSubview(termsText)
+        termsText.userInteractionEnabled = true
+        termsText.addGestureRecognizer(UITapGestureRecognizer(target: self, action: "termsTapped"))
+        
         activityIndicator = ActivityIndicatorView(frame: view.frame)
         activityIndicator.stopAnimating()
         self.view.addSubview(activityIndicator)
@@ -172,9 +188,6 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         notificationCenter.addObserver(self, selector: "keyboardWillHide:", name: UIKeyboardWillHideNotification, object: nil)
         
         switchToLogin()
-        
-        usernameBox.text = "smith1302"
-        passwordBox.text = "lolly"
     }
     
     deinit {
@@ -274,7 +287,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         loginTextBtn.alpha = (showLogin) ? 1 : 0.6
         registerTextBtn.alpha = (showLogin) ? 0.6 : 1
         
-        usernameBox.becomeFirstResponder()
+        //usernameBox.becomeFirstResponder()
         
         //incase we switched
         self.view.endEditing(true)
@@ -423,25 +436,29 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         }
         
     }
+//    
+//    func agreeToTerms() {
+//        let alert = UIAlertController(title: Constants.appName, message: "Do you agree to the Terms of Use?", preferredStyle: UIAlertControllerStyle.Alert)
+//        
+//        alert.addAction(UIAlertAction(title: "Terms", style: .Cancel, handler: { (action: UIAlertAction!) in
+//            self.continueToTerms()
+//            alert.dismissViewControllerAnimated(true, completion: nil)
+//        }))
+//        
+//        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: { (action: UIAlertAction!) in
+//            self.continueToSetup()
+//            alert.dismissViewControllerAnimated(true, completion: nil)
+//        }))
+//    
+//        self.parentViewController?.presentViewController(alert, animated: true, completion: nil)
+//    }
     
-    func agreeToTerms() {
-        let alert = UIAlertController(title: Constants.appName, message: "Do you agree to the Terms of Use?", preferredStyle: UIAlertControllerStyle.Alert)
-        
-        alert.addAction(UIAlertAction(title: "Terms", style: .Cancel, handler: { (action: UIAlertAction!) in
-            self.continueToTerms()
-            alert.dismissViewControllerAnimated(true, completion: nil)
-        }))
-        
-        alert.addAction(UIAlertAction(title: "Ok", style: .Default, handler: { (action: UIAlertAction!) in
-            self.continueToSetup()
-            alert.dismissViewControllerAnimated(true, completion: nil)
-        }))
-    
-        self.parentViewController?.presentViewController(alert, animated: true, completion: nil)
+    func termsTapped() {
+        self.continueToTerms()
     }
     
     func continueAfterRegister() {
-        agreeToTerms()
+        self.continueToSetup()
     }
     
     func continueAfterLogin() {

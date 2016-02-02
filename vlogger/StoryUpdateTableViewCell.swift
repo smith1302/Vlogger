@@ -16,25 +16,25 @@ class StoryUpdateTableViewCell: PFTableViewCell {
     @IBOutlet weak var rightSideLabel: UILabel!
     let loadingIndicator:UIActivityIndicatorView = UIActivityIndicatorView()
     
-    var videoUpdate:VideoUpdates!
+    var story:Story!
     var video:Video! {
         willSet {
             if let video = newValue {
-                dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
-                    var image:UIImage?
-                    if let thumbnail = video.thumbnail {
-                        image = thumbnail
-                    } else {
-                        image = video.getThumbnailImage()
-                    }
-                    dispatch_async(dispatch_get_main_queue()){
-                        [weak self] in
-                        if let weakSelf = self {
-                            weakSelf.pfImageView.image = image
-                            weakSelf.loadingIndicator.stopAnimating()
-                        }
-                    }
-                }
+//                dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
+//                    var image:UIImage?
+//                    if let thumbnail = video.thumbnail {
+//                        image = thumbnail
+//                    } else {
+//                        image = video.getThumbnailImage()
+//                    }
+//                    dispatch_async(dispatch_get_main_queue()){
+//                        [weak self] in
+//                        if let weakSelf = self {
+//                            weakSelf.pfImageView.image = image
+//                            weakSelf.loadingIndicator.stopAnimating()
+//                        }
+//                    }
+//                }
                 self.rightSideLabel.text = video.createdAt?.getReadableTime()
             } else {
                 self.pfImageView.image = UIImage(named: "Avatar.png")
@@ -44,25 +44,10 @@ class StoryUpdateTableViewCell: PFTableViewCell {
     }
     var user:User!
     
-    func configureWithVideoUpdate(videoUpdate:VideoUpdates) {
-        
-        self.videoUpdate = videoUpdate
-        self.video = videoUpdate.video
-        self.user = videoUpdate.user
-        
+    func configureWithUser(story:Story) {
+        self.story = story
+        self.user = story.user
         commonConfigure()
-    }
-    
-    func configureWithUser(user:User) {
-        self.user = user
-        commonConfigure()
-        pfImageView.image = UIImage(named: "Avatar.png")
-        pfImageView.file = user.picture
-        pfImageView.loadInBackground({
-            (image:UIImage?, error:NSError?) in
-            self.loadingIndicator.stopAnimating()
-        })
-        rightSideLabel.text = "\(user.subscriberCount) Subs"
     }
     
     func commonConfigure() {
@@ -78,9 +63,17 @@ class StoryUpdateTableViewCell: PFTableViewCell {
         pfImageView.layer.cornerRadius = pfImageView.frame.size.height/2
         pfImageView.layer.masksToBounds = true
         pfImageView.backgroundColor = UIColor.lightGrayColor()
-        pfImageView.layer.borderWidth = 4
+        pfImageView.layer.borderWidth = 2
         pfImageView.layer.borderColor = UIColor(white: 0.9, alpha: 1).CGColor
         pfImageView.addSubview(loadingIndicator)
+        pfImageView.image = UIImage(named: "Avatar.png")
+        pfImageView.file = story.thumbnail
+        pfImageView.loadInBackground({
+            (image:UIImage?, error:NSError?) in
+            self.loadingIndicator.stopAnimating()
+        })
+        
+        rightSideLabel.text = story.videoAddedAt.getReadableTime()
     }
     
     override func drawRect(rect: CGRect) {

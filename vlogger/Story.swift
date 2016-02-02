@@ -14,7 +14,9 @@ class Story : PFObject, PFSubclassing  {
     @NSManaged var videoCount: Int
     @NSManaged var tags: [String]
     @NSManaged var featured: Bool
+    @NSManaged var thumbnail: PFFile?
     
+    static var thumbnailCache:[String:UIImage] = [String:UIImage]()
     static var storyCache:[String:Story] = [String:Story]()
     
     override init() {
@@ -71,7 +73,7 @@ class Story : PFObject, PFSubclassing  {
     func cache() {
         if let ID = objectId {
             // Don't cache it unless we have data available for the user too.
-            if self.user.dataAvailable {
+            if self.user.dataAvailable && self.dataAvailable {
                 Story.storyCache[ID] = self
             }
         }
@@ -116,10 +118,15 @@ class Story : PFObject, PFSubclassing  {
         videos.addObject(video)
         videoCount += 1
         videoAddedAt = NSDate()
-        saveEventually({
-            (success:Bool, error:NSError?) in
-            callback(success)
-        })
+        
+        self.thumbnail = video.generateThumbnail()
+        self.thumbnail?.saveInBackgroundWithBlock {
+            (success:Bool, error:NSError?) -> Void in
+            self.saveEventually({
+                (success:Bool, error:NSError?) in
+                callback(success)
+            })
+        }
     }
     
     func getVideos(callback:([Video]->Void)) {
@@ -133,5 +140,26 @@ class Story : PFObject, PFSubclassing  {
                 callback(self.user.temporaryVideos)
             }
         })
+    }
+    
+    /* Thumbnail
+    -------------------------------------*/
+    
+    func getThumbnail(callback:(UIImage?->Void)) {
+        if let id = self.objectId {
+            if let cachedImage = Story.thumbnailCache[id] {
+                callback(cachedImage)
+            } else {
+                thumbnail?.getDataInBackgroundWithBlock({
+                    (imageData:NSData?, error:NSError?) in
+                    if let data = imageData {
+                        let image = UIImage(data:data)
+                        Story.thumbnailCache[id] = image
+                        callback(image)
+                    }
+                })
+            }
+        }
+        callback(nil)
     }
 }

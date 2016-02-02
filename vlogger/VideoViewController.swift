@@ -30,6 +30,16 @@ class VideoViewController: AVFoundationViewController, RecordButtonDelegate, Vid
         
         // Gesture
         addDoubleTapGesture()
+        
+        // Fetch the current story because this is the main view and we should probs have it
+        User.currentUser()?.currentStory?.fetchIfNeededInBackgroundWithBlock({
+            (object:PFObject?, error:NSError?) in
+            if let story = object as? Story {
+                User.currentUser()!.currentStory = story
+                story.user = User.currentUser()!
+                story.cache()
+            }
+        })
     }
 
     override func didReceiveMemoryWarning() {

@@ -25,7 +25,6 @@ class IntroViewController: LoginViewController {
     * User is signed up or logged in. Lets take them to the main app
     */
     override func continueToMainApp() {
-        continueToSetup()
         activityIndicator.startAnimating()
         let storyboard = Constants.storyboard
         let mainAppVC = storyboard.instantiateViewControllerWithIdentifier("MainNavigationViewController")

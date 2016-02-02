@@ -11,9 +11,10 @@ import ParseUI
 
 class SearchUsersViewController: SearchViewController {
     
-    var popularViewController:StoryUpdateFeedViewController?
+    var popularViewController:FollowingViewController?
     var outstandingQueries:[NSIndexPath:Bool] = [NSIndexPath:Bool]()
     var user:User?
+    let plainCellHeight:CGFloat = 65
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -39,23 +40,30 @@ class SearchUsersViewController: SearchViewController {
         super.viewDidLoad()
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 50
-        tableView.separatorStyle = .None
         tableView.refreshControlBackground(Constants.primaryColorSoft)
+        tableView.separatorInset = UIEdgeInsetsMake(68, 0, 0, 0)
+        tableView.tableFooterView = UIView(frame: CGRect.zero)
         // Do any additional setup after loading the view.
     }
     
     override func objectsDidLoad(error: NSError?) {
         // If no results found default to popular page
-        if objects?.count == 0  && popularViewController == nil {
-            if let vc = self.storyboard?.instantiateViewControllerWithIdentifier("StoryUpdateFeedViewController") as? StoryUpdateFeedViewController {
-                vc.delegate = delegate
+        if (objects?.count == 0  && popularViewController == nil) {
+            if let vc = self.storyboard?.instantiateViewControllerWithIdentifier("FollowingViewController") as? FollowingViewController {
+                vc.configure(Queries.popularQuery(), titleString: "Popular", headerString: "POPULAR USERS", noObjectsMessage: "No Users Found!")
                 popularViewController = vc
+                popularViewController?.delegate = delegate
                 addChildViewController(vc)
-                vc.view.frame = self.tableView.bounds
+                var finalFrame = self.tableView.bounds
+                finalFrame.offsetInPlace(dx: 0, dy: plainCellHeight)
+                finalFrame.size.height -= plainCellHeight
+                let startFrame = vc.view.frame.offsetBy(dx: 0, dy: finalFrame.size.height)
+                vc.view.frame = startFrame
                 tableView.addSubview(vc.view)
-                //Utilities.autolayoutSubviewToViewEdges(vc.view, view: self.view)
-                vc.configureWithFeedType(StoryUpdateFeedType.popular, headerTitle: "No results found")
-                return
+                
+                UIView.animateWithDuration(0.3, animations: {
+                    vc.view.frame = finalFrame
+                })
             }
         } else if objects?.count > 0 {
             popularViewController?.removeFromParentViewController()
@@ -73,13 +81,19 @@ class SearchUsersViewController: SearchViewController {
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let count = super.tableView(tableView, numberOfRowsInSection: section)
-        return max(count,1)
+        return max(1, super.tableView(tableView, numberOfRowsInSection: section))
     }
     
     override func objectAtIndexPath(indexPath: NSIndexPath?) -> PFObject? {
         if self.objects?.count > 0 { return super.objectAtIndexPath(indexPath) }
         return User()
+    }
+    
+    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        if objectAtIndexPath(indexPath)?.objectId == nil {
+            return plainCellHeight
+        }
+        return UITableViewAutomaticDimension
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath, object: PFObject?) -> PFTableViewCell {
@@ -101,7 +115,7 @@ class SearchUsersViewController: SearchViewController {
             // Should probably delete this default cell since we have the popular page show
             let cell = tableView.dequeueReusableCellWithIdentifier("PlainCell") as! PFTableViewCell!
             cell.textLabel?.textColor = UIColor(white: 0.8, alpha: 1)
-            cell.textLabel?.text = ""
+            cell.textLabel?.text = "No results found..."
             return cell
         }
     }
@@ -113,13 +127,6 @@ class SearchUsersViewController: SearchViewController {
         if let user = self.objectAtIndexPath(indexPath) as? User {
             delegate?.transitionToFeed(user)
         }
-    }
-    
-    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        if objectAtIndexPath(indexPath)?.objectId == nil {
-            return 55
-        }
-        return super.tableView(tableView, heightForRowAtIndexPath: indexPath)
     }
     
 }

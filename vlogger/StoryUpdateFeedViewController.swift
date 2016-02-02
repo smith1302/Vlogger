@@ -9,18 +9,11 @@
 import UIKit
 import ParseUI
 
-enum StoryUpdateFeedType {
-    case subscriptions
-    case popular
-}
-
 class StoryUpdateFeedViewController: CustomPFQueryTableViewController {
     
-    var popularViewController:StoryUpdateFeedViewController?
-    var query:PFQuery?
-    var feedType:StoryUpdateFeedType!
-    var headerTitle:String?
+    var popularViewController:FollowingViewController?
     weak var delegate:TransitionToFeedDelegate?
+    let plainCellHeight:CGFloat = 65
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -33,25 +26,6 @@ class StoryUpdateFeedViewController: CustomPFQueryTableViewController {
         self.loadingViewEnabled = false
     }
     
-    func configureWithFeedType(type:StoryUpdateFeedType, headerTitle:String? = nil) {
-        feedType = type
-        if type == StoryUpdateFeedType.popular {
-            self.showLoader = false
-            self.query = popularQuery()
-        } else {
-            self.query = subscriptionQuery()
-        }
-        self.headerTitle = headerTitle
-        loadObjects()
-    }
-    
-    func popularQuery() -> PFQuery {
-        let query = User.query()
-        query?.orderByDescending("subscriberCount")
-        query?.limit = 5
-        return query!
-    }
-    
     func subscriptionQuery() -> PFQuery {
         let followQuery = Follow.query()
         followQuery?.whereKey("fromUser", equalTo: User.currentUser()!)
@@ -61,7 +35,6 @@ class StoryUpdateFeedViewController: CustomPFQueryTableViewController {
         videoUpdatesQuery!.whereKey("active", equalTo: true)
         videoUpdatesQuery!.orderByDescending("videoAddedAt")
         videoUpdatesQuery!.includeKey("user")
-        videoUpdatesQuery!.includeKey("video")
         
         videoUpdatesQuery!.orderByAscending("updatedAt")
         return videoUpdatesQuery!
@@ -71,7 +44,7 @@ class StoryUpdateFeedViewController: CustomPFQueryTableViewController {
     *   Get the Users we are following
     */
     override func queryForTable() -> PFQuery {
-        return query == nil ? PFQuery() : query!
+        return subscriptionQuery()
     }
     
     /*
@@ -105,15 +78,22 @@ class StoryUpdateFeedViewController: CustomPFQueryTableViewController {
     
     override func objectsDidLoad(error: NSError?) {
         // Special case to show popular update feed if theres no subscriptions
-        if objects?.count == 0  && popularViewController == nil && feedType == StoryUpdateFeedType.subscriptions && query != nil && error == nil {
-            if let vc = self.storyboard?.instantiateViewControllerWithIdentifier("StoryUpdateFeedViewController") as? StoryUpdateFeedViewController {
-                vc.delegate = delegate
+        if objects?.count == 0  && popularViewController == nil && error == nil {
+            if let vc = self.storyboard?.instantiateViewControllerWithIdentifier("FollowingViewController") as? FollowingViewController {
+                vc.configure(Queries.popularQuery(), titleString: "Popular", headerString: "POPULAR USERS", noObjectsMessage: "No Users Found!")
                 popularViewController = vc
+                popularViewController?.delegate = delegate
                 addChildViewController(vc)
-                vc.view.frame = self.tableView.bounds
+                var finalFrame = self.tableView.bounds
+                finalFrame.offsetInPlace(dx: 0, dy: plainCellHeight)
+                finalFrame.size.height -= plainCellHeight
+                let startFrame = vc.view.frame.offsetBy(dx: 0, dy: finalFrame.size.height)
+                vc.view.frame = startFrame
                 tableView.addSubview(vc.view)
-                //Utilities.autolayoutSubviewToViewEdges(vc.view, view: self.view)
-                vc.configureWithFeedType(StoryUpdateFeedType.popular, headerTitle: "No subscripton updates to show")
+                
+                UIView.animateWithDuration(0.3, animations: {
+                    vc.view.frame = finalFrame
+                })
             }
         } else if objects?.count > 0 {
             popularViewController?.removeFromParentViewController()
@@ -126,51 +106,45 @@ class StoryUpdateFeedViewController: CustomPFQueryTableViewController {
         }
     }
     
-    override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if let title = headerTitle {
-            let view = UIView()
-            view.backgroundColor = UIColor(white: 1, alpha: 1)
-            let header = UILabel()
-            header.text = title
-            header.textAlignment = .Left
-            header.textColor = UIColor(white: 0.7, alpha: 1)
-            header.frame = view.bounds
-            view.addSubview(header)
-            Utilities.autolayoutSubviewToViewEdges(header, view: view, edgeInsets: UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 0))
-            return view
-        }
-        
-        return nil
+    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return max(1, super.tableView(tableView, numberOfRowsInSection: section))
     }
     
-    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if headerTitle == nil {
-            return 0
-        }
-        return 55
+    override func objectAtIndexPath(indexPath: NSIndexPath?) -> PFObject? {
+        if self.objects?.count > 0 { return super.objectAtIndexPath(indexPath) }
+        return User()
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath, object: PFObject?) -> StoryUpdateTableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("StoryUpdateCell") as! StoryUpdateTableViewCell!
-        if let videoUpdate = object as? VideoUpdates {
-            cell.configureWithVideoUpdate(videoUpdate)
-        } else if let user = object as? User {
-            cell.configureWithUser(user)
+    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        if objectAtIndexPath(indexPath)?.objectId == nil {
+            return plainCellHeight
         }
-        return cell
+        return UITableViewAutomaticDimension
     }
     
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath, object: PFObject?) -> PFTableViewCell {
+        if object?.objectId != nil {
+            let cell = tableView.dequeueReusableCellWithIdentifier("StoryUpdateCell") as! StoryUpdateTableViewCell!
+            if let story = object as? Story {
+                cell.configureWithUser(story)
+            }
+            return cell
+        } else {
+            let cell = tableView.dequeueReusableCellWithIdentifier("PlainCell") as! PFTableViewCell!
+            cell.textLabel?.textColor = UIColor(white: 0.8, alpha: 1)
+            cell.textLabel?.text = "No recent updates..."
+            return cell
+        }
+    }
+
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
-        var user:User?
-        if let videoUpdate = self.objectAtIndexPath(indexPath) as? VideoUpdates {
-            user = videoUpdate.user
-        } else if let userObjectFromCell = self.objectAtIndexPath(indexPath) as? User {
-            user = userObjectFromCell
+        if objects?.count == 0 {
+            return
         }
         
-        if let user = user {
-            delegate?.transitionToFeed(user)
+        if let storyObjectFromCell = self.objectAtIndexPath(indexPath) as? Story {
+            delegate?.transitionToFeedWithStory(storyObjectFromCell, user: storyObjectFromCell.user)
         }
     }
     

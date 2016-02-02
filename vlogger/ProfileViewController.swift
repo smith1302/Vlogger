@@ -138,7 +138,12 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     @IBAction func showFollowers(sender: AnyObject) {
         let storyboard = self.storyboard
         if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FollowingViewController") as? FollowingViewController {
-            destinationVC.configure(user!)
+            
+            let query = Follow.query()
+            query!.whereKey("toUser", equalTo: user!)
+            query!.includeKey("fromUser")
+            
+            destinationVC.configure(query, titleString: "Subscribers", headerString: nil, noObjectsMessage: "No Subscribers Yet!")
             self.navigationController?.pushViewController(destinationVC, animated: true)
         }
     }

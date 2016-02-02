@@ -135,7 +135,6 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
             vc.delegate = self
             vcCache[String(StoryUpdateFeedViewController)] = vc
             addContainerViewController(vc, topAlignmentView: selectorContainer, direction: .Right)
-            vc.configureWithFeedType(StoryUpdateFeedType.subscriptions)
         }
     }
 

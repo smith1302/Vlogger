@@ -19,12 +19,13 @@ protocol ChatFeedViewControllerDelegate:class {
 class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate, ChatTableViewCellDelegate {
     
     weak var delegate:ChatFeedViewControllerDelegate?
-    var firebaseRef:Firebase!
+    var firebaseRef:Firebase?
     var story:Story!
     var messages:[Message] = [Message]()
     let kMaxCharacters:Int = 150
     // We want to pull messages from firebase we sent before this time, but after we ignore because we have it locally
     var feedStartedTime = NSDate()
+    var fullMessageView:FullMessageView?
 
     @IBOutlet weak var tableView: UITableView!
     // Input bar
@@ -47,6 +48,7 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
         tableView.rowHeight = UITableViewAutomaticDimension
         //tableView.separatorStyle = .None
         tableView.allowsSelection = false
+        tableView.tableFooterView = UIView(frame: CGRect.zero)
         // Send Button
         sendButton.addTarget(self, action: "sendButtonClicked", forControlEvents: .TouchUpInside)
         sendButton.setTitleColor(UIColor(hex: 0xAAAAAA), forState: .Disabled)
@@ -66,11 +68,21 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
         super.viewDidAppear(animated)
         delegate?.toolBarHeightUpdated(inputBar.frame.size.height)
         feedStartedTime = NSDate()
+        
+        if tableView.numberOfRowsInSection(0) == 0 {
+            fullMessageView = FullMessageView(frame: view.bounds, text: "Say something!")
+            view.addSubview(fullMessageView!)
+            fullMessageView!.translatesAutoresizingMaskIntoConstraints = false
+            view.addConstraint(NSLayoutConstraint(item: fullMessageView!, attribute: .Top, relatedBy: .Equal, toItem: view, attribute: .Top, multiplier: 1.0, constant: 0))
+            view.addConstraint(NSLayoutConstraint(item: fullMessageView!, attribute: .Left, relatedBy: .Equal, toItem: view, attribute: .Left, multiplier: 1.0, constant: 0))
+            view.addConstraint(NSLayoutConstraint(item: fullMessageView!, attribute: .Right, relatedBy: .Equal, toItem: view, attribute: .Right, multiplier: 1.0, constant: 0))
+            view.addConstraint(NSLayoutConstraint(item: fullMessageView!, attribute: .Bottom, relatedBy: .Equal, toItem: inputBar, attribute: .Top, multiplier: 1.0, constant: -1))
+        }
     }
     
     deinit {
         NSNotificationCenter.defaultCenter().removeObserver(self)
-        firebaseRef.removeAllObservers()
+        firebaseRef?.removeAllObservers()
     }
     
     func configure(story:Story) {
@@ -83,8 +95,8 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
     -------------------------------------------*/
     
     func listenForNewMessages() {
-        firebaseRef.queryLimitedToFirst(30).observeEventType(.ChildAdded, withBlock: { snapshot in
-            let message = Message.extractMessageFromSnapshot(snapshot, firebaseRef: self.firebaseRef)
+        firebaseRef?.queryLimitedToFirst(30).observeEventType(.ChildAdded, withBlock: { snapshot in
+            let message = Message.extractMessageFromSnapshot(snapshot, firebaseRef: self.firebaseRef!)
             // If we sent it and it was after feed started time (during current session) don't append it
             if !(message.userID == User.currentUser()!.objectId && !message.isOlderThanDate(self.feedStartedTime)) {
                 self.appendMessage(message)
@@ -114,6 +126,9 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
     -------------------------------------------*/
     
     func appendMessage(message:Message) {
+        self.fullMessageView?.removeFromSuperview()
+        self.fullMessageView = nil
+        
         self.messages.append(message)
         let lastRow = self.tableView.numberOfRowsInSection(0)
         tableView.beginUpdates()
@@ -179,7 +194,7 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
             return
         }
         
-        let message = Message(userID: User.currentUser()!.objectId!, userName: User.currentUser()!.username!, text: textField.text!, timestamp: NSDate(), firebaseRef: firebaseRef)
+        let message = Message(userID: User.currentUser()!.objectId!, userName: User.currentUser()!.username!, text: textField.text!, timestamp: NSDate(), firebaseRef: firebaseRef!)
         message.send()
         self.textField.text = ""
         self.appendMessage(message)

@@ -142,9 +142,9 @@ class User : PFUser {
     /*  Follow user
     -----------------------------------------------------*/
     func followUser() {
-//        if self == User.currentUser() {
-//            return
-//        }
+        if self == User.currentUser() {
+            return
+        }
         User.currentUser()!.setFollowingUserStatus(toUser: self, isFollowing: true)
         let object = Follow()
         object.toUser = self
@@ -281,6 +281,7 @@ class User : PFUser {
                 if let story = object as? Story {
                     story.cache()
                     self.currentStory = story
+                    self.currentStory!.user = User.currentUser()!
                     self.uploadVideoToStory(story, video: video, failureCallback: failureCallback, successCallback: successCallback)
                 } else {
                     failureCallback()

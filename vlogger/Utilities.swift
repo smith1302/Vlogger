@@ -30,7 +30,8 @@ class Utilities {
             let audioSession = AVAudioSession.sharedInstance()
             try audioSession.setCategory(category)
             try audioSession.setActive(true)
-        } catch {}
+        } catch {
+        }
     }
     
     class func springAnimation(view:UIView, completion:(Void->Void)?) {

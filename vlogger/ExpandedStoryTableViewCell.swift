@@ -17,35 +17,28 @@ class ExpandedStoryTableViewCell: PFTableViewCell {
     @IBOutlet weak var feedImageView: PFImageView!
     @IBOutlet weak var userImageView: PFImageView!
     let loadingIndicator:UIActivityIndicatorView = UIActivityIndicatorView()
+    var blurView:UIVisualEffectView?
     
     var story:Story = Story()
-    var video:Video! {
-        willSet {
-            if let video = newValue {
-                dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
-                    var image:UIImage?
-                    if let thumbnail = video.thumbnail {
-                        image = thumbnail
-                    } else {
-                        image = video.getThumbnailImage()
-                        video.thumbnail = image
-                    }
-                    dispatch_async(dispatch_get_main_queue()){
-                        [weak self] in
-                        if let weakSelf = self {
-                            UIView.animateWithDuration(1, animations: {
-                                weakSelf.feedImageView.image = image
-                            })
-                            weakSelf.loadingIndicator.stopAnimating()
-                        }
-                    }
-                }
-                self.timeLabel.text = story.videoAddedAt.getReadableTime()
-            } else {
-                self.timeLabel.text = ""
-            }
-        }
-    }
+//    var video:Video! {
+//        willSet {
+//            if let video = newValue {
+//                var file = video.generateThumbnail()
+//                story.thumbnail = file
+//                file?.saveInBackgroundWithBlock({
+//                    (success:Bool, error:NSError?) in
+//                    if success {
+//                        self.story.saveEventually({
+//                            (success:Bool, error:NSError?) in
+//                            if error != nil {
+//                                print(error!)
+//                            }
+//                        })
+//                    }
+//                })
+//            }
+//        }
+//    }
     var user:User!
     
     func configure(story:Story) {
@@ -60,18 +53,16 @@ class ExpandedStoryTableViewCell: PFTableViewCell {
         self.story = story
         self.user = story.user
         
-        let videoQuery = story.videos.query()
-        videoQuery.getFirstObjectInBackgroundWithBlock({
-            (object:PFObject?, error:NSError?) in
-            if let video = object as? Video {
-                self.video = video
-            }
-        })
+        self.timeLabel.text = story.videoAddedAt.getReadableTime()
         
         self.timeLabel.text = ""
+        self.timeLabel.backgroundColor = UIColor.clearColor()
+        
         titleLabel.text = story.title
         titleLabel.textAlignment = .Center
-        nameLabel.text = user.username
+        
+        self.nameLabel.text = self.user.username
+        self.nameLabel.backgroundColor = UIColor.clearColor()
         
         userImageView.image = UIImage(named: "Avatar.png")
         userImageView.file = user.picture
@@ -87,13 +78,27 @@ class ExpandedStoryTableViewCell: PFTableViewCell {
         loadingIndicator.startAnimating()
         
         feedImageView.contentMode = .ScaleAspectFill
-        feedImageView.backgroundColor = UIColor(white: 0.5, alpha: 1)
+        //feedImageView.backgroundColor = UIColor(white: 0.6, alpha: 1)
         feedImageView.clipsToBounds = true
         feedImageView.layer.borderColor = UIColor(white: 0.6, alpha: 1).CGColor
         feedImageView.layer.borderWidth = 1
         feedImageView.addSubview(loadingIndicator)
-        
-        //viewsLabel.text = "\(story.views.pretty()) views"
+        feedImageView.file = story.thumbnail
+        feedImageView.loadInBackground({
+            (image:UIImage?, error:NSError?) in
+            if let image = image {
+                self.loadingIndicator.stopAnimating()
+                self.titleLabel.backgroundColor = UIColor(hex: 0x00EAFF, alpha: 0.07)
+                self.animateViewAlpha(self.feedImageView, alpha: 1)
+            }
+        })
+    }
+    
+    func animateViewAlpha(view:UIView, alpha:CGFloat) {
+        view.alpha = 0
+        UIView.animateWithDuration(0.5, animations: {
+            view.alpha = alpha
+        })
     }
     
     override func drawRect(rect: CGRect) {

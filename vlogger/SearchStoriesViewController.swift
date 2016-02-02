@@ -39,7 +39,7 @@ class SearchStoriesViewController: SearchViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Search"
-        tableView.estimatedRowHeight = 55
+        tableView.estimatedRowHeight = 60
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.separatorStyle = .None
         tableView.refreshControlBackground(Constants.primaryColorSoft)
@@ -89,7 +89,7 @@ class SearchStoriesViewController: SearchViewController {
     
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         if objectAtIndexPath(indexPath)?.objectId == nil {
-            return 55
+            return 60
         }
         return super.tableView(tableView, heightForRowAtIndexPath: indexPath)
     }
