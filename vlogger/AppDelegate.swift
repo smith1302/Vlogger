@@ -71,17 +71,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
         
-        if #available(iOS 8.0, *) {
-            let types: UIUserNotificationType = [.Alert, .Badge, .Sound]
-            let settings = UIUserNotificationSettings(forTypes: types, categories: nil)
-            application.registerUserNotificationSettings(settings)
-            application.registerForRemoteNotifications()
-        } else {
-            let types: UIRemoteNotificationType = [.Alert, .Badge, .Sound]
-            application.registerForRemoteNotificationTypes(types)
-        }
-        
-        
         return true
     }
     

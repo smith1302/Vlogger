@@ -61,6 +61,7 @@ class StoryUpdateFeedViewController: CustomPFQueryTableViewController {
         tableView.backgroundColor = UIColor.whiteColor()
         tableView.separatorStyle = .None
         tableView.refreshControlBackground(Constants.primaryColorSoft)
+        tableView.tableFooterView = UIView(frame: CGRect.zero)
     }
     
     override func viewDidAppear(animated: Bool) {

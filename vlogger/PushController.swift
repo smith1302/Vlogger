@@ -13,6 +13,17 @@ import ParseUI
 class PushController {
     // Set them up with push when they login
     class func subscribeToPush() {
+        
+        if #available(iOS 8.0, *) {
+            let types: UIUserNotificationType = [.Alert, .Badge, .Sound]
+            let settings = UIUserNotificationSettings(forTypes: types, categories: nil)
+            UIApplication.sharedApplication().registerUserNotificationSettings(settings)
+            UIApplication.sharedApplication().registerForRemoteNotifications()
+        } else {
+            let types: UIRemoteNotificationType = [.Alert, .Badge, .Sound]
+            UIApplication.sharedApplication().registerForRemoteNotificationTypes(types)
+        }
+        
         PFPush.subscribeToChannelInBackground(User.currentUser()!.objectId!) { (succeeded: Bool, error: NSError?) in
             if succeeded {
                 User.currentUser()?.notifications = true

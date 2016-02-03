@@ -411,6 +411,8 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
             } else {
                 // Hooray! Let them use the app now.
                 self.continueAfterRegister()
+                User.currentUser()!.currentStory = Story(day: NSDate.getCurrentDay(), user: User.currentUser()!)
+                User.currentUser()!.saveEventually()
             }
         })
     }

@@ -25,8 +25,6 @@ class User : PFUser {
         self.username = username
         self.password = password
         self.usernameLowercase = usernameLowercase
-        self.currentStory = Story(day: NSDate.getCurrentDay(), user: self)
-        self.currentStory?.saveEventually()
     }
     
     override init(className newClassName: String) {
