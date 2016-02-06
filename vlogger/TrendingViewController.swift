@@ -23,15 +23,7 @@ class TrendingViewController: CustomQueryTableViewController {
     */
     override func queryForTable() -> PFQuery {
         
-        // Get users that we follow
-        let storyQuery = Story.query()
-        storyQuery?.whereKey("videoAddedAt", greaterThan: NSDate(timeIntervalSinceNow: -60*60*24*7))
-        //storyQuery?.whereKey("active", equalTo: true)
-        storyQuery?.orderByDescending("featured")
-        storyQuery?.whereKey("videoCount", greaterThanOrEqualTo: 1)
-        storyQuery?.addDescendingOrder("views")
-        storyQuery?.includeKey("user")
-        return storyQuery!
+        return Queries.trendingStoriesQuery(exclude: nil)
     }
     
     override func viewDidLoad() {
@@ -71,8 +63,7 @@ class TrendingViewController: CustomQueryTableViewController {
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         if let story = self.objectAtIndexPath(indexPath) as? Story {
-            let user = story.user
-            delegate?.transitionToFeedWithStory(story, user: user)
+            delegate?.transitionToFeedWithStory(story, query: Queries.trendingStoriesQuery(exclude: story))
         }
     }
     

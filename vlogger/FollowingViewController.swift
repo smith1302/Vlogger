@@ -125,12 +125,14 @@ class FollowingViewController: CustomQueryTableViewController, UserTableViewCell
         }
         
         if let user = user {
-            let storyboard = self.storyboard
-            if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {
-                self.navigationController?.pushViewController(destinationVC, animated: true)
-                destinationVC.configureWithUser(user)
+            if let story = user.currentStory {
+                story.user = user
+                Utilities.transitionToFeedWithStory(story, query: Queries.userStoriesQuery(user, exclude: nil), navigationController: self.navigationController)
+                delegate?.transitionToFeedWithStory(story, query: Queries.userStoriesQuery(user, exclude: nil))
+            } else {
+                Utilities.transitionToProfileWithUser(user, navigationController: self.navigationController, storyboard: self.storyboard)
+                delegate?.transitionToProfileWithUser(user)
             }
-            delegate?.transitionToFeed(user)
         }
     }
     

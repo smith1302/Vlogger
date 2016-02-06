@@ -36,7 +36,7 @@ class StoryUpdateFeedViewController: CustomPFQueryTableViewController {
         videoUpdatesQuery!.orderByDescending("videoAddedAt")
         videoUpdatesQuery!.includeKey("user")
         
-        videoUpdatesQuery!.orderByAscending("updatedAt")
+        videoUpdatesQuery!.orderByDescending("updatedAt")
         return videoUpdatesQuery!
     }
     
@@ -145,7 +145,7 @@ class StoryUpdateFeedViewController: CustomPFQueryTableViewController {
         }
         
         if let storyObjectFromCell = self.objectAtIndexPath(indexPath) as? Story {
-            delegate?.transitionToFeedWithStory(storyObjectFromCell, user: storyObjectFromCell.user)
+            delegate?.transitionToFeedWithStory(storyObjectFromCell, query: Queries.userStoriesQuery(storyObjectFromCell.user, exclude: storyObjectFromCell))
         }
     }
     

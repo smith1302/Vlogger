@@ -26,6 +26,9 @@ class VideoProgressView: UIView {
     }
     
     func getItemDurationPercentageFromTotal(itemDurations:[Float64], totalDuration:Float64, index:Int) -> CGFloat {
+        if index >= itemDurations.count || totalDuration == 0 {
+            return 0
+        }
         return CGFloat(itemDurations[index]/totalDuration)
     }
     
@@ -41,9 +44,14 @@ class VideoProgressView: UIView {
             let percent = getItemDurationPercentageFromTotal(itemDurations, totalDuration: totalDuration, index: i)
             let segmentWidth = totalSegmentWidth*percent
             segmentView = VideoProgressSegmentView(frame: CGRectMake(xPlacement,divisionWidth,segmentWidth,frame.size.height-divisionWidth*2))
-            addSubview(segmentView)
             segmentViews.append(segmentView)
             xPlacement += segmentWidth+divisionWidth
+        }
+    }
+    
+    func addSegmentsToView() {
+        for segment in segmentViews {
+            addSubview(segment)
         }
     }
     

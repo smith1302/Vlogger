@@ -20,7 +20,7 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
     
     weak var delegate:ChatFeedViewControllerDelegate?
     var firebaseRef:Firebase?
-    var story:Story!
+    var story:Story?
     var messages:[Message] = [Message]()
     let kMaxCharacters:Int = 150
     // We want to pull messages from firebase we sent before this time, but after we ignore because we have it locally
@@ -78,6 +78,21 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
             view.addConstraint(NSLayoutConstraint(item: fullMessageView!, attribute: .Right, relatedBy: .Equal, toItem: view, attribute: .Right, multiplier: 1.0, constant: 0))
             view.addConstraint(NSLayoutConstraint(item: fullMessageView!, attribute: .Bottom, relatedBy: .Equal, toItem: inputBar, attribute: .Top, multiplier: 1.0, constant: -1))
         }
+        
+        textField.enabled = false
+        
+        setUpIfPossible()
+    }
+    
+    func setUpIfPossible() {
+        if story == nil {
+            return
+        }
+        viewIsConfigured()
+    }
+    
+    func viewIsConfigured() {
+        textField.enabled = true
     }
     
     deinit {
@@ -87,6 +102,7 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
     
     func configure(story:Story) {
         self.story = story
+        setUpIfPossible()
         firebaseRef = Firebase(url: "https://vlogger.firebaseio.com/channel/\(story.objectId!)/messages")
         listenForNewMessages()
     }
@@ -202,9 +218,9 @@ class ChatFeedViewController: UIViewController, UITableViewDataSource, UITableVi
     
     func goToUserFeed(user:User) {
         let storyboard = self.storyboard
-        if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {
+        if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("ProfileViewController") as? ProfileViewController {
             self.navigationController?.pushViewController(destinationVC, animated: true)
-            destinationVC.configureWithUser(user)
+            destinationVC.configure(user)
         }
     }
 }

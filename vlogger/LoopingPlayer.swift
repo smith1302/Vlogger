@@ -8,6 +8,7 @@ protocol LoopingPlayerDelegate:class {
     func playerError()
     func playerDidAdvanceToNextItem()
     func playerHasNoVideosToPlay()
+    func playerCurrentItemReady()
 }
 
 class LoopingPlayer: AVQueuePlayer {
@@ -17,6 +18,7 @@ class LoopingPlayer: AVQueuePlayer {
     weak var delegate:LoopingPlayerDelegate?
     var originalQueueIndexForItem:[AVPlayerItem:Int] = [AVPlayerItem:Int]()
     var originalQueue:[AVPlayerItem] = [AVPlayerItem]()
+    var sessionQueue = dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0)
     
     override init() {
         super.init()
@@ -89,11 +91,8 @@ class LoopingPlayer: AVQueuePlayer {
         removeObserver(self, forKeyPath: kCurrentItemPlaybackBufferGoodNew, context: nil)
         removeObserver(self, forKeyPath: kCurrentItemErrorNew, context: nil)
         
-        for item in items() {
-            item.cancelPendingSeeks()
-            item.asset.cancelLoading()
-            removeItem(item)
-        }
+        self.removeAllItems()
+        
         originalQueueIndexForItem.removeAll()
         originalQueue.removeAll()
     }
@@ -125,6 +124,9 @@ class LoopingPlayer: AVQueuePlayer {
                 self.delegate?.playerIsBuffering(false)
             }
         } else if keyPath == kCurrentItemLoadedTimeRangesNew {
+            if let item = currentItem where item.status == .ReadyToPlay {
+                delegate?.playerCurrentItemReady()
+            }
 //            if let item = currentUnloadedItem {
 //                print("Loading: \(item.loadingProgress*100)%")
 //                if item.loadingProgress >= 0.9 {
@@ -133,6 +135,7 @@ class LoopingPlayer: AVQueuePlayer {
 //                }
 //            }
         }
+        
     }
     
     override func play() {

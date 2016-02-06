@@ -13,6 +13,7 @@ class ActivityIndicatorView: UIView {
     var label: UILabel!
     var view: UIView!
     var loadingIndictator: UIActivityIndicatorView!
+    var sessionQueue = dispatch_queue_create("activityQueue", DISPATCH_QUEUE_SERIAL)
     
     override init(frame: CGRect) {
         super.init(frame: frame)

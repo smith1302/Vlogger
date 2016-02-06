@@ -12,6 +12,7 @@ class Constants {
     static let textOnPrimaryColor = UIColor(hex: 0xFFFFFF)
     static let usernameTextPrimaryColor = UIColor(hex: 0x196DB5)
     static let testMode:Bool = true
+    static let maxVideoDuration:Double = 20
     
     // Objects 
     struct Objects {

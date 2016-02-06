@@ -303,4 +303,30 @@ class Video : PFObject, PFSubclassing  {
         }
         return file
     }
+    
+    /* Buffer
+    -------------------------------------*/
+    
+    func preBuffer(callback:(Bool->Void)) {
+        var asset:AVAsset!
+        // Get cached
+        if let objectId = self.objectId, avAsset = Video.videoIDToAssetCache[objectId] {
+            asset = avAsset
+        // Create new
+        } else if let url = self.getFileURL() {
+            asset = AVAsset(URL: url)
+            // Cache if possible (objectId may not be available for video preview)
+            if let objectId = self.objectId {
+                Video.videoIDToAssetCache[objectId] = asset
+            }
+        } else {
+        // Fail
+            callback(false)
+            return
+        }
+        let keys = ["tracks", "duration"]
+        asset.loadValuesAsynchronouslyForKeys(keys, completionHandler: { () -> Void in
+            callback(true)
+        })
+    }
 }

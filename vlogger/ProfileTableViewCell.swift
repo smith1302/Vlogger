@@ -15,6 +15,7 @@ class ProfileTableViewCell: PFTableViewCell {
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var viewsLabel: UILabel!
     let loadingIndicator:UIActivityIndicatorView = UIActivityIndicatorView()
+    var selectedView:UIView?
     
     var dispatchedVideoID:String? = ""
     var indexPath:NSIndexPath!
@@ -49,7 +50,17 @@ class ProfileTableViewCell: PFTableViewCell {
     func configure(story:Story, indexPath:NSIndexPath) {
         
         if let currentID = self.story.objectId, newID = story.objectId where newID == currentID {
+            self.story = story
+            self.user = story.user
+            titleLabel.text = story.title
+            viewsLabel.text = "\(story.views.pretty()) \("view".pluralize("s", basedOn: CGFloat(story.views)))"
             return
+        }
+        
+        if selectedView == nil {
+            selectedView = UIView()
+            selectedView!.backgroundColor = UIColor(white: 0.95, alpha: 1)
+            selectedBackgroundView = selectedView!
         }
         
         if !story.dataAvailable {
@@ -68,15 +79,15 @@ class ProfileTableViewCell: PFTableViewCell {
         loadingIndicator.removeFromSuperview()
         loadingIndicator.startAnimating()
         
-        let videoQuery = story.videos.query()
-        videoQuery.getFirstObjectInBackgroundWithBlock({
-            (object:PFObject?, error:NSError?) in
-            if let video = object as? Video {
-                self.video = video
-            } else {
-                self.loadingIndicator.stopAnimating()
-            }
-        })
+//        let videoQuery = story.videos.query()
+//        videoQuery.getFirstObjectInBackgroundWithBlock({
+//            (object:PFObject?, error:NSError?) in
+//            if let video = object as? Video {
+//                self.video = video
+//            } else {
+//                self.loadingIndicator.stopAnimating()
+//            }
+//        })
         
         titleLabel.text = story.title
         titleLabel.textColor = UIColor(white: 0.3, alpha: 1)
@@ -89,12 +100,12 @@ class ProfileTableViewCell: PFTableViewCell {
         pfImageView.layer.borderColor = UIColor(white: 0.74, alpha: 1).CGColor
         pfImageView.layer.borderWidth = 1
         pfImageView.addSubview(loadingIndicator)
-        pfImageView.file = story.thumbnail
-        pfImageView.loadInBackground({
-            (image:UIImage?, error:NSError?) in
+        story.getThumbnail({
+            (image:UIImage?) in
             if let image = image {
-                self.loadingIndicator.stopAnimating()
+                self.pfImageView.image = image
             }
+            self.loadingIndicator.stopAnimating()
         })
         
         viewsLabel.text = "\(story.views.pretty()) \("view".pluralize("s", basedOn: CGFloat(story.views)))"

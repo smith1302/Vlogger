@@ -67,7 +67,8 @@ class SearchStoriesViewController: SearchViewController {
         if object?.objectId != nil {
             let cell = tableView.dequeueReusableCellWithIdentifier("TrendingCell") as! ExpandedStoryTableViewCell!
             if let story = object as? Story {
-                cell.configure(story.getCached())
+                story.cache()
+                cell.configure(story)
             }
             return cell
         } else {
@@ -82,8 +83,7 @@ class SearchStoriesViewController: SearchViewController {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         if objects?.count == 0 {
         } else if let story = self.objectAtIndexPath(indexPath) as? Story {
-            let user = story.user
-            delegate?.transitionToFeedWithStory(story, user: user)
+            delegate?.transitionToFeedWithStory(story, query: nil)
         }
     }
     

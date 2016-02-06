@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import AVFoundation
+import Parse
 
 enum VersionLaunchType {
     case freshInstall
@@ -74,6 +75,23 @@ class Utilities {
     
     class func getCurrentAppVersion() -> String {
         return NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as! String
+    }
+    
+    
+    
+    /* Transition
+    ----------------------------*/
+    
+    class func transitionToProfileWithUser(user: User, navigationController:UINavigationController?, storyboard:UIStoryboard?) {
+        if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("ProfileViewController") as? ProfileViewController {
+            navigationController?.pushViewController(destinationVC, animated: true)
+            destinationVC.configure(user)
+        }
+    }
+    
+    class func transitionToFeedWithStory(story: Story, query:PFQuery?, navigationController:UINavigationController?) {
+        let feedNavigationController = FeedNavigationViewController(initialStory: story, query: query)
+        navigationController?.pushViewController(feedNavigationController, animated: true)
     }
     
 }

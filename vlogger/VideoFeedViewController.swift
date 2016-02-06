@@ -26,12 +26,16 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     var uploadFailedOverlay:UploadFailedVideoView?
     var videoPlayerViewController:VideoPlayerViewController!
     var currentVideo:Video?
-    var user:User! {
+    var user:User? {
         didSet {
-            titleTextField?.userInteractionEnabled = self.user.isUs()
+            if let user = self.user {
+                titleTextField?.userInteractionEnabled = user.isUs()
+            } else {
+                titleTextField?.userInteractionEnabled = false
+            }
         }
     }
-    var story:Story?
+    var story:Story!
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -48,35 +52,60 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         likeCountLabel.textAlignment = .Right
         noStoriesFoundView.alpha = 0
         
-        // Configure name button title
-        nameButton.setTitle(user.username!, forState: .Normal)
         // Configure video player
         self.videoPlayerViewController.view.frame = self.view.frame
         self.addChildViewController(self.videoPlayerViewController)
         self.view.addSubview(self.videoPlayerViewController.view)
         self.view.bringSubviewToFront(self.customOverlayView)
-        Utilities.autolayoutSubviewToViewEdges(self.videoPlayerViewController.view, view: self.view)
         
         // Optional Button
         optionalButton.delegate = self
         
         // Textfield
         titleTextField?.delegate = self
-        titleTextField?.userInteractionEnabled = self.user.isUs()
         titleTextField?.textAlignment = .Left
         titleTextField?.text = ""
+        
+        // Username
+        if user == nil {
+            optionalButton.hidden = true
+            nameButton.enabled = false
+        }
+    }
+    
+    func viewIsConfigured() {
+        // Username
+        nameButton.enabled = true
+        nameButton.setTitle(user!.username!, forState: .Normal)
+        // Title
+        titleTextField?.userInteractionEnabled = self.user!.isUs()
+        titleTextField?.text = story.title
+        // Optional button
+        optionalButton.configure(user!, story: story)
+        // Video Player controller
+        self.videoPlayerViewController.configureWithStory(story)
+    }
+    
+    func setUpIfPossible() {
+        if user == nil || story == nil {
+            return
+        }
+        viewIsConfigured()
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
+        Utilities.autolayoutSubviewToViewEdges(self.videoPlayerViewController.view, view: self.view)
+        // Autolayout doesnt configure the constraints until AFTER the view appears. So hide them now and unhide them in viewdidappear...
         customOverlayView.alpha = 0
     }
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
-        UIView.animateWithDuration(0.3, animations: {
-            self.customOverlayView.alpha = 1
-        })
+        
+        UIView.animateWithDuration(0.3, delay: 0.25, options: .CurveLinear, animations: {
+                self.customOverlayView.alpha = 1
+            }, completion: nil)
     }
     
     override func didReceiveMemoryWarning() {
@@ -86,13 +115,12 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
     
     func configureWithUser(user:User) {
         self.user = user
+        setUpIfPossible()
     }
     
     func configureStory(story:Story) {
         self.story = story
-        self.videoPlayerViewController.configureWithStory(story)
-        titleTextField?.text = story.title
-        optionalButton.configure(user, story: story)
+        setUpIfPossible()
     }
     
     /* VideoPlayerViewController Delegate
@@ -172,16 +200,16 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         self.navigationController?.popViewControllerAnimated(true)
     }
     
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        super.touchesBegan(touches, withEvent: event)
-        if let ttf = titleTextField where ttf.isFirstResponder() {
-            titleTextField?.resignFirstResponder()
-        } else if uploadFailedOverlay == nil {
-            videoPlayerViewController.didTap()
-        } else {
-            retryUpload()
-        }
-    }
+//    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+//        super.touchesBegan(touches, withEvent: event)
+//        if let ttf = titleTextField where ttf.isFirstResponder() {
+//            titleTextField?.resignFirstResponder()
+//        } else if uploadFailedOverlay == nil {
+//            videoPlayerViewController.didTap()
+//        } else {
+//            retryUpload()
+//        }
+//    }
     
     /* Visual Effects
     ------------------------------------------------------------------*/
@@ -260,14 +288,22 @@ class VideoFeedViewController: UIViewController, VideoPlayerViewControllerDelega
         viewCountLabel.text = currentVideo != nil ? currentVideo!.views.pretty() : "\(0)"
         likeButton.configure(currentVideo)
         likeCountLabel.text = currentVideo != nil ? currentVideo!.likes.pretty() : "\(0)"
-        if currentVideo == nil && !user.isUs() {
+        if currentVideo == nil {
             optionalButton.hide()
         }
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if let vc = segue.destinationViewController as? ProfileViewController {
+        if let vc = segue.destinationViewController as? ProfileViewController, user = self.user {
             vc.configure(user)
         }
+    }
+    
+    func pause() {
+        videoPlayerViewController.pause()
+    }
+    
+    func play() {
+        videoPlayerViewController.play()
     }
 }

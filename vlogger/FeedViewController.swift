@@ -12,30 +12,44 @@ import AVKit
 import Parse
 
 class FeedViewController: UIViewController, ChatFeedViewControllerDelegate, UIViewControllerTransitioningDelegate {
+    
+    // Feed Navigation
+    var next:FeedViewController?
+    var previous:FeedViewController?
 
+    // IBOutlets
     @IBOutlet weak var titleLabel: UITextField?
     @IBOutlet weak var chatDragTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var chatDragView: UIView!
     @IBOutlet weak var chatDragIndicator: UIView!
     
+    // Variables
     var activityIndicator:ActivityIndicatorView!
     var videoFeedController:VideoFeedViewController?
     var chatFeedController:ChatFeedViewController?
-    private var user:User!
-    private var story:Story?
+    var user:User!
+    var story:Story!
     var isStoryOld:Bool = false
+    var configured:Bool = false
     var feedLayoutInfo:FeedLayoutInfo!
     
-    func configureWithUser(user:User) {
-        self.user = user
-        self.story = user.currentStory
-        self.story?.user = user
-    }
+//    func configureWithUser(user:User) {
+//        self.user = user
+//        self.story = user.currentStory
+//        self.story?.user = user
+//        configured = true
+//        setUpIfPossible()
+//    }
     
-    func configureWithStory(story:Story?, user:User) {
-        story?.user = user
-        self.user = user
-        self.story = story
+    func configureWithStory(story:Story?) {
+        if story == nil {
+            self.noVideosFound()
+            return
+        }
+        self.user = story!.user
+        self.story = story!
+        configured = true
+        setUpIfPossible()
     }
     
     deinit {
@@ -73,29 +87,51 @@ class FeedViewController: UIViewController, ChatFeedViewControllerDelegate, UIVi
         // Move dragger to the bottom to show video full screen
         closeChat()
         
-        story?.fetchIfNeededInBackgroundWithBlock({
+        setUpIfPossible()
+    }
+    
+    func setUpIfPossible() {
+        if videoFeedController == nil || user == nil || chatFeedController == nil {
+            return
+        }
+        viewIsConfigured()
+    }
+    
+    func viewIsConfigured() {
+        story.fetchIfNeededInBackgroundWithBlock({
             (object:PFObject?, error:NSError?) in
             if let story = object as? Story {
-                self.videoFeedController?.configureStory(story.getCached())
-                self.chatFeedController?.configure(story.getCached())
-                self.isStoryOld = story.objectId != self.user.currentStory!.objectId
+                story.cache()
+                self.videoFeedController?.configureStory(story)
+                self.chatFeedController?.configure(story)
+                self.user.fetchIfNeededInBackgroundWithBlock({
+                    (object:PFObject?, error:NSError?) in
+                    if let user = object as? User {
+                        self.isStoryOld = story.objectId != user.currentStory!.objectId
+                    }
+                })
             } else {
                 self.noVideosFound()
             }
         })
-        if story == nil {
-            noVideosFound()
-        }
+        videoFeedController?.configureWithUser(user)
     }
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
+        UIView.animateWithDuration(0.3, delay: 0.2, options: .CurveLinear, animations: {
+            self.chatDragIndicator.alpha = 1
+            self.chatDragView.alpha = 1
+        }, completion: nil)
     }
     
     override func viewWillAppear(animated: Bool) {
         navigationController?.navigationBarHidden = true
         UIApplication.sharedApplication().statusBarHidden = true
         super.viewWillAppear(animated)
+        // Autolayout doesnt configure the constraints until AFTER the view appears. So hide them now and unhide them in viewdidappear...
+        self.chatDragIndicator.alpha = 0
+        self.chatDragView.alpha = 0
     }
     
     override func viewWillDisappear(animated: Bool) {
@@ -115,7 +151,7 @@ class FeedViewController: UIViewController, ChatFeedViewControllerDelegate, UIVi
     }
 
     @IBAction func chatDrag(sender: UIPanGestureRecognizer) {
-        
+        let velocityY = sender.velocityInView(self.view).y
         let translation = sender.translationInView(self.view)
         let newY = chatDragView.frame.origin.y + translation.y
         
@@ -128,12 +164,18 @@ class FeedViewController: UIViewController, ChatFeedViewControllerDelegate, UIVi
             chatFeedController?.textField.resignFirstResponder()
         }
         
-        chatDragTopConstraint.constant = newY
-        sender.setTranslation(CGPointZero, inView: self.view)
-        view.layoutIfNeeded()
-        
-        if sender.state == .Ended || sender.state == .Cancelled || sender.state == .Failed {
+        let dragEnded = sender.state == .Ended || sender.state == .Cancelled || sender.state == .Failed
+        let throwThreshold:CGFloat = 500
+        if dragEnded && velocityY < -throwThreshold {
+            openChat()
+        } else if dragEnded && velocityY > throwThreshold {
+            closeChat()
+        } else if dragEnded {
             chatDragRelease(chatDragView)
+        } else {
+            chatDragTopConstraint.constant = newY
+            sender.setTranslation(CGPointZero, inView: self.view)
+            view.layoutIfNeeded()
         }
     }
 
@@ -167,12 +209,12 @@ class FeedViewController: UIViewController, ChatFeedViewControllerDelegate, UIVi
         }
     }
     
-    override func viewDidLayoutSubviews() {
-        let distance = (feedLayoutInfo.bottomDragLimit - feedLayoutInfo.bottomDragLimit*2/3)
-        let positionOffset = chatDragTopConstraint.constant - feedLayoutInfo.bottomDragLimit*2/3
-        let percent = positionOffset/distance
-        chatDragIndicator.alpha = max(0,percent)
-    }
+//    override func viewDidLayoutSubviews() {
+//        let distance = (feedLayoutInfo.bottomDragLimit - feedLayoutInfo.bottomDragLimit*2/3)
+//        let positionOffset = chatDragTopConstraint.constant - feedLayoutInfo.bottomDragLimit*2/3
+//        let percent = positionOffset/distance
+//        chatDragIndicator.alpha = max(0,percent)
+//    }
     
     /* ChatFeedViewControllerDelegate
     ------------------------------------------------------*/
@@ -270,13 +312,20 @@ class FeedViewController: UIViewController, ChatFeedViewControllerDelegate, UIVi
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if let vc = segue.destinationViewController as? VideoFeedViewController {
             videoFeedController = vc
-            videoFeedController?.configureWithUser(user)
         }
         
         if let vc = segue.destinationViewController as? ChatFeedViewController {
             chatFeedController = vc
             vc.delegate = self
         }
+    }
+    
+    func pause() {
+        videoFeedController?.pause()
+    }
+    
+    func play() {
+        videoFeedController?.play()
     }
     
 }

@@ -125,7 +125,12 @@ class SearchUsersViewController: SearchViewController {
         if objects?.count == 0 {
         } else
         if let user = self.objectAtIndexPath(indexPath) as? User {
-            delegate?.transitionToFeed(user)
+            if let story = user.currentStory {
+                story.user = user
+                delegate?.transitionToFeedWithStory(story, query: Queries.userStoriesQuery(user, exclude: nil))
+            } else {
+                delegate?.transitionToProfileWithUser(user)
+            }
         }
     }
     

@@ -67,9 +67,11 @@ class StoryUpdateTableViewCell: PFTableViewCell {
         pfImageView.layer.borderColor = UIColor(white: 0.9, alpha: 1).CGColor
         pfImageView.addSubview(loadingIndicator)
         pfImageView.image = UIImage(named: "Avatar.png")
-        pfImageView.file = story.thumbnail
-        pfImageView.loadInBackground({
-            (image:UIImage?, error:NSError?) in
+        story.getThumbnail({
+            (image:UIImage?) in
+            if let image = image {
+                self.pfImageView.image = image
+            }
             self.loadingIndicator.stopAnimating()
         })
         

@@ -44,14 +44,16 @@ class ProfileTableViewController: CustomQueryTableViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    func queryForAllUsersVideo() -> PFQuery {
+        return Queries.userStoriesQuery(user, exclude: nil)
+    }
 
     override func queryForTable() -> PFQuery {
         // Get users that we follow
-        let storyQuery = Story.query()
-        storyQuery?.whereKey("user", equalTo: user)
-        storyQuery?.whereKey("active", equalTo: false)
-        storyQuery?.orderByDescending("createdAt")
-        return storyQuery!
+        let storyQuery = queryForAllUsersVideo()
+        storyQuery.whereKey("active", equalTo: false)
+        return storyQuery
     }
     
     override func objectsDidLoad(error: NSError?) {
@@ -138,7 +140,9 @@ class ProfileTableViewController: CustomQueryTableViewController {
         let cell = tableView.dequeueReusableCellWithIdentifier("ProfileCell") as! ProfileTableViewCell!
         if let story = object as? Story {
             story.user = user
-            cell.configure(story.getCached(), indexPath: indexPath)
+            story.cache()
+            story.preBuffer()
+            cell.configure(story, indexPath: indexPath)
         }
  
         return cell
@@ -147,12 +151,9 @@ class ProfileTableViewController: CustomQueryTableViewController {
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
         if let story = self.objectAtIndexPath(indexPath) as? Story {
-            let storyboard = self.parentViewController?.storyboard
-            if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {
-                self.navigationController?.pushViewController(destinationVC, animated: true)
-                // We already have user downloaded in this case so lets just pass it off
-                destinationVC.configureWithStory(story, user:self.user)
-            }
+            story.user = user
+            let feedNavigationController = FeedNavigationViewController(initialStory: story, query: Queries.userStoriesQuery(user, exclude: story))
+            self.navigationController?.pushViewController(feedNavigationController, animated: true)
         }
     }
 

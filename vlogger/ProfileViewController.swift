@@ -26,7 +26,8 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     
     var user:User?
     var profileTableViewController:ProfileTableViewController!
-    let imagePicker = UIImagePickerController()
+    var imagePicker:UIImagePickerController?
+    var sessionQueue = dispatch_queue_create("profileQueue", DISPATCH_QUEUE_SERIAL)
     
     func configure(user:User) {
         self.user = user
@@ -37,7 +38,6 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     
     override func viewDidLoad() {
         self.automaticallyAdjustsScrollViewInsets = false;
-        imagePicker.delegate = self
         super.viewDidLoad()
         
         headerBackground.backgroundColor = UIColor.whiteColor()
@@ -90,6 +90,12 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
         // Profile table view controller
         profileTableViewController = ProfileTableViewController(user: user!, tableView: storyboardTableView)
         addChildViewController(profileTableViewController)
+        
+        // Image Picker
+        dispatch_async(sessionQueue, {
+            self.imagePicker = UIImagePickerController()
+            self.imagePicker?.delegate = self
+        })
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -167,12 +173,12 @@ class ProfileViewController: UIViewController, UIImagePickerControllerDelegate, 
     --------------------------------------------------------*/
     
     @IBAction func profilePictureTapped(sender: AnyObject) {
-        if !user!.isUs() {
+        if !user!.isUs() || imagePicker == nil {
             return
         }
-        imagePicker.allowsEditing = false
-        imagePicker.sourceType = .PhotoLibrary
-        presentViewController(imagePicker, animated: true, completion: nil)
+        imagePicker!.allowsEditing = false
+        imagePicker!.sourceType = .PhotoLibrary
+        presentViewController(imagePicker!, animated: true, completion: nil)
     }
 
     func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage, editingInfo: [String : AnyObject]?) {

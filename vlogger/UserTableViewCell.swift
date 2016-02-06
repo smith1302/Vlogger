@@ -14,6 +14,7 @@ class UserTableViewCell: PFTableViewCell {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var pfImageView: PFImageView!
     
+    var selectedView:UIView?
     var following:Bool = false
     var user:User!
     weak var delegate:UserTableViewCellDelegate?
@@ -39,6 +40,13 @@ class UserTableViewCell: PFTableViewCell {
     }
     
     func configure(user:User) {
+        
+        if selectedView == nil {
+            selectedView = UIView()
+            selectedView!.backgroundColor = UIColor(white: 0.95, alpha: 1)
+            selectedBackgroundView = selectedView!
+        }
+        
         setFollow(false, enabled: false)
         self.user = user
         

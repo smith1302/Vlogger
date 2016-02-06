@@ -35,6 +35,7 @@
 		F714CBF21C3C3A1600D8AC2D /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBF11C3C3A1600D8AC2D /* User.swift */; };
 		F714CBF41C3C3AB100D8AC2D /* Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBF31C3C3AB100D8AC2D /* Video.swift */; };
 		F714CBF61C3C3C1500D8AC2D /* Like.swift in Sources */ = {isa = PBXBuildFile; fileRef = F714CBF51C3C3C1500D8AC2D /* Like.swift */; };
+		F745D07A1C62A607005312A0 /* FeedNavigationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F745D0791C62A607005312A0 /* FeedNavigationViewController.swift */; };
 		F748C6091C605C0700F63FF4 /* Queries.swift in Sources */ = {isa = PBXBuildFile; fileRef = F748C6081C605C0700F63FF4 /* Queries.swift */; };
 		F7589F031C5D5A4B007C517C /* AddVideoToStoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7589F021C5D5A4B007C517C /* AddVideoToStoryView.swift */; };
 		F769412F1C3C7AA40001496D /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F769412E1C3C7AA40001496D /* LoginViewController.swift */; };
@@ -128,6 +129,7 @@
 		F714CBF11C3C3A1600D8AC2D /* User.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		F714CBF31C3C3AB100D8AC2D /* Video.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Video.swift; sourceTree = "<group>"; };
 		F714CBF51C3C3C1500D8AC2D /* Like.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Like.swift; sourceTree = "<group>"; };
+		F745D0791C62A607005312A0 /* FeedNavigationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedNavigationViewController.swift; sourceTree = "<group>"; };
 		F748C6081C605C0700F63FF4 /* Queries.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Queries.swift; sourceTree = "<group>"; };
 		F7589F021C5D5A4B007C517C /* AddVideoToStoryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddVideoToStoryView.swift; sourceTree = "<group>"; };
 		F769412E1C3C7AA40001496D /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
@@ -387,6 +389,7 @@
 				F76941331C3C8E6E0001496D /* FeedViewController.swift */,
 				F7F2A92D1C3CF18400AF81A4 /* VideoFeedViewController.swift */,
 				F7F2A92F1C3CF1C500AF81A4 /* ChatFeedViewController.swift */,
+				F745D0791C62A607005312A0 /* FeedNavigationViewController.swift */,
 			);
 			name = Feed;
 			sourceTree = "<group>";
@@ -740,6 +743,7 @@
 				F7589F031C5D5A4B007C517C /* AddVideoToStoryView.swift in Sources */,
 				F7A6BA011C45F16200E6925D /* Flag.swift in Sources */,
 				F7FB0D391C55DFDA0079BD3B /* SearchViewController.swift in Sources */,
+				F745D07A1C62A607005312A0 /* FeedNavigationViewController.swift in Sources */,
 				F76E848F1C4ACCD6004C8C0E /* ProfileTableViewController.swift in Sources */,
 				F76E84821C48BF6D004C8C0E /* ExpandedStoryTableViewCell.swift in Sources */,
 				F7C578D31C574ACA00EA5F3D /* CustomInteractionController.swift in Sources */,
@@ -912,6 +916,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
+				IBSC_WARNINGS = YES;
 				INFOPLIST_FILE = vlogger/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = smith1302.vlogger;
@@ -931,6 +936,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
+				IBSC_WARNINGS = YES;
 				INFOPLIST_FILE = vlogger/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = smith1302.vlogger;

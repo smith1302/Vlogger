@@ -18,6 +18,7 @@ class Story : PFObject, PFSubclassing  {
     
     static var thumbnailCache:[String:UIImage] = [String:UIImage]()
     static var storyCache:[String:Story] = [String:Story]()
+    static var bufferedStories:Set<String> = Set<String>()
     
     override init() {
         super.init()
@@ -161,5 +162,31 @@ class Story : PFObject, PFSubclassing  {
             }
         }
         callback(nil)
+    }
+    
+    /* Buffer
+    -------------------------------------*/
+    
+    func preBuffer() {
+        if objectId == nil || Story.bufferedStories.contains(objectId!) == true {
+            return
+        }
+        
+        let query = videos.query()
+        query.cachePolicy = PFCachePolicy.CacheElseNetwork
+        query.orderByAscending("createdAt")
+        query.findObjectsInBackgroundWithBlock({
+            (objects:[PFObject]?, error:NSError?) in
+            if let videos = objects as? [Video] {
+                for video in videos {
+                    video.preBuffer({
+                        (success:Bool) in
+                        if success {
+                            Story.bufferedStories.insert(self.objectId!)
+                        }
+                    })
+                }
+            }
+        })
     }
 }

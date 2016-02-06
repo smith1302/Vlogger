@@ -17,9 +17,12 @@ protocol VideoPlayerViewControllerDelegate: class {
 
 class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegate {
     
+    var sessionQueue = dispatch_queue_create("videoPlayerControllerQueue", DISPATCH_QUEUE_SERIAL)
     var progressBarController:VideoProgressBarViewController!
     var activityIndicator:ActivityIndicatorView!
     var videos:[Video] = [Video]()
+    var currentBufferState:Bool = true
+    var cover:UIView!
     weak var myDelegate:VideoPlayerViewControllerDelegate?
     var currentVideo:Video? {
         didSet {
@@ -67,13 +70,31 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
         self.progressBarController = VideoProgressBarViewController()
         self.progressBarController.delegate = self
         self.addChildViewController(progressBarController)
-        view.addSubview(progressBarController.view)
+        
+        dispatch_async(sessionQueue, {
+            let progressBarControllerView = self.progressBarController.view
+            dispatch_async(dispatch_get_main_queue(), {
+                [weak self] in
+                if let weakself = self {
+                    weakself.view.addSubview(progressBarControllerView)
+                }
+            })
+        })
+        
+        // Cover (so we can fade the video in).
+        cover = UIView(frame: view.bounds)
+        cover.backgroundColor = UIColor.blackColor()
+        //view.addSubview(cover)
+        //Utilities.autolayoutSubviewToViewEdges(cover, view: view)
         
         // Activity Indicator View
         activityIndicator = ActivityIndicatorView(frame: view.bounds)
         activityIndicator.startAnimating()
         view.addSubview(activityIndicator)
         Utilities.autolayoutSubviewToViewEdges(activityIndicator, view: view)
+        view.bringSubviewToFront(activityIndicator)
+        
+        addObserver(self, forKeyPath: "readyForDisplay", options: .New, context: nil)
     }
     
     func configureWithStory(story:Story) {
@@ -84,6 +105,7 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     }
     
     deinit {
+        removeObserver(self, forKeyPath: "readyForDisplay", context: nil)
         self.pause()
         (self.player as? LoopingPlayer)?.cleanUp()
         self.player = nil
@@ -106,8 +128,17 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     override func viewWillAppear(animated: Bool) {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationDidEnterBackground", name: UIApplicationDidEnterBackgroundNotification, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "applicationWillEnterForeground", name: UIApplicationWillEnterForegroundNotification, object: nil)
-        self.play()
         super.viewWillAppear(animated)
+        self.play()
+        self.cover.alpha = 1
+        self.view.alpha = 0
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        UIView.animateWithDuration(0.4, delay: 0.2, options: .CurveLinear, animations: {
+            self.view.alpha = 1
+            }, completion: nil)
     }
     
 
@@ -122,6 +153,19 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     
     func applicationWillEnterForeground() {
         self.play()
+    }
+    
+    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+        if keyPath == "readyForDisplay" {
+            if view.alpha == 1 {
+                UIView.animateWithDuration(0.25, delay: 0, options: .CurveLinear, animations: {
+                    self.cover.alpha = 0
+                }, completion: nil)
+            }
+            if currentBufferState == false {
+                activityIndicator.stopAnimating()
+            }
+        }
     }
     
     private func setVideos(videos:[Video]) {
@@ -150,11 +194,11 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
                     video.tag = i++
                 }
             }
+            let loopingPlayer = LoopingPlayer(items: items)
+            self.player = loopingPlayer
             dispatch_async(dispatch_get_main_queue()){
                 [weak self] in
                 if let weakSelf = self {
-                    let loopingPlayer = LoopingPlayer(items: items)
-                    weakSelf.player = loopingPlayer
                     weakSelf.progressBarController.setLoopingPlayer(loopingPlayer)
                 }
             }
@@ -178,10 +222,14 @@ class VideoPlayerViewController: AVPlayerViewController, VideoProgressBarDelegat
     /* Progress Bar Delegate
     ------------------------------------------------------------------------------*/
     
+    func playerCurrentItemReady() {
+    }
+    
     func playerIsBuffering(isBuffering: Bool) {
+        currentBufferState = isBuffering
         if isBuffering {
             activityIndicator.startAnimating()
-        } else {
+        } else if !isBuffering && readyForDisplay {
             activityIndicator.stopAnimating()
         }
     }

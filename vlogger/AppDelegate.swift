@@ -71,6 +71,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
         
+        NSUserDefaults.standardUserDefaults().setValue(false, forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
+        
         return true
     }
     

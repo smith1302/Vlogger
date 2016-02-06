@@ -7,10 +7,11 @@
 //
 
 import UIKit
+import Parse
 
 protocol TransitionToFeedDelegate:class {
-    func transitionToFeed(user:User)
-    func transitionToFeedWithStory(story:Story, user: User)
+    func transitionToProfileWithUser(user:User)
+    func transitionToFeedWithStory(story: Story, query:PFQuery?)
 }
 
 class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewControllerDelegate, TransitionToFeedDelegate {
@@ -264,20 +265,12 @@ class HomeViewController: UIViewController, UISearchBarDelegate, SelectorViewCon
     /* Transition to feed delegate
     ------------------------------------------------------*/
     
-    func transitionToFeed(user: User) {
-        let storyboard = self.storyboard
-        if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {
-            self.navigationController?.pushViewController(destinationVC, animated: true)
-            destinationVC.configureWithUser(user)
-        }
+    func transitionToProfileWithUser(user: User) {
+        Utilities.transitionToProfileWithUser(user, navigationController: self.navigationController, storyboard: self.storyboard)
     }
     
-    func transitionToFeedWithStory(story: Story, user: User) {
-        let storyboard = self.storyboard
-        if let destinationVC = storyboard?.instantiateViewControllerWithIdentifier("FeedViewController") as? FeedViewController {
-            self.navigationController?.pushViewController(destinationVC, animated: true)
-            destinationVC.configureWithStory(story, user: user)
-        }
+    func transitionToFeedWithStory(story: Story, query:PFQuery?) {
+        Utilities.transitionToFeedWithStory(story, query: query, navigationController: navigationController)
     }
     
     /* Go back

@@ -14,6 +14,7 @@ protocol VideoProgressBarDelegate:class {
     func playerError()
     func playerDidAdvanceToNextItem()
     func playerHasNoVideosToPlay()
+    func playerCurrentItemReady()
 }
 
 class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
@@ -45,6 +46,10 @@ class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
     }
     
     func getItemDurationPercentageForSeconds(seconds:Float64, index:Int) -> CGFloat {
+        if index >= itemDurations.count {
+            return 0
+            // This shouldnt happen. Log error
+        }
         return CGFloat(seconds/itemDurations[index])
     }
     
@@ -71,15 +76,19 @@ class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
     func setLoopingPlayer(player:LoopingPlayer) {
         self.player = player
         player.delegate = self
-        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)) {
+        dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0)) {
             self.totalDuration = self.getTotalDurationForPlayer(player)
             self.itemDurations = self.getDurationsForItems(player)
+            self.progressBar.setSegmentsWithDurationPercents(self.itemDurations, totalDuration: self.totalDuration)
             dispatch_async(dispatch_get_main_queue()){
-                self.progressBar.setSegmentsWithDurationPercents(self.itemDurations, totalDuration: self.totalDuration)
-                if player.status == .ReadyToPlay { // Incase there is no delay
-                    self.playerReady()
+                [weak self] in
+                if let weakSelf = self {
+                    weakSelf.progressBar.addSegmentsToView()
                 }
             }
+        }
+        if player.status == .ReadyToPlay { // Incase there is no delay
+            self.playerReady()
         }
     }
     
@@ -129,6 +138,10 @@ class VideoProgressBarViewController: UIViewController, LoopingPlayerDelegate {
 
     func playerHasNoVideosToPlay() {
         delegate?.playerHasNoVideosToPlay()
+    }
+    
+    func playerCurrentItemReady() {
+        delegate?.playerCurrentItemReady()
     }
     
 }

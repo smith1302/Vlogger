@@ -113,14 +113,19 @@ class User : PFUser {
     }
     
     func getTotalViews(callback:(Int->Void)) {
-        PFCloud.callFunctionInBackground("totalViews", withParameters: ["userID":self.objectId!], block: {
-            (object:AnyObject?, error:NSError?) in
-            if let count = object as? Int {
+        let storyQuery = Story.query()
+        storyQuery?.whereKey("user", equalTo: self)
+        storyQuery?.findObjectsInBackgroundWithBlock({
+            (objects:[PFObject]?, error:NSError?) in
+            if let stories = objects as? [Story] {
+                var count = 0
+                for story in stories {
+                    count += story.views
+                }
                 callback(count)
-                return
             }
-            callback(0)
         })
+        callback(0)
     }
     
 //    func getTotalSubscribers(callback:(Int->Void)) {

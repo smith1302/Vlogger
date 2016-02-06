@@ -17,7 +17,7 @@ class ExpandedStoryTableViewCell: PFTableViewCell {
     @IBOutlet weak var feedImageView: PFImageView!
     @IBOutlet weak var userImageView: PFImageView!
     let loadingIndicator:UIActivityIndicatorView = UIActivityIndicatorView()
-    var blurView:UIVisualEffectView?
+    var selectedView:UIView?
     
     var story:Story = Story()
 //    var video:Video! {
@@ -45,6 +45,12 @@ class ExpandedStoryTableViewCell: PFTableViewCell {
         
         if let currentID = self.story.objectId, newID = story.objectId where newID == currentID {
             return
+        }
+        
+        if selectedView == nil {
+            selectedView = UIView()
+            selectedView!.backgroundColor = UIColor(white: 0.95, alpha: 1)
+            selectedBackgroundView = selectedView!
         }
         
         backgroundColor = UIColor.whiteColor()
@@ -83,14 +89,14 @@ class ExpandedStoryTableViewCell: PFTableViewCell {
         feedImageView.layer.borderColor = UIColor(white: 0.6, alpha: 1).CGColor
         feedImageView.layer.borderWidth = 1
         feedImageView.addSubview(loadingIndicator)
-        feedImageView.file = story.thumbnail
-        feedImageView.loadInBackground({
-            (image:UIImage?, error:NSError?) in
+        story.getThumbnail({
+            (image:UIImage?) in
             if let image = image {
-                self.loadingIndicator.stopAnimating()
-                self.titleLabel.backgroundColor = UIColor(hex: 0x00EAFF, alpha: 0.07)
+                self.feedImageView.image = image
+                self.titleLabel.backgroundColor = UIColor(hex: 0x00EAFF, alpha: 0.02)
                 self.animateViewAlpha(self.feedImageView, alpha: 1)
             }
+            self.loadingIndicator.stopAnimating()
         })
     }
     

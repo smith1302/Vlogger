@@ -11,6 +11,8 @@ import ParseUI
 import UIKit
 
 extension NSDate {
+    @nonobjc static let dateFormatter = NSDateFormatter()
+    
     func yearsFrom(date:NSDate) -> Int{
         return NSCalendar.currentCalendar().components(.Year, fromDate: self, toDate: date, options: []).year
     }
@@ -45,7 +47,7 @@ extension NSDate {
     }
     
     func getReadableTimeForChat() -> String {
-        let formatter = NSDateFormatter()
+        let formatter = NSDate.dateFormatter
         var returnString = ""
         let days = daysFrom(NSDate())
         if days > 0 {
@@ -59,7 +61,7 @@ extension NSDate {
     }
     
     class func getReadableTimeFromDay(day:Int) -> String {
-        let formatter = NSDateFormatter()
+        let formatter = NSDate.dateFormatter
         let hour = day*24
         let minute = hour*60
         let second = minute*60
@@ -69,7 +71,7 @@ extension NSDate {
     }
     
     class func getReadableTimeFull() -> String {
-        let formatter = NSDateFormatter()
+        let formatter = NSDate.dateFormatter
         let date = NSDate()
         formatter.dateFormat = "MMM d, yyyy"
         return formatter.stringFromDate(date)

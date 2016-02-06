@@ -20,7 +20,7 @@ class RecordButton: UIButton {
     var innerCircle:UIView!
     var circleLayer:CAShapeLayer!
     var delegate:RecordButtonDelegate?
-    let recordLength:Double = 10
+    let recordLength:Double = Constants.maxVideoDuration
     
     let pressColor = UIColor(white: 0.6, alpha: 0.4)
     let normalColor = UIColor(white: 1, alpha: 0.4)
